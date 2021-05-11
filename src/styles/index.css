@@ -1,0 +1,25 @@
+.header {
+  position: absolute;
+  line-height: 50px;
+  padding: 0px;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: #2d3a4b;
+}
+
+.main {
+  position: absolute;  
+  top: 50px;
+  left: 220px;
+  right: 0px;
+  bottom: 0px;
+  padding: 10px 30px;
+  overflow-y: auto;
+} 
+.container {
+  margin: 20px 30px;
+}
+.login-form .el-input__inner {
+  background-color: #f4f4f4;
+}

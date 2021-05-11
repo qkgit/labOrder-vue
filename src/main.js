@@ -1,0 +1,46 @@
+import Vue from 'vue'
+
+import 'normalize.css/normalize.css' // A modern alternative to CSS resets | css重置的现代替代方案
+
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+// import locale from 'element-ui/lib/locale/lang/en' // lang i18n | 多语言
+
+import '@/styles/index.scss' // global css | 通用css
+import '@/styles/index.css' // 自定义样式
+
+import App from './App'
+import store from './store'
+import router from './router'
+
+import '@/icons' // icon | 图标
+import '@/permission' // permission control | 权限控制
+
+/**
+ * 如果您不想使用模拟服务器 mock-server
+ * you want to use MockJs for mock api | 你想为mock api使用MockJs
+ * you can execute: mockXHR() | 你可以执行以下命令: mockXHR()
+ *
+ * Currently MockJs will be used in the production environment, | 目前，MockJs将用于生产环境，
+ * please remove it before going online ! ! ! | 请在上线前删除它！！！
+ */
+// if (process.env.NODE_ENV === 'production') {
+//   const { mockXHR } = require('../mock')
+//   mockXHR()
+// }
+console.log(process.env.NODE_ENV) // 开发环境 development ,生产环境 production
+console.log(process.env.VUE_APP_BASE_API)
+
+// set ElementUI lang to EN | 设置elementUI 语言为英语
+// Vue.use(ElementUI, { locale })
+// 如果想要中文版 element-ui，按如下方式声明
+Vue.use(ElementUI)
+
+Vue.config.productionTip = false
+
+new Vue({
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
+})
