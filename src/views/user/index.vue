@@ -111,7 +111,8 @@
           <el-input v-model="pojo.realName" />
         </el-form-item>
         <el-form-item label="学号或工号" prop="loginName">
-          <el-input v-model="pojo.loginName" :disabled="true" />
+          <el-input v-model="pojo.loginName" v-if="pojo.loginName == ''"/>
+         <el-input v-model="pojo.loginName" v-if="pojo.loginName != ''" :disabled= "true" />
         </el-form-item>
         <el-form-item label="身份" prop="roles">
           <el-select

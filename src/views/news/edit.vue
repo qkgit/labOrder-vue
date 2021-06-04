@@ -81,10 +81,6 @@ export default {
   methods: {
     addNews() {
       // 判空
-      if (this.pojo.newsType === '') {
-        this.$message.error('请选择文章所属栏目')
-        return
-      }
       if (this.pojo.title === '') {
         this.$message.error('请输入文章标题')
         return
