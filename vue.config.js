@@ -51,7 +51,7 @@ module.exports = {
           changOrigin: true, //开启代理
           pathRewrite: {
               //会将 /dev-api 替换为 '',也就是 /dev-api 会移除
-              // 如 /dev-api/db.json  代理到 https://localhost:8001/db.json
+              // 如 /dev-api/db.json  代理到 https://localhost:5555/db.json
               ['^'+process.env.VUE_APP_BASE_API]: ''
           }
         }
