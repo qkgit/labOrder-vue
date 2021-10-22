@@ -16,6 +16,7 @@ import router from './router'
 import '@/icons' // icon | 图标
 import '@/permission' // permission control | 权限控制
 
+import { parseTime, resetForm,addDateRange, selectDictLabel, selectDictLabels, download, handleTree } from "@/utils/baseUtils"
 /**
  * 如果您不想使用模拟服务器 mock-server
  * you want to use MockJs for mock api | 你想为mock api使用MockJs
@@ -31,6 +32,28 @@ import '@/permission' // permission control | 权限控制
 console.log(process.env.NODE_ENV) // 开发环境 development ,生产环境 production
 console.log(process.env.VUE_APP_BASE_API)
 
+// 全局方法挂载
+// Vue.prototype.getDicts = getDicts
+// Vue.prototype.getConfigKey = getConfigKey
+Vue.prototype.parseTime = parseTime
+Vue.prototype.resetForm = resetForm
+Vue.prototype.addDateRange = addDateRange
+Vue.prototype.selectDictLabel = selectDictLabel
+Vue.prototype.selectDictLabels = selectDictLabels
+Vue.prototype.download = download
+Vue.prototype.handleTree = handleTree
+
+Vue.prototype.msgSuccess = function (msg) {
+  this.$message({ showClose: true, message: msg, type: "success" });
+}
+
+Vue.prototype.msgError = function (msg) {
+  this.$message({ showClose: true, message: msg, type: "error" });
+}
+
+Vue.prototype.msgInfo = function (msg) {
+  this.$message.info(msg);
+}
 // set ElementUI lang to EN | 设置elementUI 语言为英语
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明

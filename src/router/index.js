@@ -83,6 +83,7 @@ export const constantRoutes = [
       props: true
     }]
   }
+ 
 ]
 
 /**
@@ -93,6 +94,39 @@ export const asyncRoutes = [
 
   /** =====================管理员 路由================================ **/
 
+  // 字典管理
+  {
+    path: '/sDict',
+    component: Layout,
+    redirect: '/sDict/index',
+    name: 'SDict',
+    meta: {
+      title: '字典管理',
+      icon: 'dict',
+      roles: ['0']
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'sDictType',
+        component: ()=> import('@/views/dict/index'),
+        meta: {
+          breadcrumb: false,
+          title: '字典管理',
+          icon: 'dict',
+          roles: ['0']
+        }
+      },
+      {
+        path: '/sDict/:tableType',
+        name: 'sDictData',
+        component: ()=> import('@/views/dict/data'),
+        meta: {title: '字典详情',roles: ['0'],},
+        hidden: true,
+        props: true
+      },
+    ]
+  },
   // 预约管理
   {
     path: '/labOrder',
@@ -224,13 +258,19 @@ export const asyncRoutes = [
         path: 'teachOrder',
         component: () => import('@/views/orderLab/teachOrder/index'),
         name: 'TeachOrder',
-        meta: { title: '教学预约', icon: 'el-icon-tickets', roles: ['1'] }
+        meta: { title: '教学预约', icon: 'el-icon-tickets', roles: ['1'] },
       },
       {
         path: 'openOrder',
         component: () => import('@/views/orderLab/openOrder/index'),
         name: 'OpenOrder',
         meta: { title: '开放预约', icon: 'el-icon-tickets', roles: ['1', '2'] }
+      },
+      {
+        path: 'orderClass',
+        component: () => import('@/views/orderClass/index'),
+        name: 'orderClass',
+        meta: { title: '教室预约', icon: 'el-icon-tickets', roles: ['1', '2'] }
       }
     ]
   },
