@@ -3,13 +3,14 @@ import request from '@/utils/request'
 
 export default {
   // 查询字典管理列表
-  listType(query) {
+  listType(data) {
     return request({
       url: '/dict/type/list',
       method: 'post',
-      data: query
+      data
     })
   },
+  // 查询字典项列表
   listData(data) {
     return request({
       url: '/dict/data/list',
@@ -17,29 +18,59 @@ export default {
       data
     })
   },
-  // 查询字典管理详细
-  getDict(dictId) {
+  // 查询字典详细
+  getDictType(dictId) {
     return request({
-      url: `/dict/${dictId}`,
+      url: `/dict/type/${dictId}`,
       method: 'get'
     })
   },
-  // 新增字典管理
+  getDictData(dictId) {
+    return request({
+      url: `/dict/data/${dictId}`,
+      method: 'get'
+    })
+  },
+  // 新增字典
+  addDictType(data) {
+    return request({
+      url: '/dict/type',
+      method: 'post',
+      data
+    })
+  },
+  // 新增字典项
   addDict(data) {
     return request({
       url: '/dict',
       method: 'post',
-      data: data
+      data
     })
   },
-  // 修改字典管理
-  updateDict(data) {
+  // 修改字典
+  updateDictType(data) {
     return request({
-      url: '/dict',
+      url: '/dict/type/',
       method: 'put',
-      data: data
+      data
     })
+  },
+  // 修改字典项
+  updateDict(data) {
+
+  },
+  // 删除字典
+  delType(dictIds) {
+    return request({
+      url: `/dict/type/${dictIds}`,
+      method: 'delete',
+    })
+  },
+  // 删除字典项
+  delDict(uuid) {
+
   }
+
 } 
 // 根据字典类型查询字典数据信息
 export function getDicts(dictType) {
@@ -49,24 +80,19 @@ export function getDicts(dictType) {
   })
 }
 
-
-
-
-
-
 // 删除字典管理
-export function delDict(uuid) {
-  return request({
-    url: '/system/dict/' + uuid,
-    method: 'delete'
-  })
-}
+// export function delDict(uuid) {
+//   return request({
+//     url: '/system/dict/' + uuid,
+//     method: 'delete'
+//   })
+// }
 
 // 导出字典管理
-export function exportDict(query) {
-  return request({
-    url: '/system/dict/export',
-    method: 'get',
-    params: query
-  })
-}
+// export function exportDict(query) {
+//   return request({
+//     url: '/system/dict/export',
+//     method: 'get',
+//     params: query
+//   })
+// }

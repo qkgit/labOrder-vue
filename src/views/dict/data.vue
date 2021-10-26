@@ -107,7 +107,7 @@
       />
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="创建日期" align="center" prop="createTime" width="180"/>
-      <el-table-column label="序号" align="center" prop="orderNum" width="60"/>
+      <el-table-column label="排序" align="center" prop="orderNum" width="60"/>
       <el-table-column label="字典类型" align="center" prop="tableType" width="150"/>
     </el-table>
     <!-- 分页 -->
@@ -318,31 +318,13 @@ export default {
       if (row != null) {
         this.form.parentId = row.code;
       }
-      dictApi.getDict(row.uuid).then((response) => {
+      dictApi.getDictData(row.uuid).then((response) => {
         this.form = response.data;
         this.open = true;
         this.title = "修改字典";
       });
     },
-    /** 获取字典项 */
-    getSDictData(row) {
-        console.log("获取字典项。。。。。"+row.code);
-        // 重置item
-        this.resetForm("queryForm");
-        // 添加当前选中类型
-        this.pageQuery.item.tableType = '';
-        this.pageQuery.item.tableType = row.code;
-        dictApi.listData(this.pageQuery).then((response) => {
-          this.dictList = response.data.list;
-          this.pageQuery.page.total = response.data.total;
-          this.loading = false;
-          //重置item
-          this.resetForm("queryForm");
-        })
-        this.parentDict = row.code
-        
-    },
-
+  
     // 取消按钮
     cancel() {
       this.open = false;

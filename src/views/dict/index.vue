@@ -76,14 +76,28 @@
           >新增</el-button
         >
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="danger"
+          plain
+          icon="el-icon-delete"
+          size="mini"
+          :disabled="multiple"
+          @click="handleDelete"
+          >删除</el-button
+        >
+      </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="dictList" stripe border>
-      <el-table-column
-        label="操作"
-        align="center"
-        width="200"
-      >
+    <el-table
+      v-loading="loading"
+      :data="dictList"
+      stripe
+      border
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -108,9 +122,19 @@
           >
         </template>
       </el-table-column>
-      <el-table-column label="字典编码" align="center" prop="code" width="150"/>
-      <el-table-column label="字典名称" align="center" prop="name" width="150"/>
-      <el-table-column label="字典类型" align="center" prop="tableType" width="150"/>
+      <el-table-column
+        label="字典编码"
+        align="center"
+        prop="code"
+        width="150"
+      />
+      <el-table-column
+        label="字典名称"
+        align="center"
+        prop="name"
+        width="150"
+      />
+      <!-- <el-table-column label="字典类型" align="center" prop="tableType" width="150"/> -->
       <el-table-column
         label="状态"
         align="center"
@@ -119,8 +143,12 @@
         :formatter="statusFormat"
       />
       <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column label="创建日期" align="center" prop="createTime" width="180"/>
-      <el-table-column label="序号" align="center" prop="orderNum" width="60"/>
+      <el-table-column
+        label="创建日期"
+        align="center"
+        prop="createTime"
+        width="180"
+      />
     </el-table>
     <!-- 分页 -->
     <el-pagination
@@ -134,12 +162,7 @@
       @current-change="handleCurrentChange"
     />
     <!-- 添加或修改字典管理对话框 -->
-    <el-dialog
-      :title= title
-      :visible.sync="open"
-      width="500px"
-      append-to-body
-    >
+    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="字典编码" prop="code">
           <el-input v-model="form.code" placeholder="请输入字典编码" />
@@ -148,13 +171,10 @@
           <el-input v-model="form.name" placeholder="请输入字典值" />
         </el-form-item>
         <el-form-item label="字典类型" prop="tableType">
-          <el-input v-model="form.tableType" :disabled = true />
+          <el-input v-model="form.tableType" :disabled="true" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
-        </el-form-item>
-        <el-form-item label="序号" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入字典排序" />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
@@ -162,7 +182,7 @@
               v-for="dict in statusOptions"
               :key="dict.dictValue"
               :label="dict.dictValue"
-              >
+            >
               {{ dict.dictLabel }}
             </el-radio>
           </el-radio-group>
@@ -227,10 +247,14 @@ export default {
           default: false,
         },
       ],
+      // 选中数组
+      ids: [],
+      // 非多个禁用
+      multiple: true,
       // 字典管理表格数据
       dictList: [],
       // 当前字典父字典
-      parentDict: '',
+      parentDict: "",
       // 创建日期
       dateRange: [],
       // 查询参数
@@ -258,7 +282,7 @@ export default {
       },
       // 是否显示弹出层
       open: false,
-       // 弹出层标题
+      // 弹出层标题
       title: "",
       // 表单校验
       rules: {
@@ -284,15 +308,17 @@ export default {
     /** 查询字典管理列表 */
     getList() {
       this.loading = true;
-      dictApi.listType(this.addDateRange(this.pageQuery, this.dateRange)).then((response) => {
-        this.dictList = response.data.list;
-        this.pageQuery.page.total = response.data.total;
-        this.loading = false;
-        //重置item
-        this.resetForm("queryForm");
-        //重置父字典
-        this.parentDict= '';  
-      });
+      dictApi
+        .listType(this.addDateRange(this.pageQuery, this.dateRange))
+        .then((response) => {
+          this.dictList = response.data.list;
+          this.pageQuery.page.total = response.data.total;
+          this.loading = false;
+          //重置item
+          this.resetForm("queryForm");
+          //重置父字典
+          this.parentDict = "";
+        });
     },
     // 分页
     handleSizeChange(val) {
@@ -313,8 +339,8 @@ export default {
     handleAdd() {
       this.reset();
       // this.getTreeselect();
-      debugger
-      if (this.parentDict != '') {
+      debugger;
+      if (this.parentDict != "") {
         this.form.tableType = this.parentDict;
       } else {
         this.form.tableType = "d_root";
@@ -325,11 +351,7 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      // this.getTreeselect();
-      if (row != null) {
-        this.form.parentId = row.code;
-      }
-      dictApi.getDict(row.uuid).then((response) => {
+      dictApi.getDictType(row.uuid).then((response) => {
         this.form = response.data;
         this.open = true;
         this.title = "修改字典";
@@ -337,24 +359,23 @@ export default {
     },
     /** 获取字典项 */
     getSDictData(row) {
-        console.log("获取字典项。。。。。"+row.code);
-        this.$router.push({
-          path: `/sDict/${row.code}`
-        })
-        // 重置item
+      console.log("获取字典项。。。。。" + row.code);
+      this.$router.push({
+        path: `/sDict/${row.code}`,
+      });
+      // 重置item
+      this.resetForm("queryForm");
+      // 添加当前选中类型
+      this.pageQuery.item.tableType = "";
+      this.pageQuery.item.tableType = row.code;
+      dictApi.listData(this.pageQuery).then((response) => {
+        this.dictList = response.data.list;
+        this.pageQuery.page.total = response.data.total;
+        this.loading = false;
+        //重置item
         this.resetForm("queryForm");
-        // 添加当前选中类型
-        this.pageQuery.item.tableType = '';
-        this.pageQuery.item.tableType = row.code;
-        dictApi.listData(this.pageQuery).then((response) => {
-          this.dictList = response.data.list;
-          this.pageQuery.page.total = response.data.total;
-          this.loading = false;
-          //重置item
-          this.resetForm("queryForm");
-        })
-        this.parentDict = row.code
-        
+      });
+      this.parentDict = row.code;
     },
 
     // 取消按钮
@@ -395,10 +416,14 @@ export default {
               this.getList();
             });
           } else {
-            dictApi.addDict(this.form).then((response) => {
-              this.msgSuccess("新增成功!");
-              this.open = false;
-              this.getList();
+            dictApi.addDictType(this.form).then((response) => {
+              if (response.resultCode == 200) {
+                this.open = false;
+                this.msgSuccess("新增成功!");
+                this.getList();
+              } else {
+                this.msgError();
+              }
             });
           }
         }
@@ -406,23 +431,29 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$confirm(
-        '是否确认删除字典管理编号为"' + row.uuid + '"的数据项?',
-        "警告",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
+      const dictIds = row.uuid || this.ids;
+      var that = this;
+      this.$confirm('是否确认删除 "' + row.name + '" 的字典?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
         .then(function () {
-          return delDict(row.uuid);
-        })
-        .then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
+          dictApi.delType(dictIds).then((response) => {
+            if (response.resultCode == 200) {
+              that.getList();
+              that.msgSuccess("删除成功");
+            }else{
+              that.msgError(response.message)
+            }
+          });
         })
         .catch(() => {});
+    },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map((item) => item.uuid);
+      this.multiple = !selection.length;
     },
   },
 };
