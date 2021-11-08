@@ -42,7 +42,7 @@ export default {
   // 新增字典项
   addDict(data) {
     return request({
-      url: '/dict',
+      url: '/dict/data',
       method: 'post',
       data
     })
@@ -72,21 +72,15 @@ export default {
   }
 
 } 
+
 // 根据字典类型查询字典数据信息
 export function getDicts(dictType) {
   return request({
-    url: '/system/dict/data/type/' + dictType,
+    url: `/dict/type/${dictType}`,
     method: 'get'
   })
 }
 
-// 删除字典管理
-// export function delDict(uuid) {
-//   return request({
-//     url: '/system/dict/' + uuid,
-//     method: 'delete'
-//   })
-// }
 
 // 导出字典管理
 // export function exportDict(query) {

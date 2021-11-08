@@ -33,9 +33,9 @@
         >
           <el-option
             v-for="dict in statusOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
+            :key="dict.code"
+            :label="dict.name"
+            :value="dict.code"
           />
         </el-select>
       </el-form-item>
@@ -135,14 +135,21 @@
         width="150"
       />
       <!-- <el-table-column label="字典类型" align="center" prop="tableType" width="150"/> -->
+      
+      
+      <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column
         label="状态"
         align="center"
         prop="status"
         width="70"
-        :formatter="statusFormat"
-      />
-      <el-table-column label="备注" align="center" prop="remark" />
+        
+      >
+        <template slot-scope="scope">
+          <dict-tag :options="statusOptions" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
+
       <el-table-column
         label="创建日期"
         align="center"
@@ -161,6 +168,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
+    <!-- <my-page :pagequery="pageQuery.page" :queryFun="getList" /> -->
     <!-- 添加或修改字典管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -170,20 +178,22 @@
         <el-form-item label="字典名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入字典值" />
         </el-form-item>
-        <el-form-item label="字典类型" prop="tableType">
-          <el-input v-model="form.tableType" :disabled="true" />
-        </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            placeholder="请输入备注"
+            v-model="form.remark"
+          />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in statusOptions"
-              :key="dict.dictValue"
-              :label="dict.dictValue"
+              :key="dict.code"
+              :label="dict.code"
             >
-              {{ dict.dictLabel }}
+              {{ dict.name }}
             </el-radio>
           </el-radio-group>
         </el-form-item>
@@ -198,10 +208,15 @@
 
 <script>
 import dictApi from "@/api/system/dict";
+import DictTag from "@/components/DictTag";
+import MyPage from '@/components/MyPagination';
 
 export default {
   name: "Dict",
-  components: {},
+  components: {
+    DictTag,
+    MyPage,
+  },
   data() {
     return {
       // 遮罩层
@@ -209,42 +224,14 @@ export default {
       // 状态字典
       statusOptions: [
         {
-          searchValue: null,
-          createBy: "admin",
-          createTime: "2021-09-29 11:16:22",
-          updateBy: null,
-          updateTime: null,
-          remark: "正常状态",
-          params: {},
-          dictCode: 6,
-          dictSort: 1,
-          dictLabel: "正常",
-          dictValue: "0",
-          dictType: "sys_normal_disable",
-          cssClass: "",
-          listClass: "primary",
-          isDefault: "Y",
-          status: "0",
-          default: true,
+          name: "正常",
+          code: "0",
+          listClass: "primary"
         },
         {
-          searchValue: null,
-          createBy: "admin",
-          createTime: "2021-09-29 11:16:22",
-          updateBy: null,
-          updateTime: null,
-          remark: "停用状态",
-          params: {},
-          dictCode: 7,
-          dictSort: 2,
-          dictLabel: "停用",
-          dictValue: "1",
-          dictType: "sys_normal_disable",
-          cssClass: "",
-          listClass: "danger",
-          isDefault: "N",
-          status: "0",
-          default: false,
+          name: "暂停",
+          code: "1",
+          listClass: "danger"
         },
       ],
       // 选中数组
@@ -324,12 +311,12 @@ export default {
     handleSizeChange(val) {
       // 当每页显示条数改变后 被触发
       this.pageQuery.page.pageSize = val;
-      this.fetchData(this.pageQuery);
+      this.getList();
     },
     handleCurrentChange(val) {
       // 当页码改变后 被触发
       this.pageQuery.page.pageNum = val;
-      this.fetchData(this.pageQuery);
+      this.getList();
     },
     // 状态字典翻译
     statusFormat(row, column) {
@@ -338,13 +325,11 @@ export default {
     // 新增按钮操作
     handleAdd() {
       this.reset();
-      // this.getTreeselect();
-      debugger;
-      if (this.parentDict != "") {
-        this.form.tableType = this.parentDict;
-      } else {
-        this.form.tableType = "d_root";
-      }
+      // if (this.parentDict != "") {
+      //   this.form.tableType = this.parentDict;
+      // } else {
+      //   this.form.tableType = "d_root";
+      // }
       this.open = true;
       this.title = "添加字典";
     },
@@ -429,11 +414,18 @@ export default {
         }
       });
     },
+
     /** 删除按钮操作 */
     handleDelete(row) {
+      debugger;
       const dictIds = row.uuid || this.ids;
+      debugger;
       var that = this;
-      this.$confirm('是否确认删除 "' + row.name + '" 的字典?', "警告", {
+      var hint = '是否确认删除 "' + row.name + '" 字典?';
+      if(row.uuid == null || row.uuid == undefined || row.uuid == ''){
+        hint = '是否确认删除选中字典'
+      }
+      this.$confirm(hint, "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -443,8 +435,8 @@ export default {
             if (response.resultCode == 200) {
               that.getList();
               that.msgSuccess("删除成功");
-            }else{
-              that.msgError(response.message)
+            } else {
+              that.msgError(response.message);
             }
           });
         })

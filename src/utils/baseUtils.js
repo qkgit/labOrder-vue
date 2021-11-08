@@ -73,8 +73,8 @@
  export function selectDictLabel(datas, value) {
      var actions = [];
      Object.keys(datas).some((key) => {
-         if (datas[key].dictValue == ('' + value)) {
-             actions.push(datas[key].dictLabel);
+         if (datas[key].code == ('' + value)) {
+             actions.push(datas[key].name);
              return true;
          }
      })

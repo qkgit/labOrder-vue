@@ -7,10 +7,7 @@
       label-width="68px"
     >
       <el-form-item label="" prop="tableType">
-        <el-input 
-          v-model="pageQuery.item.tableType"
-          type="hidden">
-        </el-input>
+        <el-input v-model="pageQuery.item.tableType" type="hidden"> </el-input>
       </el-form-item>
       <el-form-item label="字典编码" prop="code">
         <el-input
@@ -45,7 +42,7 @@
           />
         </el-select>
       </el-form-item>
-      
+
       <el-form-item>
         <el-button
           type="primary"
@@ -74,11 +71,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="dictList" stripe border>
-      <el-table-column
-        label="操作"
-        align="center"
-        width="150"
-      >
+      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -96,19 +90,37 @@
           >
         </template>
       </el-table-column>
-      <el-table-column label="字典编码" align="center" prop="code" width="150"/>
-      <el-table-column label="字典名称" align="center" prop="name" width="150"/>
       <el-table-column
-        label="状态"
+        label="字典编码"
         align="center"
-        prop="status"
-        width="70"
-        :formatter="statusFormat"
+        prop="code"
+        width="150"
       />
+      <el-table-column
+        label="字典名称"
+        align="center"
+        prop="name"
+        width="150"
+      />
+      <el-table-column label="状态" align="center" prop="status" width="70">
+        <template slot-scope="scope">
+          <dict-tag :options="statusOptions" :value="scope.row.status" />
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column label="创建日期" align="center" prop="createTime" width="180"/>
-      <el-table-column label="排序" align="center" prop="orderNum" width="60"/>
-      <el-table-column label="字典类型" align="center" prop="tableType" width="150"/>
+      <el-table-column
+        label="创建日期"
+        align="center"
+        prop="createTime"
+        width="180"
+      />
+      <el-table-column label="排序" align="center" prop="orderNum" width="60" />
+      <el-table-column
+        label="字典类型"
+        align="center"
+        prop="tableType"
+        width="150"
+      />
     </el-table>
     <!-- 分页 -->
     <el-pagination
@@ -123,9 +135,10 @@
     />
     <!-- 添加或修改字典管理对话框 -->
     <el-dialog
-      :title= title
+      :title="title"
       :visible.sync="open"
       width="500px"
+      top="6vh"
       append-to-body
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -136,22 +149,46 @@
           <el-input v-model="form.name" placeholder="请输入字典值" />
         </el-form-item>
         <el-form-item label="字典类型" prop="tableType">
-          <el-input v-model="form.tableType" :disabled = true />
+          <el-input v-model="form.tableType" :disabled="true" />
+        </el-form-item>
+
+        <el-form-item label="显示排序" prop="orderNum">
+          <!-- <el-input v-model="form.orderNum" placeholder="请输入字典排序" /> -->
+          <el-input-number
+            v-model="form.orderNum"
+            controls-position="right"
+            :min="0"
+          />
+        </el-form-item>
+        <el-form-item label="样式属性" prop="cssClass">
+          <el-input v-model="form.cssClass" placeholder="请输入样式属性" />
+        </el-form-item>
+        <el-form-item label="回显样式" prop="listClass">
+          <el-select v-model="form.listClass">
+            <el-option
+              v-for="item in listClassOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
-        </el-form-item>
-        <el-form-item label="序号" prop="orderNum">
-          <el-input v-model="form.orderNum" placeholder="请输入字典排序" />
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            placeholder="请输入备注"
+            v-model="form.remark"
+          />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in statusOptions"
-              :key="dict.dictValue"
-              :label="dict.dictValue"
-              >
-              {{ dict.dictLabel }}
+              :key="dict.code"
+              :label="dict.code"
+            >
+              {{ dict.name }}
             </el-radio>
           </el-radio-group>
         </el-form-item>
@@ -166,59 +203,63 @@
 
 <script>
 import dictApi from "@/api/system/dict";
+import DictTag from "@/components/DictTag";
 
 export default {
   name: "Dict",
-  components: {},
-  props: ['tableType'],
+  components: {
+    DictTag,
+  },
+  props: ["tableType"],
   data() {
     return {
       // 遮罩层
       loading: true,
       // 状态字典
+      // 状态字典
       statusOptions: [
         {
-          searchValue: null,
-          createBy: "admin",
-          createTime: "2021-09-29 11:16:22",
-          updateBy: null,
-          updateTime: null,
-          remark: "正常状态",
-          params: {},
-          dictCode: 6,
-          dictSort: 1,
-          dictLabel: "正常",
-          dictValue: "0",
-          dictType: "sys_normal_disable",
-          cssClass: "",
+          name: "正常",
+          code: "0",
           listClass: "primary",
-          isDefault: "Y",
-          status: "0",
-          default: true,
         },
         {
-          searchValue: null,
-          createBy: "admin",
-          createTime: "2021-09-29 11:16:22",
-          updateBy: null,
-          updateTime: null,
-          remark: "停用状态",
-          params: {},
-          dictCode: 7,
-          dictSort: 2,
-          dictLabel: "停用",
-          dictValue: "1",
-          dictType: "sys_normal_disable",
-          cssClass: "",
+          name: "暂停",
+          code: "1",
           listClass: "danger",
-          isDefault: "N",
-          status: "0",
-          default: false,
         },
       ],
       // 字典管理表格数据
       dictList: [],
-     
+      // 数据标签回显样式
+      listClassOptions: [
+        {
+          value: "default",
+          label: "默认",
+        },
+        {
+          value: "primary",
+          label: "主要",
+        },
+        {
+          value: "success",
+          label: "成功",
+        },
+        {
+          value: "info",
+          label: "信息",
+        },
+        {
+          value: "warning",
+          label: "警告",
+        },
+        {
+          value: "danger",
+          label: "危险",
+        },
+      ],
+      // 选中数组
+      ids: [],
       // 查询参数
       pageQuery: {
         page: {
@@ -236,16 +277,18 @@ export default {
       },
       // 表单参数
       form: {
-        code: null,
-        name: null,
-        orderNum: null,
-        tableType: null,
-        remark: null,
+        code: undefined,
+        name: undefined,
+        tableType: undefined,
+        remark: undefined,
+        cssClass: undefined,
+        listClass: "default",
+        orderNum: 0,
         status: "0",
       },
       // 是否显示弹出层
       open: false,
-       // 弹出层标题
+      // 弹出层标题
       title: "",
       // 表单校验
       rules: {
@@ -259,8 +302,6 @@ export default {
         //   { required: true, message: "序号不能为空", trigger: "blur" },
         // ],
       },
-      
-
     };
   },
   created() {
@@ -280,7 +321,7 @@ export default {
         //重置item
         this.resetForm("queryForm");
         //重置父字典
-        this.parentDict= '';  
+        this.parentDict = "";
       });
     },
     // 分页
@@ -301,16 +342,11 @@ export default {
     // 新增按钮操作
     handleAdd() {
       this.reset();
-      // this.getTreeselect();
-      debugger
-      if (this.parentDict != '') {
-        this.form.tableType = this.parentDict;
-      } else {
-        this.form.tableType = "d_root";
-      }
       this.open = true;
-      this.title = "添加字典";
+      this.form.tableType = this.pageQuery.item.tableType;
+      this.title = "添加字典数据";
     },
+
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
@@ -323,33 +359,6 @@ export default {
         this.open = true;
         this.title = "修改字典";
       });
-    },
-  
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        code: null,
-        name: null,
-        orderNum: null,
-        tableType: null,
-        remark: null,
-        status: "0",
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
     },
 
     /** 提交按钮 */
@@ -372,6 +381,36 @@ export default {
         }
       });
     },
+
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.form = {
+        code: undefined,
+        name: undefined,
+        tableType: undefined,
+        remark: undefined,
+        cssClass: undefined,
+        listClass: "default",
+        orderNum: 0,
+        status: "0",
+      };
+      this.resetForm("form");
+    },
+    /** 搜索按钮操作 */
+    handleQuery() {
+      this.getList();
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.handleQuery();
+    },
+
     /** 删除按钮操作 */
     handleDelete(row) {
       this.$confirm(
@@ -392,9 +431,21 @@ export default {
         })
         .catch(() => {});
     },
-    firstFun(){ this.secondFun();},
-    secondFun(){ this.thirdFun();},
-    thirdFun(){ console.log(new Error().stack);}
+
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map((item) => item.uuid);
+      this.multiple = !selection.length;
+    },
+    firstFun() {
+      this.secondFun();
+    },
+    secondFun() {
+      this.thirdFun();
+    },
+    thirdFun() {
+      console.log(new Error().stack);
+    },
   },
 };
 </script>
