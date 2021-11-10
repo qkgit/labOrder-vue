@@ -121,10 +121,27 @@ export const asyncRoutes = [
         path: '/sDict/:tableType',
         name: 'sDictData',
         component: ()=> import('@/views/dict/data'),
-        meta: {title: '字典详情',roles: ['0'],},
+        meta: {title: '字典详情',roles: ['0']},
         hidden: true,
         props: true
       },
+    ]
+  },
+  // 部门管理
+  {
+    path: '/dept',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Dept',
+        component: () => import('@/views/dept/index'),
+        meta: {
+          title: '组织管理',
+          icon: 'tree',
+          roles: ['0']
+        }
+      }
     ]
   },
   // 预约管理
