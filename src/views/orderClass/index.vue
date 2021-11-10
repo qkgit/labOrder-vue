@@ -57,7 +57,7 @@
         >
           <el-card class="box-card" shadow="hover" @click.native="handleClick">
             <p class="classStyle">{{ "教室 " + i }}</p>
-            <p class="classStyle">{{ "正在上课" }}</p>
+            <p class="classStyle">{{ "预约中..." }}</p>
             <p class="classStyle">{{ "当前人数：xx" }}</p>
           </el-card>
         </div>
