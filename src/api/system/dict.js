@@ -57,7 +57,11 @@ export default {
   },
   // 修改字典项
   updateDict(data) {
-
+    return request({
+      url: '/dict/data/',
+      method: 'put',
+      data
+    })
   },
   // 删除字典
   delType(dictIds) {
@@ -67,8 +71,11 @@ export default {
     })
   },
   // 删除字典项
-  delDict(uuid) {
-
+  delDict(dictIds) {
+    return request({
+      url: `/dict/data/${dictIds}`,
+      method: 'delete',
+    })
   }
 
 } 
@@ -76,7 +83,7 @@ export default {
 // 根据字典类型查询字典数据信息
 export function getDicts(dictType) {
   return request({
-    url: `/dict/type/${dictType}`,
+    url: `/dict/data/type/${dictType}`,
     method: 'get'
   })
 }

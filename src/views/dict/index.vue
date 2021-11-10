@@ -97,7 +97,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column align="center" width="200" label="操作">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -123,38 +123,28 @@
         </template>
       </el-table-column>
       <el-table-column
+        align="center"
+        width="150"
         label="字典编码"
-        align="center"
         prop="code"
-        width="150"
       />
       <el-table-column
+        align="center"
+        width="150"
         label="字典名称"
-        align="center"
         prop="name"
-        width="150"
       />
-      <!-- <el-table-column label="字典类型" align="center" prop="tableType" width="150"/> -->
-      
-      
-      <el-table-column label="备注" align="center" prop="remark" />
-      <el-table-column
-        label="状态"
-        align="center"
-        prop="status"
-        width="70"
-        
-      >
+      <el-table-column align="center" label="备注" prop="remark" />
+      <el-table-column align="center" width="70" label="状态" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="statusOptions" :value="scope.row.status"/>
+          <dict-tag :options="statusOptions" :value="scope.row.status" />
         </template>
       </el-table-column>
-
       <el-table-column
-        label="创建日期"
         align="center"
-        prop="createTime"
         width="180"
+        label="创建日期"
+        prop="createTime"
       />
     </el-table>
     <!-- 分页 -->
@@ -209,7 +199,7 @@
 <script>
 import dictApi from "@/api/system/dict";
 import DictTag from "@/components/DictTag";
-import MyPage from '@/components/MyPagination';
+import MyPage from "@/components/MyPagination";
 
 export default {
   name: "Dict",
@@ -226,12 +216,12 @@ export default {
         {
           name: "正常",
           code: "0",
-          listClass: "primary"
+          listClass: "primary",
         },
         {
           name: "暂停",
           code: "1",
-          listClass: "danger"
+          listClass: "danger",
         },
       ],
       // 选中数组
@@ -240,8 +230,6 @@ export default {
       multiple: true,
       // 字典管理表格数据
       dictList: [],
-      // 当前字典父字典
-      parentDict: "",
       // 创建日期
       dateRange: [],
       // 查询参数
@@ -258,6 +246,11 @@ export default {
           params: {},
         },
       },
+
+      // 是否显示弹出层
+      open: false,
+      // 弹出层标题
+      title: "",
       // 表单参数
       form: {
         code: null,
@@ -267,10 +260,6 @@ export default {
         remark: null,
         status: "0",
       },
-      // 是否显示弹出层
-      open: false,
-      // 弹出层标题
-      title: "",
       // 表单校验
       rules: {
         code: [
@@ -287,9 +276,9 @@ export default {
   },
   created() {
     this.getList();
-    // this.getDicts("sys_job_status").then(response => {
-    //   this.statusOptions = response.data;
-    // });
+    this.getDicts("sys_status").then((response) => {
+      this.statusOptions = response.data;
+    });
   },
   methods: {
     /** 查询字典管理列表 */
@@ -318,18 +307,22 @@ export default {
       this.pageQuery.page.pageNum = val;
       this.getList();
     },
-    // 状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status);
+    
+    // 表单重置
+    reset() {
+      this.form = {
+        code: null,
+        name: null,
+        orderNum: null,
+        tableType: null,
+        remark: null,
+        status: "0",
+      };
+      this.resetForm("form");
     },
     // 新增按钮操作
     handleAdd() {
       this.reset();
-      // if (this.parentDict != "") {
-      //   this.form.tableType = this.parentDict;
-      // } else {
-      //   this.form.tableType = "d_root";
-      // }
       this.open = true;
       this.title = "添加字典";
     },
@@ -344,7 +337,6 @@ export default {
     },
     /** 获取字典项 */
     getSDictData(row) {
-      console.log("获取字典项。。。。。" + row.code);
       this.$router.push({
         path: `/sDict/${row.code}`,
       });
@@ -360,7 +352,7 @@ export default {
         //重置item
         this.resetForm("queryForm");
       });
-      this.parentDict = row.code;
+    
     },
 
     // 取消按钮
@@ -368,18 +360,7 @@ export default {
       this.open = false;
       this.reset();
     },
-    // 表单重置
-    reset() {
-      this.form = {
-        code: null,
-        name: null,
-        orderNum: null,
-        tableType: null,
-        remark: null,
-        status: "0",
-      };
-      this.resetForm("form");
-    },
+    
     /** 搜索按钮操作 */
     handleQuery() {
       this.getList();
@@ -395,10 +376,14 @@ export default {
       this.$refs["form"].validate((valid) => {
         if (valid) {
           if (this.form.uuid != null) {
-            dictApi.updateDict(this.form).then((response) => {
-              this.msgSuccess("修改成功!");
-              this.open = false;
-              this.getList();
+            dictApi.updateDictType(this.form).then((response) => {
+              if(response.resultCode == 200) {
+                this.msgSuccess("修改成功!");
+                this.open = false;
+                this.getList();
+              } else {
+                this.msgError();
+              }
             });
           } else {
             dictApi.addDictType(this.form).then((response) => {
@@ -417,13 +402,11 @@ export default {
 
     /** 删除按钮操作 */
     handleDelete(row) {
-      debugger;
       const dictIds = row.uuid || this.ids;
-      debugger;
       var that = this;
       var hint = '是否确认删除 "' + row.name + '" 字典?';
-      if(row.uuid == null || row.uuid == undefined || row.uuid == ''){
-        hint = '是否确认删除选中字典'
+      if (row.uuid == null || row.uuid == undefined || row.uuid == "") {
+        hint = "是否确认删除选中字典";
       }
       this.$confirm(hint, "警告", {
         confirmButtonText: "确定",

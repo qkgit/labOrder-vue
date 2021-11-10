@@ -36,9 +36,9 @@
         >
           <el-option
             v-for="dict in statusOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
+            :key="dict.code"
+            :label="dict.name"
+            :value="dict.code"
           />
         </el-select>
       </el-form-item>
@@ -68,9 +68,20 @@
           >新增</el-button
         >
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="danger"
+          plain
+          icon="el-icon-delete"
+          size="mini"
+          :disabled="multiple"
+          @click="handleDelete"
+          >删除</el-button
+        >
+      </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="dictList" stripe border>
+    <el-table v-loading="loading" :data="dictList" stripe border   @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
@@ -167,9 +178,9 @@
           <el-select v-model="form.listClass">
             <el-option
               v-for="item in listClassOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              :key="item.code"
+              :label="item.name"
+              :value="item.code"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -216,7 +227,6 @@ export default {
       // 遮罩层
       loading: true,
       // 状态字典
-      // 状态字典
       statusOptions: [
         {
           name: "正常",
@@ -234,28 +244,28 @@ export default {
       // 数据标签回显样式
       listClassOptions: [
         {
-          value: "default",
-          label: "默认",
+          code: "default",
+          name: "默认",
         },
         {
-          value: "primary",
-          label: "主要",
+          code: "primary",
+          name: "主要",
         },
         {
-          value: "success",
-          label: "成功",
+          code: "success",
+          name: "成功",
         },
         {
-          value: "info",
-          label: "信息",
+          code: "info",
+          name: "信息",
         },
         {
-          value: "warning",
-          label: "警告",
+          code: "warning",
+          name: "警告",
         },
         {
-          value: "danger",
-          label: "危险",
+          code: "danger",
+          name: "危险",
         },
       ],
       // 选中数组
@@ -306,9 +316,16 @@ export default {
   },
   created() {
     this.getList();
-    // this.getDicts("sys_job_status").then(response => {
-    //   this.statusOptions = response.data;
-    // });
+    this.getDicts("sys_status").then((response) => {
+      this.statusOptions = response.data;
+    });
+    this.getDicts("list_class").then((response) => {
+      this.listClassOptions = response.data;
+    });
+    
+  },
+  computed: {
+
   },
   methods: {
     /** 查询字典管理列表 */
@@ -324,6 +341,16 @@ export default {
         this.parentDict = "";
       });
     },
+    /** 搜索按钮操作 */
+    handleQuery() {
+      this.getList();
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.handleQuery();
+    },
+
     // 分页
     handleSizeChange(val) {
       // 当每页显示条数改变后 被触发
@@ -335,59 +362,8 @@ export default {
       this.pageQuery.page.pageNum = val;
       this.fetchData(this.pageQuery);
     },
-    // 状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status);
-    },
-    // 新增按钮操作
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.form.tableType = this.pageQuery.item.tableType;
-      this.title = "添加字典数据";
-    },
-
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      // this.getTreeselect();
-      if (row != null) {
-        this.form.parentId = row.code;
-      }
-      dictApi.getDictData(row.uuid).then((response) => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改字典";
-      });
-    },
-
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate((valid) => {
-        if (valid) {
-          if (this.form.uuid != null) {
-            dictApi.updateDict(this.form).then((response) => {
-              this.msgSuccess("修改成功!");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            dictApi.addDict(this.form).then((response) => {
-              this.msgSuccess("新增成功!");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
-
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
+  
+     // 表单重置
     reset() {
       this.form = {
         code: undefined,
@@ -401,33 +377,82 @@ export default {
       };
       this.resetForm("form");
     },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.getList();
+    // 新增按钮操作
+    handleAdd() {
+      this.reset();
+      this.open = true;
+      this.form.tableType = this.pageQuery.item.tableType;
+      this.title = "添加字典数据";
     },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      dictApi.getDictData(row.uuid).then((response) => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "修改字典数据";
+      });
     },
+    /** 提交按钮 */
+    submitForm() {
+      this.$refs["form"].validate((valid) => {
+        if (valid) {
+          if (this.form.uuid != null) {
+            dictApi.updateDict(this.form).then((response) => {
+             if(response.resultCode == 200) {
+                this.msgSuccess("修改成功!");
+                this.open = false;
+                this.getList();
+              } else {
+                this.msgError();
+              }
+            });
+          } else {
+            dictApi.addDict(this.form).then((response) => {
+             if(response.resultCode == 200) {
+                this.msgSuccess("新增成功!");
+                this.open = false;
+                this.getList();
+              } else {
+                this.msgError();
+              }
+            });
+          }
+        }
+      });
+    },
+
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+   
+    
+    
 
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$confirm(
-        '是否确认删除字典管理编号为"' + row.uuid + '"的数据项?',
-        "警告",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
+      const dictIds = row.uuid || this.ids;
+      var that = this;
+      var hint = '是否确认删除 "' + row.name + '" 字典项?';
+      if (row.uuid == null || row.uuid == undefined || row.uuid == "") {
+        hint = "是否确认删除选中字典项";
+      }
+      this.$confirm(hint, "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
         .then(function () {
-          return delDict(row.uuid);
-        })
-        .then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
+          dictApi.delDict(dictIds).then((response) => {
+            if (response.resultCode == 200) {
+              that.getList();
+              that.msgSuccess("删除成功");
+            } else {
+              that.msgError(response.message);
+            }
+          });
         })
         .catch(() => {});
     },
@@ -437,6 +462,7 @@ export default {
       this.ids = selection.map((item) => item.uuid);
       this.multiple = !selection.length;
     },
+
     firstFun() {
       this.secondFun();
     },

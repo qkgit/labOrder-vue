@@ -15,8 +15,9 @@ import router from './router'
 
 import '@/icons' // icon | 图标
 import '@/permission' // permission control | 权限控制
-
+import { getDicts } from '@/api/system/dict.js' // 获取字典项
 import { parseTime, resetForm,addDateRange, selectDictLabel, selectDictLabels, download, handleTree } from "@/utils/baseUtils"
+// import { from } from 'core-js/core/array'
 /**
  * 如果您不想使用模拟服务器 mock-server
  * you want to use MockJs for mock api | 你想为mock api使用MockJs
@@ -33,7 +34,7 @@ console.log(process.env.NODE_ENV) // 开发环境 development ,生产环境 prod
 console.log(process.env.VUE_APP_BASE_API)
 
 // 全局方法挂载
-// Vue.prototype.getDicts = getDicts
+Vue.prototype.getDicts = getDicts
 // Vue.prototype.getConfigKey = getConfigKey
 Vue.prototype.parseTime = parseTime
 Vue.prototype.resetForm = resetForm
