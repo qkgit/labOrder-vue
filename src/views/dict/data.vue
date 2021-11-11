@@ -270,6 +270,8 @@ export default {
       ],
       // 选中数组
       ids: [],
+      // 非多个禁用
+      multiple: true,
       // 查询参数
       pageQuery: {
         page: {
