@@ -1,14 +1,14 @@
 <template>
   <div class="container">
     <el-form
-      :model="pageQuery.item"
+      :model="queryParams"
       ref="queryForm"
       :inline="true"
       label-width="68px"
     >
       <el-form-item label="部门名称" prop="deptName">
         <el-input
-          v-model="pageQuery.item.deptName"
+          v-model="queryParams.deptName"
           placeholder="请输入部门名称"
           clearable
           size="small"
@@ -17,7 +17,7 @@
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select
-          v-model="pageQuery.item.status"
+          v-model="queryParams.status"
           placeholder="部门状态"
           clearable
           size="small"
@@ -39,13 +39,19 @@
           >搜索</el-button
         >
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
-          >重置</el-button>
+          >重置</el-button
+        >
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" style="margin-bottom: 8px">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="el-icon-plus" size="mini"
+        <el-button
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
           >新增</el-button
         >
       </el-col>
@@ -112,13 +118,92 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 添加或修改部门对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-row>
+          <el-col :span="24" v-if="form.parentId !== 0">
+            <el-form-item label="上级部门" prop="parentId">
+              <treeselect
+                v-model="form.parentId"
+                :options="deptOptions"
+                :normalizer="normalizer"
+                placeholder="选择上级部门"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门名称" prop="deptName">
+              <el-input v-model="form.deptName" placeholder="请输入部门名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示排序" prop="orderNum">
+              <el-input-number
+                v-model="form.orderNum"
+                controls-position="right"
+                :min="0"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="负责人" prop="leader">
+              <el-input
+                v-model="form.leader"
+                placeholder="请输入负责人"
+                maxlength="20"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="联系电话" prop="phone">
+              <el-input
+                v-model="form.phone"
+                placeholder="请输入联系电话"
+                maxlength="11"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="邮箱" prop="email">
+              <el-input
+                v-model="form.email"
+                placeholder="请输入邮箱"
+                maxlength="50"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门状态">
+              <el-radio-group v-model="form.status">
+                <el-radio
+                  v-for="dict in statusOptions"
+                  :key="dict.code"
+                  :label="dict.code"
+                  >{{ dict.name }}</el-radio
+                >
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import DeptApi from "@/api/system/dept";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+
 export default {
   name: "Dept",
-  //   components: { Treeselect },
+  components: { Treeselect },
   data() {
     return {
       // 遮罩层
@@ -130,19 +215,17 @@ export default {
       // 部门树选项
       deptOptions: [],
       // 查询参数
-      pageQuery: {
-        page: {
-          total: 10, // 总记录数
-          pageNum: 1, // 当前页,，默认第1页
-          pageSize: 10, // 每页显示条数，10条
-        },
-        item: {
-          code: "", // 字典编码
-          name: "", // 字典名称
-          status: "", // 字典状态
-          params: {},
-        },
+      // 查询参数
+      queryParams: {
+        deptName: undefined,
+        status: undefined
       },
+      // 弹出层标题
+      title: "",
+      // 是否显示弹出层
+      open: false,
+      // 表单参数
+      form: {},
       // 表单校验
       rules: {
         parentId: [
@@ -181,244 +264,61 @@ export default {
     /** 查询字典管理列表 */
     getList() {
       this.loading = true;
-      setTimeout( 1000);
-      //   dictApi
-      //     .listType(this.addDateRange(this.pageQuery, this.dateRange))
-      //     .then((response) => {
-      //       this.dictList = response.data.list;
-      //       this.pageQuery.page.total = response.data.total;
-      //       this.loading = false;
-      //       //重置item
-      //       this.resetForm("queryForm");
-      //       //重置父字典
-      //       this.parentDict = "";
-      //     });
-      this.deptList = [
-        {
-          searchValue: null,
-          createBy: "admin",
-          createTime: "2021-09-29 11:16:22",
-          updateBy: null,
-          updateTime: null,
-          remark: null,
-          params: {},
-          deptId: 100,
-          parentId: 0,
-          ancestors: "0",
-          deptName: "若依科技",
-          orderNum: "0",
-          leader: "若依",
-          phone: "15888888888",
-          email: "ry@qq.com",
-          status: "0",
-          delFlag: "0",
-          parentName: null,
-          children: [
-            {
-              searchValue: null,
-              createBy: "admin",
-              createTime: "2021-09-29 11:16:22",
-              updateBy: null,
-              updateTime: null,
-              remark: null,
-              params: {},
-              deptId: 101,
-              parentId: 100,
-              ancestors: "0,100",
-              deptName: "深圳总公司",
-              orderNum: "1",
-              leader: "若依",
-              phone: "15888888888",
-              email: "ry@qq.com",
-              status: "0",
-              delFlag: "0",
-              parentName: null,
-              children: [
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 103,
-                  parentId: 101,
-                  ancestors: "0,100,101",
-                  deptName: "研发部门",
-                  orderNum: "1",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 104,
-                  parentId: 101,
-                  ancestors: "0,100,101",
-                  deptName: "市场部门",
-                  orderNum: "2",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 105,
-                  parentId: 101,
-                  ancestors: "0,100,101",
-                  deptName: "测试部门",
-                  orderNum: "3",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 106,
-                  parentId: 101,
-                  ancestors: "0,100,101",
-                  deptName: "财务部门",
-                  orderNum: "4",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 107,
-                  parentId: 101,
-                  ancestors: "0,100,101",
-                  deptName: "运维部门",
-                  orderNum: "5",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-              ],
-            },
-            {
-              searchValue: null,
-              createBy: "admin",
-              createTime: "2021-09-29 11:16:22",
-              updateBy: null,
-              updateTime: null,
-              remark: null,
-              params: {},
-              deptId: 102,
-              parentId: 100,
-              ancestors: "0,100",
-              deptName: "长沙分公司",
-              orderNum: "2",
-              leader: "若依",
-              phone: "15888888888",
-              email: "ry@qq.com",
-              status: "0",
-              delFlag: "0",
-              parentName: null,
-              children: [
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 108,
-                  parentId: 102,
-                  ancestors: "0,100,102",
-                  deptName: "市场部门",
-                  orderNum: "1",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-                {
-                  searchValue: null,
-                  createBy: "admin",
-                  createTime: "2021-09-29 11:16:22",
-                  updateBy: null,
-                  updateTime: null,
-                  remark: null,
-                  params: {},
-                  deptId: 109,
-                  parentId: 102,
-                  ancestors: "0,100,102",
-                  deptName: "财务部门",
-                  orderNum: "2",
-                  leader: "若依",
-                  phone: "15888888888",
-                  email: "ry@qq.com",
-                  status: "0",
-                  delFlag: "0",
-                  parentName: null,
-                  children: [],
-                },
-              ],
-            },
-          ],
-        },
-      ];
-      this.loading = false;
+      DeptApi.listDept(this.queryParams).then((response) => {
+        this.deptList = this.handleTree(response.data,"deptId");
+        this.loading = false;
+      });
     },
-     /** 搜索按钮操作 */
+    /** 搜索按钮操作 */
     handleQuery() {
-        console.log('1')
       this.getList();
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
       this.handleQuery();
+    },
+    /** 新增按钮操作 */
+    handleAdd(row) {
+      this.reset();
+      if (row != undefined) {
+        this.form.parentId = row.deptId;
+      }
+      this.open = true;
+      this.title = "添加部门";
+      DeptApi.listDept().then((response) => {
+        this.deptOptions = this.handleTree(response.data, "deptId");
+      });
+    },
+    /** 转换部门数据结构 */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.deptId,
+        label: node.deptName,
+        children: node.children
+      };
+    },
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.form = {
+        deptId: undefined,
+        parentId: undefined,
+        deptName: undefined,
+        orderNum: undefined,
+        leader: undefined,
+        phone: undefined,
+        email: undefined,
+        status: "0",
+      };
+      this.resetForm("form");
     },
   },
 };
