@@ -61,7 +61,8 @@
       v-loading="loading"
       :data="deptList"
       row-key="deptId"
-      default-expand-all
+      default-expand-all:
+      false
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <el-table-column
@@ -218,7 +219,7 @@ export default {
       // 查询参数
       queryParams: {
         deptName: undefined,
-        status: undefined
+        status: undefined,
       },
       // 弹出层标题
       title: "",
@@ -234,9 +235,9 @@ export default {
         deptName: [
           { required: true, message: "部门名称不能为空", trigger: "blur" },
         ],
-        orderNum: [
-          { required: true, message: "显示排序不能为空", trigger: "blur" },
-        ],
+        // orderNum: [
+        //   { required: true, message: "显示排序不能为空", trigger: "blur" },
+        // ],
         email: [
           {
             type: "email",
@@ -265,8 +266,21 @@ export default {
     getList() {
       this.loading = true;
       DeptApi.listDept(this.queryParams).then((response) => {
-        this.deptList = this.handleTree(response.data,"deptId");
+        this.deptList = this.handleTree(response.data, "deptId");
         this.loading = false;
+        // 默认展开根节点
+        // this.$nextTick(() => {
+        //   document.getElementsByClassName("el-table__expand-icon")[0].click();
+        // });
+        this.$nextTick(() => {
+          document
+            .getElementsByClassName("el-table__row el-table__row--level-0")
+            .forEach((element) => {
+              element
+                .getElementsByClassName("el-table__expand-icon")[0]
+                .click();
+            });
+        });
       });
     },
     /** 搜索按钮操作 */
@@ -290,6 +304,52 @@ export default {
         this.deptOptions = this.handleTree(response.data, "deptId");
       });
     },
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      getDept(row.deptId).then(response => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "修改部门";
+      });
+      listDeptExcludeChild(row.deptId).then(response => {
+	        this.deptOptions = this.handleTree(response.data, "deptId");
+      });
+    },
+    /** 提交按钮 */
+    submitForm: function() {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.form.deptId != undefined) {
+            updateDept(this.form).then(response => {
+              this.msgSuccess("修改成功");
+              this.open = false;
+              this.getList();
+            });
+          } else {
+            DeptApi.addDept(this.form).then(response => {
+              this.msgSuccess("新增成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        }
+      });
+    },
+      /** 删除按钮操作 */
+    handleDelete(row) {
+      this.$confirm('是否确认删除名称为"' + row.deptName + '"的数据项?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return delDept(row.deptId);
+        }).then(() => {
+          this.getList();
+          this.msgSuccess("删除成功");
+        }).catch(() => {});
+    },
+  
     /** 转换部门数据结构 */
     normalizer(node) {
       if (node.children && !node.children.length) {
@@ -298,7 +358,7 @@ export default {
       return {
         id: node.deptId,
         label: node.deptName,
-        children: node.children
+        children: node.children,
       };
     },
     // 取消按钮
