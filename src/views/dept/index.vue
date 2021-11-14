@@ -75,9 +75,9 @@
         label="排序"
         width="200"
       ></el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
+      <el-table-column prop="status" label="状态" width="100" :formatter="statusFormat">
       </el-table-column>
-      <!-- :formatter="statusFormat" -->
+  
       <el-table-column
         prop="createTime"
         label="创建时间"
@@ -256,14 +256,14 @@ export default {
     };
   },
   created() {
-    this.getList();
+    this.getList(true);
     this.getDicts("sys_status").then((response) => {
       this.statusOptions = response.data;
     });
   },
   methods: {
     /** 查询字典管理列表 */
-    getList() {
+    getList(click) {
       this.loading = true;
       DeptApi.listDept(this.queryParams).then((response) => {
         this.deptList = this.handleTree(response.data, "deptId");
@@ -272,7 +272,8 @@ export default {
         // this.$nextTick(() => {
         //   document.getElementsByClassName("el-table__expand-icon")[0].click();
         // });
-        this.$nextTick(() => {
+        if (click) {
+          this.$nextTick(() => {
           document
             .getElementsByClassName("el-table__row el-table__row--level-0")
             .forEach((element) => {
@@ -281,6 +282,8 @@ export default {
                 .click();
             });
         });
+        }
+        
       });
     },
     /** 搜索按钮操作 */
@@ -307,12 +310,12 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      getDept(row.deptId).then(response => {
+      DeptApi.getDept(row.deptId).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "修改部门";
       });
-      listDeptExcludeChild(row.deptId).then(response => {
+      DeptApi.listDeptExcludeChild(row.deptId).then(response => {
 	        this.deptOptions = this.handleTree(response.data, "deptId");
       });
     },
@@ -321,7 +324,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.deptId != undefined) {
-            updateDept(this.form).then(response => {
+            DeptApi.updateDept(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
@@ -349,7 +352,10 @@ export default {
           this.msgSuccess("删除成功");
         }).catch(() => {});
     },
-  
+   // 字典状态字典翻译
+    statusFormat(row, column) {
+      return this.selectDictLabel(this.statusOptions, row.status);
+    },
     /** 转换部门数据结构 */
     normalizer(node) {
       if (node.children && !node.children.length) {
