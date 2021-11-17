@@ -284,7 +284,7 @@ export default {
   methods: {
     getList() {
       this.loading = true;
-      userApi.getUserList(pageQuery).then((response) => {
+      userApi.getUserList(this.pageQuery).then((response) => {
         this.userList = response.data.list;
         this.pageQuery.page.total = response.data.total;
         this.loading = false;
