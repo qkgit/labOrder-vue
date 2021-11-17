@@ -144,6 +144,23 @@ export const asyncRoutes = [
       }
     ]
   },
+  // 用户管理
+  {
+    path: '/user',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'User',
+        component: () => import('@/views/user/index'),
+        meta: {
+          title: '用户管理',
+          icon: 'el-icon-user-solid',
+          roles: ['0']
+        }
+      }
+    ]
+  },
   // 预约管理
   {
     path: '/labOrder',
@@ -174,58 +191,103 @@ export const asyncRoutes = [
 
     ]
   },
-  // 实验室管理
+  // 教室管理
   {
-    path: '/lab',
+    path: '/classroom',
     component: Layout,
     children: [
       {
         path: 'index',
-        name: 'Lab',
-        component: () => import('@/views/lab/index'),
+        name: 'Classroom',
+        component: () => import('@/views/classroom/index'),
         meta: {
-          title: '实验室管理',
-          icon: 'el-icon-s-help',
+          title: '教室管理',
+          icon: 'el-icon-school',
           roles: ['0']
         }
       }
 
     ]
   },
-  // 实验管理
+  // 课程管理
   {
-    path: '/experiment',
+    path: '/course',
     component: Layout,
+    meta: {
+      title: '课程管理',
+      icon: 'el-icon-s-management',
+      roles: ['0']
+    },
     children: [
       {
         path: 'index',
-        name: 'Experiment',
-        component: () => import('@/views/experiment/index'),
+        name: 'Course',
+        component: () => import('@/views/course/index'),
         meta: {
-          title: '实验管理',
-          icon: 'el-icon-attract',
+          title: '课程管理',
+          icon: 'el-icon-collection',
+          roles: ['0']
+        }
+      },
+      {
+        path: 'time',
+        name: 'Course',
+        component: () => import('@/views/course/index'),
+        meta: {
+          title: '课程时间管理',
+          icon: 'el-icon-time',
+          roles: ['0']
+        }
+      },
+      
+      {
+        path: 'table',
+        name: 'Course',
+        component: () => import('@/views/course/index'),
+        meta: {
+          title: '课程表管理',
+          icon: 'el-icon-date',
           roles: ['0']
         }
       }
     ]
   },
-  // 用户管理
-  {
-    path: '/user',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'User',
-        component: () => import('@/views/user/index'),
-        meta: {
-          title: '用户管理',
-          icon: 'el-icon-user-solid',
-          roles: ['0']
-        }
-      }
-    ]
-  },
+  // // 实验室管理
+  // {
+  //   path: '/lab',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       name: 'Lab',
+  //       component: () => import('@/views/lab/index'),
+  //       meta: {
+  //         title: '实验室管理',
+  //         icon: 'el-icon-s-help',
+  //         roles: ['0']
+  //       }
+  //     }
+
+  //   ]
+  // },
+  // // 实验管理
+  // {
+  //   path: '/experiment',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       name: 'Experiment',
+  //       component: () => import('@/views/experiment/index'),
+  //       meta: {
+  //         title: '实验管理',
+  //         icon: 'el-icon-attract',
+  //         roles: ['0']
+  //       }
+  //     }
+  //   ]
+  // },
+  
   // 公告管理
   {
     path: '/news',
@@ -239,7 +301,7 @@ export const asyncRoutes = [
         component: () => import('@/views/news/index'),
         meta: {
           title: '公告管理',
-          icon: 'el-icon-data-line',
+          icon: 'message',
           roles: ['0']
         }
       },
@@ -267,7 +329,7 @@ export const asyncRoutes = [
     redirect: '/orderLab/teachOrder',
     name: 'OrderLab',
     meta: {
-      title: '实验室预约',
+      title: '预约',
       icon: 'nested'
     },
     children: [

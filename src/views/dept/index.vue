@@ -88,6 +88,8 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
+
+      
       <el-table-column
         label="操作"
         align="center"
@@ -109,7 +111,7 @@
             >新增</el-button
           >
           <el-button
-            v-if="scope.row.parentId != 0"
+            v-if="scope.row.parentId != '0'"
             size="mini"
             type="text"
             icon="el-icon-delete"
@@ -124,7 +126,7 @@
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="24" v-if="form.parentId !== 0">
+          <el-col :span="24" v-if="form.parentId !== '0'">
             <el-form-item label="上级部门" prop="parentId">
               <treeselect
                 v-model="form.parentId"
@@ -346,7 +348,7 @@ export default {
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delDept(row.deptId);
+          return DeptApi.delDept(row.deptId);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
