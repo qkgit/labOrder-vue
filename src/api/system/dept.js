@@ -37,7 +37,7 @@ export default {
     },
     delDept(deptId) {
         return request({
-            url: `/dept/'${deptId}`,
+            url: `/dept/${deptId}`,
             method: 'delete'
         })
     }
@@ -46,7 +46,7 @@ export default {
 // 查询部门下拉树结构
 export function treeselect() {
     return request({
-      url: '/dept/treeselect',
+      url: '/dept/tree',
       method: 'get'
     })
   }
