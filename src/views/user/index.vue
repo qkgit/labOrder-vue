@@ -273,6 +273,7 @@ export default {
   // 钩子函数获取数据
   created() {
     this.getList();
+    this.getTreeselect();
     this.getDicts("sys_user_sex").then((response) => {
       this.sexOptions = response.data;
     });
