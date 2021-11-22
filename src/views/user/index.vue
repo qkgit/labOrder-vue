@@ -101,14 +101,15 @@
           stripe
           border
           style="width: 95%"
+          @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="55"> </el-table-column>
-          <el-table-column prop="realName" label="姓名" width="160" />
+          <el-table-column prop="realName" label="姓名" width="80" />
           <el-table-column prop="loginName" label="用户名/登录名" />
           <el-table-column
             prop="roles"
             label="身份"
-            width="100"
+            width="80"
             :formatter="rolesFormat"
           />
           <el-table-column
@@ -117,8 +118,14 @@
             width="50"
             :formatter="sexFormat"
           />
+          <el-table-column
+            prop="status"
+            label="状态"
+            width="60"
+            :formatter="statusFormat"
+          />
           <el-table-column prop="institute" label="院系" />
-          <el-table-column prop="major" label="专业" />
+          <el-table-column prop="major" label="专业" width="100"/>
 
           <el-table-column label="操作" width="250">
             <template slot-scope="scope">
@@ -131,6 +138,7 @@
               <el-button
                 size="mini"
                 type="warning"
+                v-if="scope.row.userId != '1'"
                 @click="handleResetPwd(scope.row.userId)"
                 >重置密码</el-button
               >
@@ -231,6 +239,8 @@ export default {
       sexOptions: [],
       // 角色
       rolesOptions: [],
+      // 状态
+      statusOptions: [],
       // 用户数据
       userList: [],
       // 查询参数
@@ -248,12 +258,15 @@ export default {
           major: "",
         },
       },
+      // 部门名称
+      deptName: undefined,
       // 部门树选项
       deptOptions: undefined,
       defaultProps: {
         children: "children",
         label: "label",
       },
+      deptName: undefined,
       // 新增提交的数据
       pojo: {
         userId: null,
@@ -264,12 +277,20 @@ export default {
         institute: "",
         major: "",
       },
+      // 非多个禁用
+      multiple: true,
       // 控制弹出对话框
       dialogFormVisible: false,
       rules: {},
     };
   },
 
+  watch: {
+    // 根据名称筛选部门树
+    deptName(val) {
+      this.$refs.tree.filter(val);
+    },
+  },
   // 钩子函数获取数据
   created() {
     this.getList();
@@ -279,6 +300,9 @@ export default {
     });
     this.getDicts("sys_user_roles").then((response) => {
       this.rolesOptions = response.data;
+    });
+    this.getDicts("sys_status").then((response) => {
+      this.statusOptions = response.data;
     });
   },
 
@@ -299,7 +323,7 @@ export default {
         this.deptOptions = response.data;
       });
     },
-     // 筛选节点
+    // 筛选节点
     filterNode(value, data) {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
@@ -317,7 +341,6 @@ export default {
     rolesFormat(row, column) {
       return this.selectDictLabel(this.rolesOptions, row.roles);
     },
-    
 
     handleAdd() {
       this.dialogFormVisible = true;
@@ -334,7 +357,6 @@ export default {
       });
     },
     addData() {
-  
       this.$refs.pojoForm.validate((valid) => {
         if (valid) {
           // 验证通过，提交添加
@@ -441,6 +463,15 @@ export default {
         });
     },
 
+    // 字典状态字典翻译
+    statusFormat(row, column) {
+      return this.selectDictLabel(this.statusOptions, row.status);
+    },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map((item) => item.uuid);
+      this.multiple = !selection.length;
+    },
 
     // 分页
     handleSizeChange(val) {
@@ -453,7 +484,6 @@ export default {
       this.pageQuery.page.pageNum = val;
       this.getList(this.pageQuery);
     },
-   
   },
 };
 </script>
