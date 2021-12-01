@@ -48,11 +48,22 @@ const actions = {
   generateRoutes({ commit }, roles) {
     return new Promise(resolve => {
       let accessedRoutes
-      if (roles.includes('0')) {
+      let isAdmin = 0
+      roles.forEach((role) => {
+        debugger;
+        if (role.roleId == '0') {
+          isAdmin = 1
+
+        }
+      })
+      // roles.includes('0')
+      if (isAdmin == 1) {
         accessedRoutes = asyncRoutes || []
       } else {
-        debugger
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
+        roles.forEach((role) => {
+          accessedRoutes = filterAsyncRoutes(asyncRoutes, role.roleId)
+        })
+        
       }
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
