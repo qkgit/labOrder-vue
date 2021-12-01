@@ -276,7 +276,7 @@ export default {
   },
   created() {
     this.getList();
-    this.getDicts("sys_status").then((response) => {
+    this.getDicts("sys_job_status").then((response) => {
       this.statusOptions = response.data;
     });
   },
