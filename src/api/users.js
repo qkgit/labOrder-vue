@@ -39,6 +39,13 @@ export default {
       url: `/resetPwd/${id}`,
       method: 'put'
     })
+  },
+  changeUserStatus(id,status){
+    return request({
+      url: '/user/changeStatus',
+      data:{'userId':id,'status':status},
+      method: 'put'
+    })
   }
 
 }

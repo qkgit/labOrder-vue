@@ -19,13 +19,11 @@
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
             ref="tree"
-            default-expand-all
             @node-click="handleNodeClick"
           />
         </div>
       </el-col>
       <el-col :span="20" :xs="24">
-        <!-- 查询表单 :inline="true"行内表单-->
         <el-form
           ref="ruleForm"
           :inline="true"
@@ -35,15 +33,25 @@
           <el-form-item prop="name">
             <el-input v-model="pageQuery.item.loginName" placeholder="用户名" />
           </el-form-item>
-          <!-- <el-form-item prop="institute">
-            <el-input
-              v-model="pageQuery.item.institute"
-              placeholder="院系专业"
-            />
-          </el-form-item>  -->
+          <el-form-item prop="mobile">
+            <el-input v-model="pageQuery.item.mobile" placeholder="手机号" />
+          </el-form-item>
+          <el-form-item prop="status">
+            <el-select
+              v-model="pageQuery.item.status"
+              placeholder="请选择用户状态"
+            >
+              <el-option
+                v-for="option in statusOptions"
+                :key="option.code"
+                :label="option.name"
+                :value="option.code"
+              />
+            </el-select>
+          </el-form-item>
           <el-form-item prop="roles">
             <el-select
-              v-model="pageQuery.item.roles"
+              v-model="pageQuery.item.roleId"
               placeholder="请选择用户身份"
             >
               <el-option
@@ -58,6 +66,9 @@
             <el-button type="primary" icon="el-icon-search" @click="getList()"
               >查询
             </el-button>
+            <el-button icon="el-icon-refresh" @click="resetQuery"
+              >重置</el-button
+            >
           </el-form-item>
         </el-form>
 
@@ -106,12 +117,8 @@
           <el-table-column type="selection" width="55"> </el-table-column>
           <el-table-column prop="realName" label="姓名" width="80" />
           <el-table-column prop="loginName" label="用户名/登录名" />
-          <el-table-column
-            prop="roles"
-            label="身份"
-            width="80"
-            :formatter="rolesFormat"
-          />
+          <el-table-column prop="mobile" label="手机号码" width="140" />
+          <el-table-column prop="major" label="专业" width="100" />
           <el-table-column
             prop="sex"
             label="性别"
@@ -119,14 +126,37 @@
             :formatter="sexFormat"
           />
           <el-table-column
+            prop="roles"
+            label="身份"
+            width="180"
+            :formatter="rolesFormat"
+          >
+            <template slot-scope="scope">
+              <div
+                v-for="r in scope.row.roles"
+                :key="r.index"
+                style="display: inline-block; padding-right: 10px"
+              >
+                <dict-tag :options="rolesOptions" :value="r.roleId" />
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="status"
+            align="center"
             label="状态"
-            width="60"
-            :formatter="statusFormat"
-          />
-          <el-table-column prop="institute" label="院系" />
-          <el-table-column prop="major" label="专业" width="100"/>
-
+            key="status"
+            width="80"
+          >
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.status"
+                active-value="0"
+                inactive-value="1"
+                @change="handleStatusChange(scope.row)"
+              ></el-switch>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" width="250">
             <template slot-scope="scope">
               <el-button
@@ -145,6 +175,7 @@
               <el-button
                 size="mini"
                 type="danger"
+                v-if="scope.row.userId != '1'"
                 @click="handleDelete(scope.row.userId)"
                 >删除</el-button
               >
@@ -176,6 +207,10 @@
         label-position="right"
         style="width: 400px"
       >
+        <el-row>
+          <el-col> </el-col>
+        </el-row>
+
         <el-form-item label="姓名" prop="realName">
           <el-input v-model="pojo.realName" />
         </el-form-item>
@@ -202,13 +237,13 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="院系" prop="institute">
+        <!-- <el-form-item label="院系" prop="institute">
           <el-input v-model="pojo.institute" />
         </el-form-item>
 
         <el-form-item label="专业" prop="major">
           <el-input v-model="pojo.major" />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button
@@ -226,10 +261,11 @@
 import userApi from "@/api/users";
 import { treeselect } from "@/api/system/dept";
 import Treeselect from "@riophae/vue-treeselect";
+import DictTag from "@/components/DictTag";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
-  components: { Treeselect },
+  components: { Treeselect, DictTag },
   data() {
     return {
       loading: true,
@@ -251,11 +287,11 @@ export default {
           pageSize: 10, // 每页显示条数，10条
         },
         item: {
-          loginName: "", // deptId: '',
-
-          roles: "",
-          institute: "",
-          major: "",
+          loginName: "", // 
+          deptId: '',
+          mobile: "",
+          status: "",
+          roleId: "",
         },
       },
       // 部门名称
@@ -293,8 +329,9 @@ export default {
   },
   // 钩子函数获取数据
   created() {
-    this.getList();
     this.getTreeselect();
+    this.getList(true);
+
     this.getDicts("sys_user_sex").then((response) => {
       this.sexOptions = response.data;
     });
@@ -307,14 +344,25 @@ export default {
   },
 
   methods: {
-    getList() {
+    getList(click) {
       this.loading = true;
       userApi.getUserList(this.pageQuery).then((response) => {
         this.userList = response.data.list;
         this.pageQuery.page.total = response.data.total;
         this.loading = false;
         // 重置item
-        this.$refs["ruleForm"].resetFields();
+        // this.$refs["ruleForm"].resetFields();
+        if (click) {
+          this.$nextTick(() => {
+            document
+              .getElementsByClassName("el-tree-node__content")
+              .forEach((element) => {
+                element
+                  .getElementsByClassName("el-tree-node__expand-icon")[0]
+                  .click();
+              });
+          });
+        }
       });
     },
     /** 查询部门下拉树结构 */
@@ -339,7 +387,12 @@ export default {
       return this.selectDictLabel(this.sexOptions, row.sex);
     },
     rolesFormat(row, column) {
-      return this.selectDictLabel(this.rolesOptions, row.roles);
+      var userrole = "";
+      row.roles.forEach((a) => {
+        userrole += a.roleName + " / ";
+      });
+      return userrole.substring(0, userrole.length - 3);
+      // return this.selectDictLabel(this.rolesOptions, row.roles);
     },
 
     handleAdd() {
@@ -383,6 +436,21 @@ export default {
           return false;
         }
       });
+    },
+     // 用户状态修改
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$confirm('确认要"' + text + '""' + row.realName + '"用户吗?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return userApi.changeUserStatus(row.userId, row.status);
+        }).then(() => {
+          this.msgSuccess(text + "成功");
+        }).catch(function() {
+          row.status = row.status === "0" ? "1" : "0";
+        });
     },
     updataData() {
       this.$refs.pojoForm.validate((valid) => {
@@ -471,6 +539,11 @@ export default {
     handleSelectionChange(selection) {
       this.ids = selection.map((item) => item.uuid);
       this.multiple = !selection.length;
+    },
+     /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("ruleForm");
+      this.getList();
     },
 
     // 分页
