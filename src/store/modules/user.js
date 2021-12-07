@@ -62,14 +62,14 @@ const actions = {
       getInfo(state.token).then(response => {
         const { data } = response
         if (!data) {
-          return reject('验证失败，请重新登录！')
+          return reject(response.message)
         }
         const { realName, avatar, institute, major, isFirstlogin } = data
         commit('SET_NAME', realName)
         commit('SET_AVATAR', avatar)
         commit('SET_INSTITUTE', institute)
         commit('SET_MAJOR', major)
-        if (isFirstlogin == 1) {
+        if (isFirstlogin === 1) {
           data.roles = 99
         }
         resolve(data)
@@ -94,6 +94,16 @@ const actions = {
     })
   },
 
+  // 前端 登出
+  FedLogOut({ commit }) {
+    return new Promise(resolve => {
+      removeToken() // must remove  token  first
+      resetRouter()
+      commit('RESET_STATE')
+      resolve()
+    })
+  },
+
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
@@ -102,6 +112,7 @@ const actions = {
       resolve()
     })
   }
+
 }
 
 export default {
