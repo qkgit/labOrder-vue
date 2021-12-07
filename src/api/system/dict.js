@@ -1,6 +1,5 @@
 import request from '@/utils/request'
 
-
 export default {
   // 查询字典管理列表
   listType(data) {
@@ -67,18 +66,18 @@ export default {
   delType(dictIds) {
     return request({
       url: `/dict/type/${dictIds}`,
-      method: 'delete',
+      method: 'delete'
     })
   },
   // 删除字典项
   delDict(dictIds) {
     return request({
       url: `/dict/data/${dictIds}`,
-      method: 'delete',
+      method: 'delete'
     })
   }
 
-} 
+}
 
 // 根据字典类型查询字典数据信息
 export function getDicts(dictType) {
@@ -87,7 +86,6 @@ export function getDicts(dictType) {
     method: 'get'
   })
 }
-
 
 // 导出字典管理
 // export function exportDict(query) {

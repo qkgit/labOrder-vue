@@ -16,7 +16,7 @@ import router from './router'
 import '@/icons' // icon | 图标
 import '@/permission' // permission control | 权限控制
 import { getDicts } from '@/api/system/dict.js' // 获取字典项
-import { parseTime, resetForm,addDateRange, selectDictLabel, selectDictLabels, download, handleTree } from "@/utils/baseUtils"
+import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, download, handleTree } from '@/utils/baseUtils'
 // import { from } from 'core-js/core/array'
 /**
  * 如果您不想使用模拟服务器 mock-server
@@ -44,16 +44,16 @@ Vue.prototype.selectDictLabels = selectDictLabels
 Vue.prototype.download = download
 Vue.prototype.handleTree = handleTree
 
-Vue.prototype.msgSuccess = function (msg) {
-  this.$message({ showClose: true, message: msg, type: "success" });
+Vue.prototype.msgSuccess = function(msg) {
+  this.$message({ showClose: true, message: msg == null ? 'O(∩_∩)O 操作成功' : msg, type: 'success' })
 }
 
-Vue.prototype.msgError = function (msg) {
-  this.$message({ showClose: true, message: msg, type: "error" });
+Vue.prototype.msgError = function(msg) {
+  this.$message({ showClose: true, message: msg, type: 'error' })
 }
 
-Vue.prototype.msgInfo = function (msg) {
-  this.$message.info(msg);
+Vue.prototype.msgInfo = function(msg) {
+  this.$message.info(msg)
 }
 // set ElementUI lang to EN | 设置elementUI 语言为英语
 // Vue.use(ElementUI, { locale })

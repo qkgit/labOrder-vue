@@ -40,10 +40,10 @@ export default {
       method: 'put'
     })
   },
-  changeUserStatus(id,status){
+  changeUserStatus(id, status) {
     return request({
       url: '/user/changeStatus',
-      data:{'userId':id,'status':status},
+      data: { 'userId': id, 'status': status },
       method: 'put'
     })
   }

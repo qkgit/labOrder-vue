@@ -35,7 +35,7 @@ router.beforeEach(async(to, from, next) => {
         try {
           // 判断用户是否为首次登录
           const { isFirstlogin, roles } = await store.dispatch('user/getInfo')
-          if (isFirstlogin == '1') {
+          if (isFirstlogin === '1') {
             // 弹出修改密码界面
             next('/updPwd')
             NProgress.done()
@@ -62,7 +62,6 @@ router.beforeEach(async(to, from, next) => {
     }
   } else {
     // 没有 token
-    debugger
     if (whiteList.indexOf(to.path) !== -1) {
       // 在免费登录白名单中，直接登录
       next()

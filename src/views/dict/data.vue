@@ -1,13 +1,13 @@
 <template>
   <div class="container">
     <el-form
-      :model="pageQuery.item"
       ref="queryForm"
+      :model="pageQuery.item"
       :inline="true"
       label-width="68px"
     >
       <el-form-item label="" prop="tableType">
-        <el-input v-model="pageQuery.item.tableType" type="hidden"> </el-input>
+        <el-input v-model="pageQuery.item.tableType" type="hidden" />
       </el-form-item>
       <el-form-item label="字典编码" prop="code">
         <el-input
@@ -49,11 +49,12 @@
           icon="el-icon-search"
           size="mini"
           @click="handleQuery"
-          >搜索</el-button
-        >
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
-          >重置</el-button
-        >
+        >搜索</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          size="mini"
+          @click="resetQuery"
+        >重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -65,8 +66,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          >新增</el-button
-        >
+        >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -76,13 +76,12 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          >删除</el-button
-        >
+        >删除</el-button>
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="dictList" stripe border   @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55"> </el-table-column>
+    <el-table v-loading="loading" :data="dictList" stripe border @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" />
       <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
           <el-button
@@ -90,15 +89,13 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            >修改</el-button
-          >
+          >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            >删除</el-button
-          >
+          >删除</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -181,15 +178,15 @@
               :key="item.code"
               :label="item.name"
               :value="item.code"
-            ></el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input
+            v-model="form.remark"
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4 }"
             placeholder="请输入备注"
-            v-model="form.remark"
           />
         </el-form-item>
         <el-form-item label="状态">
@@ -213,15 +210,15 @@
 </template>
 
 <script>
-import dictApi from "@/api/system/dict";
-import DictTag from "@/components/DictTag";
+import dictApi from '@/api/system/dict'
+import DictTag from '@/components/DictTag'
 
 export default {
-  name: "Dict",
+  name: 'Dict',
   components: {
-    DictTag,
+    DictTag
   },
-  props: ["tableType"],
+  props: ['tableType'],
   data() {
     return {
       // 遮罩层
@@ -229,44 +226,44 @@ export default {
       // 状态字典
       statusOptions: [
         {
-          name: "正常",
-          code: "0",
-          listClass: "primary",
+          name: '正常',
+          code: '0',
+          listClass: 'primary'
         },
         {
-          name: "暂停",
-          code: "1",
-          listClass: "danger",
-        },
+          name: '暂停',
+          code: '1',
+          listClass: 'danger'
+        }
       ],
       // 字典管理表格数据
       dictList: [],
       // 数据标签回显样式
       listClassOptions: [
         {
-          code: "default",
-          name: "默认",
+          code: 'default',
+          name: '默认'
         },
         {
-          code: "primary",
-          name: "主要",
+          code: 'primary',
+          name: '主要'
         },
         {
-          code: "success",
-          name: "成功",
+          code: 'success',
+          name: '成功'
         },
         {
-          code: "info",
-          name: "信息",
+          code: 'info',
+          name: '信息'
         },
         {
-          code: "warning",
-          name: "警告",
+          code: 'warning',
+          name: '警告'
         },
         {
-          code: "danger",
-          name: "危险",
-        },
+          code: 'danger',
+          name: '危险'
+        }
       ],
       // 选中数组
       ids: [],
@@ -277,15 +274,15 @@ export default {
         page: {
           total: 10, // 总记录数
           pageNum: 1, // 当前页,，默认第1页
-          pageSize: 10, // 每页显示条数，10条
+          pageSize: 10 // 每页显示条数，10条
         },
         item: {
-          code: "", // 字典编码
-          name: "", // 字典名称
-          status: "", // 字典状态
+          code: '', // 字典编码
+          name: '', // 字典名称
+          status: '', // 字典状态
           tableType: this.$route.params && this.$route.params.tableType, // 字典类型
-          params: {},
-        },
+          params: {}
+        }
       },
       // 表单参数
       form: {
@@ -294,78 +291,77 @@ export default {
         tableType: undefined,
         remark: undefined,
         cssClass: undefined,
-        listClass: "default",
+        listClass: 'default',
         orderNum: 0,
-        status: "0",
+        status: '0'
       },
       // 是否显示弹出层
       open: false,
       // 弹出层标题
-      title: "",
+      title: '',
       // 表单校验
       rules: {
         code: [
-          { required: true, message: "字典编码不能为空", trigger: "blur" },
+          { required: true, message: '字典编码不能为空', trigger: 'blur' }
         ],
         name: [
-          { required: true, message: "字典名称不能为空", trigger: "blur" },
-        ],
+          { required: true, message: '字典名称不能为空', trigger: 'blur' }
+        ]
         // orderNum: [
         //   { required: true, message: "序号不能为空", trigger: "blur" },
         // ],
-      },
-    };
-  },
-  created() {
-    this.getList();
-    this.getDicts("sys_job_status").then((response) => {
-      this.statusOptions = response.data;
-    });
-    this.getDicts("list_class").then((response) => {
-      this.listClassOptions = response.data;
-    });
-    
+      }
+    }
   },
   computed: {
 
   },
+  created() {
+    this.getList()
+    this.getDicts('sys_job_status').then((response) => {
+      this.statusOptions = response.data
+    })
+    this.getDicts('list_class').then((response) => {
+      this.listClassOptions = response.data
+    })
+  },
   methods: {
     /** 查询字典管理列表 */
     getList() {
-      this.loading = true;
+      this.loading = true
       dictApi.listData(this.pageQuery).then((response) => {
-        this.dictList = response.data.list;
-        this.pageQuery.page.total = response.data.total;
-        this.loading = false;
-        //重置item
-        this.resetForm("queryForm");
-        //重置父字典
-        this.parentDict = "";
-      });
+        this.dictList = response.data.list
+        this.pageQuery.page.total = response.data.total
+        this.loading = false
+        // 重置item
+        this.resetForm('queryForm')
+        // 重置父字典
+        this.parentDict = ''
+      })
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.getList();
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.resetForm('queryForm')
+      this.handleQuery()
     },
 
     // 分页
     handleSizeChange(val) {
       // 当每页显示条数改变后 被触发
-      this.pageQuery.page.pageSize = val;
-      this.fetchData(this.pageQuery);
+      this.pageQuery.page.pageSize = val
+      this.fetchData(this.pageQuery)
     },
     handleCurrentChange(val) {
       // 当页码改变后 被触发
-      this.pageQuery.page.pageNum = val;
-      this.fetchData(this.pageQuery);
+      this.pageQuery.page.pageNum = val
+      this.fetchData(this.pageQuery)
     },
-  
-     // 表单重置
+
+    // 表单重置
     reset() {
       this.form = {
         code: undefined,
@@ -373,108 +369,105 @@ export default {
         tableType: undefined,
         remark: undefined,
         cssClass: undefined,
-        listClass: "default",
+        listClass: 'default',
         orderNum: 0,
-        status: "0",
-      };
-      this.resetForm("form");
+        status: '0'
+      }
+      this.resetForm('form')
     },
     // 新增按钮操作
     handleAdd() {
-      this.reset();
-      this.open = true;
-      this.form.tableType = this.pageQuery.item.tableType;
-      this.title = "添加字典数据";
+      this.reset()
+      this.open = true
+      this.form.tableType = this.pageQuery.item.tableType
+      this.title = '添加字典数据'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
+      this.reset()
       dictApi.getDictData(row.uuid).then((response) => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改字典数据";
-      });
+        this.form = response.data
+        this.open = true
+        this.title = '修改字典数据'
+      })
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate((valid) => {
+      this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.form.uuid != null) {
             dictApi.updateDict(this.form).then((response) => {
-             if(response.resultCode == 200) {
-                this.msgSuccess("修改成功!");
-                this.open = false;
-                this.getList();
+              if (response.resultCode === 200) {
+                this.msgSuccess('修改成功!')
+                this.open = false
+                this.getList()
               } else {
-                this.msgError();
+                this.msgError()
               }
-            });
+            })
           } else {
             dictApi.addDict(this.form).then((response) => {
-             if(response.resultCode == 200) {
-                this.msgSuccess("新增成功!");
-                this.open = false;
-                this.getList();
+              if (response.resultCode === 200) {
+                this.msgSuccess('新增成功!')
+                this.open = false
+                this.getList()
               } else {
-                this.msgError();
+                this.msgError()
               }
-            });
+            })
           }
         }
-      });
+      })
     },
 
     // 取消按钮
     cancel() {
-      this.open = false;
-      this.reset();
+      this.open = false
+      this.reset()
     },
-   
-    
-    
 
     /** 删除按钮操作 */
     handleDelete(row) {
-      const dictIds = row.uuid || this.ids;
-      var that = this;
-      var hint = '是否确认删除 "' + row.name + '" 字典项?';
-      if (row.uuid == null || row.uuid == undefined || row.uuid == "") {
-        hint = "是否确认删除选中字典项";
+      const dictIds = row.uuid || this.ids
+      var that = this
+      var hint = '是否确认删除 "' + row.name + '" 字典项?'
+      if (row.uuid === null || row.uuid === undefined || row.uuid === '') {
+        hint = '是否确认删除选中字典项'
       }
-      this.$confirm(hint, "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm(hint, '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-        .then(function () {
+        .then(function() {
           dictApi.delDict(dictIds).then((response) => {
-            if (response.resultCode == 200) {
-              that.getList();
-              that.msgSuccess("删除成功");
+            if (response.resultCode === 200) {
+              that.getList()
+              that.msgSuccess('删除成功')
             } else {
-              that.msgError(response.message);
+              that.msgError(response.message)
             }
-          });
+          })
         })
-        .catch(() => {});
+        .catch(() => {})
     },
 
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.uuid);
-      this.multiple = !selection.length;
+      this.ids = selection.map((item) => item.uuid)
+      this.multiple = !selection.length
     },
 
     firstFun() {
-      this.secondFun();
+      this.secondFun()
     },
     secondFun() {
-      this.thirdFun();
+      this.thirdFun()
     },
     thirdFun() {
-      console.log(new Error().stack);
-    },
-  },
-};
+      console.log(new Error().stack)
+    }
+  }
+}
 </script>
 

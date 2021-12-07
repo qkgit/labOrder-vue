@@ -7,8 +7,7 @@
           :key="item.code"
           :index="index"
           :class="item.cssClass"
-          >{{ item.name }}</span
-        >
+        >{{ item.name }}</span>
         <el-tag
           v-else
           :key="item.code"
@@ -25,24 +24,24 @@
 
 <script>
 export default {
-  name: "DictTag",
+  name: 'DictTag',
   props: {
     options: {
       type: Array,
-      default: null,
+      default: null
     },
-    value: [String, Array],
+    value: [String, Array]
   },
   computed: {
     values() {
       if (this.value) {
-        return Array.isArray(this.value) ? this.value : [this.value];
+        return Array.isArray(this.value) ? this.value : [this.value]
       } else {
-        return [];
+        return []
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 <style scoped>
 .el-tag + .el-tag {
