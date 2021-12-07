@@ -50,20 +50,17 @@ const actions = {
       let accessedRoutes
       let isAdmin = 0
       roles.forEach((role) => {
-        debugger;
-        if (role.roleId == '0') {
+        if (role.roleId === '0') {
           isAdmin = 1
-
         }
       })
       // roles.includes('0')
-      if (isAdmin == 1) {
+      if (isAdmin === 1) {
         accessedRoutes = asyncRoutes || []
       } else {
         roles.forEach((role) => {
           accessedRoutes = filterAsyncRoutes(asyncRoutes, role.roleId)
         })
-        
       }
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)

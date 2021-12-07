@@ -83,7 +83,7 @@ export const constantRoutes = [
       props: true
     }]
   }
- 
+
 ]
 
 /**
@@ -109,7 +109,7 @@ export const asyncRoutes = [
       {
         path: 'index',
         name: 'sDictType',
-        component: ()=> import('@/views/dict/index'),
+        component: () => import('@/views/dict/index'),
         meta: {
           breadcrumb: false,
           title: '字典管理',
@@ -120,11 +120,11 @@ export const asyncRoutes = [
       {
         path: '/sDict/:tableType',
         name: 'sDictData',
-        component: ()=> import('@/views/dict/data'),
-        meta: {title: '字典详情',roles: ['0']},
+        component: () => import('@/views/dict/data'),
+        meta: { title: '字典详情', roles: ['0'] },
         hidden: true,
         props: true
-      },
+      }
     ]
   },
   // 部门管理
@@ -239,7 +239,7 @@ export const asyncRoutes = [
           roles: ['0']
         }
       },
-      
+
       {
         path: 'table',
         name: 'Course',
@@ -287,7 +287,7 @@ export const asyncRoutes = [
   //     }
   //   ]
   // },
-  
+
   // 公告管理
   {
     path: '/news',
@@ -337,7 +337,7 @@ export const asyncRoutes = [
         path: 'teachOrder',
         component: () => import('@/views/orderLab/teachOrder/index'),
         name: 'TeachOrder',
-        meta: { title: '教学预约', icon: 'el-icon-tickets', roles: ['1'] },
+        meta: { title: '教学预约', icon: 'el-icon-tickets', roles: ['1'] }
       },
       {
         path: 'openOrder',
