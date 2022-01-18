@@ -88,6 +88,16 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
+              type="warning"
+              plain
+              icon="el-icon-delete"
+              size="small"
+              :disabled="multiple"
+              @click="handleResetPwd"
+            >重置密码</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button
               type="danger"
               plain
               icon="el-icon-delete"
@@ -96,6 +106,7 @@
               @click="handleDelete"
             >删除</el-button>
           </el-col>
+          
           <!-- <el-col :span="1.5">
             <el-dropdown size="small" split-button type="warning">
               更改状态
@@ -117,7 +128,7 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="55" />
-          <el-table-column prop="realName" label="姓名" width="80" />
+          <el-table-column prop="realName" label="姓名" width="100" />
           <el-table-column prop="loginName" label="用户名/登录名" />
           <el-table-column prop="mobile" label="手机号码" width="140" />
           <el-table-column prop="major" label="专业" width="100" />
@@ -170,13 +181,13 @@
                 v-if="scope.row.userId != '1'"
                 size="mini"
                 type="warning"
-                @click="handleResetPwd(scope.row.userId)"
+                @click="handleResetPwd(scope.row)"
               >重置密码</el-button>
               <el-button
                 v-if="scope.row.userId != '1'"
                 size="mini"
                 type="danger"
-                @click="handleDelete(scope.row.userId)"
+                @click="handleDelete(scope.row)"
               >删除</el-button>
             </template>
           </el-table-column>
@@ -489,55 +500,47 @@ export default {
         this.pojo = response.data
       })
     },
-    handleResetPwd(id) {
+
+
+    handleResetPwd(row) {
+      const userIds = row.userId || this.ids
+      var that = this
       this.$confirm('确认要重置密码吗？', '提示', {
         cancelButtonText: '取消',
         confirmButtonText: '确认',
         type: 'warning'
       })
         .then(() => {
-          // 确认
-          var that = this
-          userApi.resetPwd(id).then((response) => {
-            // 提示信息
-            this.$message({
-              type: response.resultCode == 200 ? 'success' : 'error',
-              message: response.message
-            })
+          userApi.resetPwd(userIds).then((response) => {
             if (response.resultCode == 200) {
-              // 删除成功 刷新列表
-              that.getList(this.pageQuery)
+              that.getList()
+              that.msgSuccess()
             }
           })
         })
-        .catch(() => {
-          // 取消重置 不理会
-        })
+        .catch(() => {})
     },
-    handleDelete(id) {
-      this.$confirm('确认删除这条记录吗？', '提示', {
+    handleDelete(row) {
+      const userIds = row.userId || this.ids
+      var that = this
+      var hint = '是否确认删除 "' + row.realName + '" 用户?'
+      if(row.userId === null || row.userId === undefined || row.userId === ''){
+        hint = '是否确认删除选中用户?'
+      }
+      this.$confirm(hint, '提示', {
         cancelButtonText: '取消',
         confirmButtonText: '确认',
         type: 'warning'
       })
         .then(() => {
-          // 确认
-          var that = this
-          userApi.deleteById(id).then((response) => {
-            // 提示信息
-            this.$message({
-              type: response.resultCode == 200 ? 'success' : 'error',
-              message: response.message
-            })
+          userApi.deleteById(userIds).then((response) => {
             if (response.resultCode == 200) {
-              // 删除成功 刷新列表
-              that.getList(this.pageQuery)
+              that.getList()
+              that.msgSuccess()
             }
           })
         })
-        .catch(() => {
-          // 取消删除 不理会
-        })
+        .catch(() => {})
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -566,7 +569,7 @@ export default {
 
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.uuid)
+      this.ids = selection.map((item) => item.userId)
       this.multiple = !selection.length
     },
     /** 重置按钮操作 */
