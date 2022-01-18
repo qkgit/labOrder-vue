@@ -7,6 +7,6 @@ const getters = {
   institute: state => state.user.institute,
   major: state => state.user.major,
   permission_routes: state => state.permission.routes,
-  isFirstlogin: state => state.user.isFirstlogin
+  isFirstLogin: state => state.user.isFirstLogin
 }
 export default getters
