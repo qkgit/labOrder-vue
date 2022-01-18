@@ -232,7 +232,7 @@ export const asyncRoutes = [
       {
         path: 'time',
         name: 'Course',
-        component: () => import('@/views/course/index'),
+        component: () => import('@/views/courseTime/index'),
         meta: {
           title: '课程时间管理',
           icon: 'el-icon-time',
@@ -243,7 +243,7 @@ export const asyncRoutes = [
       {
         path: 'table',
         name: 'Course',
-        component: () => import('@/views/course/index'),
+        component: () => import('@/views/courseTable/index'),
         meta: {
           title: '课程表管理',
           icon: 'el-icon-date',
@@ -399,12 +399,12 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 const createRouter = () => new Router({
-  mode: 'history', // require service support | 需要服务支持
+  mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
 
-const router = createRouter()
+
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
@@ -412,4 +412,6 @@ export function resetRouter() {
   router.matcher = newRouter.matcher // reset router
 }
 
+
+const router = createRouter()
 export default router
