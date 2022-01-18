@@ -40,10 +40,14 @@ export default {
       method: 'put'
     })
   },
-  changeUserStatus(id, status) {
+  changeUserStatus(userId, status) {
+    const data = {
+      userId,
+      status
+    }
     return request({
       url: '/user/changeStatus',
-      data: { 'userId': id, 'status': status },
+      params: data,
       method: 'put'
     })
   }
