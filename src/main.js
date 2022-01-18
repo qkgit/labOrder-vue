@@ -49,7 +49,7 @@ Vue.prototype.msgSuccess = function(msg) {
 }
 
 Vue.prototype.msgError = function(msg) {
-  this.$message({ showClose: true, message: msg, type: 'error' })
+  this.$message({ showClose: true, message: msg == null? 'Error' : msg, type: 'error' })
 }
 
 Vue.prototype.msgInfo = function(msg) {
