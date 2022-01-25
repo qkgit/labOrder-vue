@@ -130,8 +130,8 @@
           <el-table-column type="selection" width="55" />
           <el-table-column prop="realName" label="姓名" width="100" />
           <el-table-column prop="loginName" label="用户名/登录名" />
-          <el-table-column prop="mobile" label="手机号码" width="140" />
-          <el-table-column prop="major" label="专业" width="100" />
+          <el-table-column prop="mobile" label="手机号码" width="120" />
+          <el-table-column prop="dept.deptName" label="专业班级" width="120" />
           <el-table-column
             prop="sex"
             label="性别"
