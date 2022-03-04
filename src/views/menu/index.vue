@@ -4,20 +4,26 @@
     <el-form
       ref="ruleForm"
       :inline="true"
-      :model="pageQuery.item"
+      :model="queryParams"
       class="demo-form-inline"
     >
-      <el-form-item prop="name">
-        <el-input v-model="pageQuery.item.name" placeholder="教室名称" />
+      <el-form-item label="菜单名称" prop="menuName">
+        <el-input
+          v-model="queryParams.menuName"
+          placeholder="请输入菜单名称"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
       </el-form-item>
-      <el-form-item prop="address">
-        <el-input v-model="pageQuery.item.address" placeholder="教室地址" />
-      </el-form-item>
-      <el-form-item prop="leader">
-        <el-input v-model="pageQuery.item.leader" placeholder="教室负责人" />
-      </el-form-item>
-      <el-form-item prop="status">
-        <el-select v-model="pageQuery.item.status" placeholder="请选择教室状态">
+
+      <el-form-item label="状态" prop="status">
+        <el-select
+          v-model="queryParams.status"
+          placeholder="菜单状态"
+          clearable
+          size="small"
+        >
           <el-option
             v-for="option in statusOptions"
             :key="option.code"
@@ -27,11 +33,15 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="getList()"
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="getList()"
           >查询
         </el-button>
 
-        <el-button @click="resetQuery" icon="el-icon-refresh-right"
+        <el-button icon="el-icon-refresh-right" size="mini" @click="resetQuery"
           >重置
         </el-button>
       </el-form-item>
@@ -48,70 +58,74 @@
           >新增</el-button
         >
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          >删除</el-button
-        >
-      </el-col>
     </el-row>
 
     <!-- 数据列表  -->
     <el-table
       v-loading="loading"
-      :data="roomList"
-      stripe
-      border
-      @selection-change="handleSelectionChange"
+      :data="menuList"
+      row-key="menuId"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="name" label="教室" />
-      <el-table-column prop="address" label="地址" />
-      <el-table-column prop="cap" label="容量" width="80" />
-      <el-table-column align="center" width="70" label="状态" prop="status">
+      <el-table-column
+        prop="menuName"
+        label="菜单名称"
+        :show-overflow-tooltip="true"
+        width="160"
+      />
+      <el-table-column prop="icon" label="图标" align="center" width="100">
+        <template slot-scope="scope">
+          <svg-icon :icon-class="scope.row.icon" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="orderNum" label="排序" width="60" />
+      <el-table-column
+        prop="perms"
+        label="权限标识"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        prop="component"
+        label="组件路径"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column prop="status" label="状态" width="70">
         <template slot-scope="scope">
           <dict-tag :options="statusOptions" :value="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column prop="leader" label="负责人" width="100" />
-      <el-table-column
-        prop="remark"
-        label="备注"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column label="操作" width="150">
+      <el-table-column prop="createTime" label="创建时间">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            type="primary"
-            @click="handleEdit(scope.row.lid)"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleEdit(scope.row)"
             >修改</el-button
           >
           <el-button
             size="mini"
-            type="danger"
-            @click="handleDelete(scope.row.lid)"
+            type="text"
+            icon="el-icon-plus"
+            @click="handleAdd(scope.row)"
+            >新增</el-button
+          >
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="handleDelete(scope.row)"
             >删除</el-button
           >
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
-    <el-pagination
-      :total="pageQuery.page.total"
-      :page-sizes="[10, 5, 20]"
-      :current-page="pageQuery.page.pageNum"
-      :page-size="pageQuery.page.pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      style="text-align: center"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+
     <!-- 新增对话框 -->
     <el-dialog :title="title" :visible.sync="open">
       <el-form
@@ -194,14 +208,11 @@
 </template>
 
 <script>
-import roomApi from "@/api/system/classroom";
+import menuApi from "@/api/system/menu";
 import DictTag from "@/components/DictTag";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-
 export default {
+  name: "menu",
   components: {
-    Treeselect,
     DictTag,
   },
   data() {
@@ -210,28 +221,11 @@ export default {
       loading: false,
       // 状态
       statusOptions: [],
-      // 选中数组
-      ids: [],
-      // 非多个禁用
-      multiple: true,
-      // 用户树选项
-      userOptions: [],
-      defaultProps: {
-        children: "children",
-        label: "label",
-      },
-      roomList: [],
-      pageQuery: {
-        page: {
-          total: 10,
-          pageNum: 1, // 每页显示条数，10条
-        },
-        item: {
-          name: undefined,
-          address: undefined,
-          leader: undefined,
-          status: undefined,
-        },
+      menuList: [],
+      // 查询参数
+      queryParams: {
+        menuName: undefined,
+        status: undefined,
       },
 
       pojo: {
@@ -247,6 +241,7 @@ export default {
       rules: {},
     };
   },
+
   // 钩子函数获取数据
   created() {
     this.getDicts("sys_common_status").then((response) => {
@@ -254,15 +249,13 @@ export default {
     });
     this.getList();
   },
-
   methods: {
     // 查询
     getList() {
       this.loading = true;
-      roomApi.listRoom(this.pageQuery).then((response) => {
+      menuApi.listMenu(this.queryParams).then((response) => {
         const resp = response.data;
-        this.pageQuery.page.total = resp.total;
-        this.roomList = resp.list;
+        this.menuList = this.handleTree(response.data, "menuId");
         this.loading = false;
       });
     },
@@ -301,64 +294,64 @@ export default {
         this.title = "修改教室";
       });
     },
-    // 添加
-    addData() {
-      this.$refs.pojoForm.validate((valid) => {
-        if (valid) {
-          var that = this;
-          // 验证通过，提交添加
-          labApi.addLab(this.pojo).then((response) => {
-            if (response.resultCode == 200) {
-              this.open = false;
-              this.$message({
-                message: "添加成功",
-                type: "success",
-              });
-              // 新增成功 刷新数据列表
-              that.getList(this.pageQuery);
-            } else {
-              // 失败 弹出提示
-              this.$message({
-                message: "response.message",
-                type: "warning",
-              });
-            }
-          });
-        } else {
-          // 验证失败
-          return false;
-        }
-      });
-    },
-    // 修改
-    updataDate() {
-      this.$refs.pojoForm.validate((valid) => {
-        if (valid) {
-          // 验证通过，提交添加
-          var that = this;
-          labApi.update(this.pojo).then((response) => {
-            if (response.resultCode == 200) {
-              this.open = false;
-              this.$message({
-                message: "修改成功",
-                type: "success",
-              });
-              // 修改成功 刷新数据列表
-              that.getList(this.pageQuery);
-            } else {
-              // 失败 弹出提示
-              this.$message({
-                message: "response.message",
-                type: "warning",
-              });
-            }
-          });
-        } else {
-          // 验证失败
-          return false;
-        }
-      });
-    },
+    // // 添加
+    // addData() {
+    //   this.$refs.pojoForm.validate((valid) => {
+    //     if (valid) {
+    //       var that = this;
+    //       // 验证通过，提交添加
+    //       labApi.addLab(this.pojo).then((response) => {
+    //         if (response.resultCode == 200) {
+    //           this.open = false;
+    //           this.$message({
+    //             message: "添加成功",
+    //             type: "success",
+    //           });
+    //           // 新增成功 刷新数据列表
+    //           that.getList(this.pageQuery);
+    //         } else {
+    //           // 失败 弹出提示
+    //           this.$message({
+    //             message: "response.message",
+    //             type: "warning",
+    //           });
+    //         }
+    //       });
+    //     } else {
+    //       // 验证失败
+    //       return false;
+    //     }
+    //   });
+    // },
+    // // 修改
+    // updataDate() {
+    //   this.$refs.pojoForm.validate((valid) => {
+    //     if (valid) {
+    //       // 验证通过，提交添加
+    //       var that = this;
+    //       labApi.update(this.pojo).then((response) => {
+    //         if (response.resultCode == 200) {
+    //           this.open = false;
+    //           this.$message({
+    //             message: "修改成功",
+    //             type: "success",
+    //           });
+    //           // 修改成功 刷新数据列表
+    //           that.getList(this.pageQuery);
+    //         } else {
+    //           // 失败 弹出提示
+    //           this.$message({
+    //             message: "response.message",
+    //             type: "warning",
+    //           });
+    //         }
+    //       });
+    //     } else {
+    //       // 验证失败
+    //       return false;
+    //     }
+    //   });
+    // },
 
     // 删除
     handleDelete(id) {
@@ -379,7 +372,7 @@ export default {
             });
             if (response.resultCode == 200) {
               // 删除成功 刷新列表
-              that.getList(this.pageQuery);
+              // that.getList(this.pageQuery);
             }
           });
         })
@@ -394,19 +387,9 @@ export default {
       this.ids = selection.map((item) => item.uuid);
       this.multiple = !selection.length;
     },
-
-    // 分页
-    handleSizeChange(val) {
-      this.pageQuery.page.pageSize = val;
-      this.getList();
-    },
-    handleCurrentChange(val) {
-      this.pageQuery.page.pageNum = val;
-      this.getList();
-    },
   },
 };
 </script>
 
-<style scoped>
+<style>
 </style>

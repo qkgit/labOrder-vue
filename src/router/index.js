@@ -94,6 +94,74 @@ export const asyncRoutes = [
 
   /** =====================管理员 路由================================ **/
 
+  // 用户管理
+  {
+    path: '/user',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'User',
+        component: () => import('@/views/user/index'),
+        meta: {
+          title: '用户管理',
+          icon: 'el-icon-user-solid',
+          roles: ['0']
+        }
+      }
+    ]
+  },
+  // 角色管理
+  {
+    path: '/role',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Role',
+        component: () => import('@/views/role/index'),
+        meta: {
+          title: '角色管理',
+          icon: 'peoples',
+          roles: ['0']
+        }
+      }
+    ]
+  },
+  // 菜单管理
+  {
+    path: '/menu',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Menu',
+        component: () => import('@/views/menu/index'),
+        meta: {
+          title: '菜单管理',
+          icon: 'tree-table',
+          roles: ['0']
+        }
+      }
+    ]
+  },
+  // 组织管理
+  {
+    path: '/dept',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Dept',
+        component: () => import('@/views/dept/index'),
+        meta: {
+          title: '组织管理',
+          icon: 'tree',
+          roles: ['0']
+        }
+      }
+    ]
+  },
   // 字典管理
   {
     path: '/sDict',
@@ -124,40 +192,6 @@ export const asyncRoutes = [
         meta: { title: '字典详情', roles: ['0'] },
         hidden: true,
         props: true
-      }
-    ]
-  },
-  // 部门管理
-  {
-    path: '/dept',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Dept',
-        component: () => import('@/views/dept/index'),
-        meta: {
-          title: '组织管理',
-          icon: 'tree',
-          roles: ['0']
-        }
-      }
-    ]
-  },
-  // 用户管理
-  {
-    path: '/user',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'User',
-        component: () => import('@/views/user/index'),
-        meta: {
-          title: '用户管理',
-          icon: 'el-icon-user-solid',
-          roles: ['0']
-        }
       }
     ]
   },
