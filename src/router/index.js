@@ -340,7 +340,7 @@ export const asyncRoutes = [
         }
       },
       {
-        path: 'edit/:id',
+        path: '/news/edit/:id',
         name: 'EditNews',
         component: () => import('@/views/news/edit'),
         meta: {
