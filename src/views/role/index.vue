@@ -63,7 +63,7 @@
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
+    <el-row :gutter="10" style="margin-bottom: 8px">
       <el-col :span="1.5">
         <el-button
           type="primary"
@@ -71,7 +71,6 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-         
           >新增</el-button
         >
       </el-col>
@@ -94,7 +93,13 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="角色编号" prop="roleId" width="120" />
+      <el-table-column label="显示顺序" prop="roleSort" width="100" />
+      <el-table-column
+        label="权限字符"
+        prop="roleKey"
+        :show-overflow-tooltip="true"
+        width="150"
+      />
       <el-table-column
         label="角色名称"
         prop="roleName"
@@ -102,12 +107,12 @@
         width="150"
       />
       <el-table-column
-        label="权限字符"
-        prop="roleKey"
+        label="备注"
+        prop="remark"
         :show-overflow-tooltip="true"
-        width="150"
+        width="250"
       />
-      <el-table-column label="显示顺序" prop="roleSort" width="100" />
+
       <el-table-column label="状态" align="center" width="100">
         <template slot-scope="scope">
           <el-switch
@@ -161,9 +166,7 @@
                 icon="el-icon-circle-check"
                 >数据权限</el-dropdown-item
               >
-              <el-dropdown-item
-                command="handleAuthUser"
-                icon="el-icon-user"
+              <el-dropdown-item command="handleAuthUser" icon="el-icon-user"
                 >分配用户</el-dropdown-item
               >
             </el-dropdown-menu>
@@ -191,15 +194,7 @@
           <el-input v-model="form.roleName" placeholder="请输入角色名称" />
         </el-form-item>
         <el-form-item prop="roleKey">
-          <span slot="label">
-            <el-tooltip
-              content="控制器中定义的权限字符，如：@PreAuthorize(`@ss.hasRole('admin')`)"
-              placement="top"
-            >
-              <i class="el-icon-question"></i>
-            </el-tooltip>
-            权限字符
-          </span>
+          <span slot="label"> 权限字符 </span>
           <el-input v-model="form.roleKey" placeholder="请输入权限字符" />
         </el-form-item>
         <el-form-item label="角色顺序" prop="roleSort">
@@ -213,9 +208,9 @@
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in statusOptions"
-              :key="dict.dictValue"
-              :label="dict.dictValue"
-              >{{ dict.dictLabel }}</el-radio
+              :key="dict.code"
+              :label="dict.code"
+              >{{ dict.name }}</el-radio
             >
           </el-radio-group>
         </el-form-item>
@@ -323,7 +318,10 @@
 
 <script>
 import roleApi from "@/api/system/role";
-// import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu";
+import {
+  treeselect as menuTreeselect,
+  roleMenuTreeselect,
+} from "@/api/system/menu";
 // import { treeselect as deptTreeselect, roleDeptTreeselect } from "@/api/system/dept";
 
 export default {
@@ -348,10 +346,14 @@ export default {
       open: false,
       // 是否显示弹出层（数据权限）
       openDataScope: false,
+      
+      
+      // 展开/折叠
       menuExpand: false,
-      menuNodeAll: false,
       deptExpand: true,
+      // 全选/全不选
       deptNodeAll: false,
+      menuNodeAll: false,
       // 日期范围
       dateRange: [],
       // 状态数据字典
@@ -436,13 +438,13 @@ export default {
       roleApi
         .listRole(this.addDateRange(this.pageQuery, this.dateRange))
         .then((response) => {
-          debugger
           const resp = response.data;
           this.roleList = resp.list;
           this.pageQuery.page.total = resp.total;
           this.loading = false;
         });
     },
+
     /** 查询菜单树结构 */
     getMenuTreeselect() {
       menuTreeselect().then((response) => {
@@ -455,12 +457,14 @@ export default {
         this.deptOptions = response.data;
       });
     },
-    // 所有菜单节点数据
+
+    // 所有已选中的菜单节点数据
     getMenuAllCheckedKeys() {
       // 目前被选中的菜单节点
       let checkedKeys = this.$refs.menu.getCheckedKeys();
       // 半选中的菜单节点
       let halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys();
+      // 组合为一个数组
       checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
       return checkedKeys;
     },
@@ -521,13 +525,16 @@ export default {
     },
     // 表单重置
     reset() {
+      // 重置菜单树选中节点
       if (this.$refs.menu != undefined) {
         this.$refs.menu.setCheckedKeys([]);
       }
+      // 重置菜单权限多选框
       (this.menuExpand = false),
-        (this.menuNodeAll = false),
-        (this.deptExpand = true),
-        (this.deptNodeAll = false),
+      (this.menuNodeAll = false),
+      (this.deptExpand = true),
+      (this.deptNodeAll = false),
+        // 重置form表单
         (this.form = {
           roleId: undefined,
           roleName: undefined,
@@ -572,36 +579,9 @@ export default {
           break;
       }
     },
-    // 树权限（展开/折叠）
-    handleCheckedTreeExpand(value, type) {
-      if (type == "menu") {
-        let treeList = this.menuOptions;
-        for (let i = 0; i < treeList.length; i++) {
-          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value;
-        }
-      } else if (type == "dept") {
-        let treeList = this.deptOptions;
-        for (let i = 0; i < treeList.length; i++) {
-          this.$refs.dept.store.nodesMap[treeList[i].id].expanded = value;
-        }
-      }
-    },
-    // 树权限（全选/全不选）
-    handleCheckedTreeNodeAll(value, type) {
-      if (type == "menu") {
-        this.$refs.menu.setCheckedNodes(value ? this.menuOptions : []);
-      } else if (type == "dept") {
-        this.$refs.dept.setCheckedNodes(value ? this.deptOptions : []);
-      }
-    },
-    // 树权限（父子联动）
-    handleCheckedTreeConnect(value, type) {
-      if (type == "menu") {
-        this.form.menuCheckStrictly = value ? true : false;
-      } else if (type == "dept") {
-        this.form.deptCheckStrictly = value ? true : false;
-      }
-    },
+
+    
+
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
@@ -609,10 +589,11 @@ export default {
       this.open = true;
       this.title = "添加角色";
     },
+
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const roleId = row.roleId || this.ids;
+      const roleId = row.roleId;
       const roleMenu = this.getRoleMenuTreeselect(roleId);
       getRole(roleId).then((response) => {
         this.form = response.data;
@@ -660,6 +641,7 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
         if (valid) {
+          debugger;
           if (this.form.roleId != undefined) {
             this.form.menuIds = this.getMenuAllCheckedKeys();
             updateRole(this.form).then((response) => {
@@ -669,7 +651,7 @@ export default {
             });
           } else {
             this.form.menuIds = this.getMenuAllCheckedKeys();
-            addRole(this.form).then((response) => {
+            roleApi.addRole(this.form).then((response) => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -710,7 +692,40 @@ export default {
         })
         .catch(() => {});
     },
-     // 分页
+
+    // 树权限（展开/折叠）
+    handleCheckedTreeExpand(value, type) {
+      debugger;
+      if (type == "menu") {
+        let treeList = this.menuOptions;
+        for (let i = 0; i < treeList.length; i++) {
+          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value;
+        }
+      } else if (type == "dept") {
+        let treeList = this.deptOptions;
+        for (let i = 0; i < treeList.length; i++) {
+          this.$refs.dept.store.nodesMap[treeList[i].id].expanded = value;
+        }
+      }
+    },
+    // 树权限（全选/全不选）
+    handleCheckedTreeNodeAll(value, type) {
+      if (type == "menu") {
+        this.$refs.menu.setCheckedNodes(value ? this.menuOptions : []);
+      } else if (type == "dept") {
+        this.$refs.dept.setCheckedNodes(value ? this.deptOptions : []);
+      }
+    },
+    // 树权限（父子联动）
+    handleCheckedTreeConnect(value, type) {
+      if (type == "menu") {
+        this.form.menuCheckStrictly = value ? true : false;
+      } else if (type == "dept") {
+        this.form.deptCheckStrictly = value ? true : false;
+      }
+    },
+
+    // 分页
     handleSizeChange(val) {
       this.pageQuery.page.pageSize = val;
       this.getList();
@@ -728,6 +743,5 @@ export default {
   color: #1890ff;
   margin-left: 5px;
   font-size: 12px;
-
 }
 </style>

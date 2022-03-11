@@ -7,5 +7,12 @@ export default {
             method: 'post',
             data: pageQuery
         })
+    },
+    addRole(data){
+        return request({
+            url: '/role',
+            method: 'post',
+            data
+        }) 
     }
 }
