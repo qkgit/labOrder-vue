@@ -23,3 +23,7 @@
 .login-form .el-input__inner {
   background-color: #f4f4f4;
 }
+
+.el-dialog:not(.is-fullscreen){
+	margin-top: 6vh !important;
+}
