@@ -330,34 +330,18 @@ export default {
     return {
       // 遮罩层
       loading: true,
-
       // 选中数组
       ids: [],
       // 非单个禁用
       single: true,
       // 非多个禁用
       multiple: true,
-
-      // 角色表格数据
-      roleList: [],
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 是否显示弹出层（数据权限）
-      openDataScope: false,
-      
-      
-      // 展开/折叠
-      menuExpand: false,
-      deptExpand: true,
-      // 全选/全不选
-      deptNodeAll: false,
-      menuNodeAll: false,
-      // 日期范围
-      dateRange: [],
       // 状态数据字典
       statusOptions: [],
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
       // 数据范围选项
       dataScopeOptions: [
         {
@@ -381,6 +365,8 @@ export default {
           label: "仅本人数据权限",
         },
       ],
+      // 角色表格数据
+      roleList: [],
       // 菜单列表
       menuOptions: [],
       // 部门列表
@@ -398,19 +384,22 @@ export default {
           status: undefined,
         },
       },
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        roleName: undefined,
-        roleKey: undefined,
-        status: undefined,
-      },
+      // 日期范围
+      dateRange: [],
       // 表单参数
       form: {},
-      defaultProps: {
-        children: "children",
-        label: "label",
-      },
+      // 弹出层标题
+      title: "",
+      // 是否显示弹出层
+      open: false,
+      // 是否显示弹出层（数据权限）
+      openDataScope: false,
+      // 展开/折叠
+      menuExpand: false,
+      deptExpand: true,
+      // 全选/全不选
+      deptNodeAll: false,
+      menuNodeAll: false,
       // 表单校验
       rules: {
         roleName: [
@@ -444,6 +433,17 @@ export default {
           this.loading = false;
         });
     },
+     /** 搜索按钮操作 */
+    handleQuery() {
+      this.pageQuery.page.pageNum = 1;
+      this.getList();
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.dateRange = [];
+      this.resetForm("queryForm");
+      this.handleQuery();
+    },
 
     /** 查询菜单树结构 */
     getMenuTreeselect() {
@@ -468,7 +468,7 @@ export default {
       checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
       return checkedKeys;
     },
-    // 所有部门节点数据
+    // 所有已选中的部门节点数据
     getDeptAllCheckedKeys() {
       // 目前被选中的部门节点
       let checkedKeys = this.$refs.dept.getCheckedKeys();
@@ -477,10 +477,13 @@ export default {
       checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
       return checkedKeys;
     },
+
+
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
+      console.log("getRoleMenuTreeselect");
       return roleMenuTreeselect(roleId).then((response) => {
-        this.menuOptions = response.menus;
+        this.menuOptions = response.data.menus;
         return response;
       });
     },
@@ -491,6 +494,7 @@ export default {
         return response;
       });
     },
+
     // 角色状态修改
     handleStatusChange(row) {
       let text = row.status === "0" ? "启用" : "停用";
@@ -513,6 +517,7 @@ export default {
           row.status = row.status === "0" ? "1" : "0";
         });
     },
+
     // 取消按钮
     cancel() {
       this.open = false;
@@ -531,9 +536,9 @@ export default {
       }
       // 重置菜单权限多选框
       (this.menuExpand = false),
-      (this.menuNodeAll = false),
-      (this.deptExpand = true),
-      (this.deptNodeAll = false),
+        (this.menuNodeAll = false),
+        (this.deptExpand = true),
+        (this.deptNodeAll = false),
         // 重置form表单
         (this.form = {
           roleId: undefined,
@@ -549,38 +554,6 @@ export default {
         });
       this.resetForm("form");
     },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.pageQuery.page.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.dateRange = [];
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.roleId);
-      this.single = selection.length != 1;
-      this.multiple = !selection.length;
-    },
-    // 更多操作触发
-    handleCommand(command, row) {
-      switch (command) {
-        case "handleDataScope":
-          this.handleDataScope(row);
-          break;
-        case "handleAuthUser":
-          this.handleAuthUser(row);
-          break;
-        default:
-          break;
-      }
-    },
-
-    
 
     /** 新增按钮操作 */
     handleAdd() {
@@ -589,18 +562,19 @@ export default {
       this.open = true;
       this.title = "添加角色";
     },
-
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const roleId = row.roleId;
       const roleMenu = this.getRoleMenuTreeselect(roleId);
-      getRole(roleId).then((response) => {
+      roleApi.getRole(roleId).then((response) => {
         this.form = response.data;
         this.open = true;
+        // 弹窗打开后 加载角色菜单树
         this.$nextTick(() => {
           roleMenu.then((res) => {
-            let checkedKeys = res.checkedKeys;
+            // 菜单树中选中的数据项
+            let checkedKeys = res.data.checkedKeys;
             checkedKeys.forEach((v) => {
               this.$nextTick(() => {
                 this.$refs.menu.setChecked(v, true, false);
@@ -611,32 +585,8 @@ export default {
         this.title = "修改角色";
       });
     },
-    /** 选择角色权限范围触发 */
-    dataScopeSelectChange(value) {
-      if (value !== "2") {
-        this.$refs.dept.setCheckedKeys([]);
-      }
-    },
-    /** 分配数据权限操作 */
-    handleDataScope(row) {
-      this.reset();
-      const roleDeptTreeselect = this.getRoleDeptTreeselect(row.roleId);
-      getRole(row.roleId).then((response) => {
-        this.form = response.data;
-        this.openDataScope = true;
-        this.$nextTick(() => {
-          roleDeptTreeselect.then((res) => {
-            this.$refs.dept.setCheckedKeys(res.checkedKeys);
-          });
-        });
-        this.title = "分配数据权限";
-      });
-    },
-    /** 分配用户操作 */
-    handleAuthUser: function (row) {
-      const roleId = row.roleId;
-      this.$router.push("/system/role-auth/user/" + roleId);
-    },
+
+    
     /** 提交按钮 */
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
@@ -693,6 +643,46 @@ export default {
         .catch(() => {});
     },
 
+     // 更多操作触发
+    handleCommand(command, row) {
+      switch (command) {
+        case "handleDataScope":
+          this.handleDataScope(row);
+          break;
+        case "handleAuthUser":
+          this.handleAuthUser(row);
+          break;
+        default:
+          break;
+      }
+    },
+    /** 选择角色权限范围触发 */
+    dataScopeSelectChange(value) {
+      if (value !== "2") {
+        this.$refs.dept.setCheckedKeys([]);
+      }
+    },
+    /** 分配数据权限操作 */
+    handleDataScope(row) {
+      this.reset();
+      const roleDeptTreeselect = this.getRoleDeptTreeselect(row.roleId);
+      getRole(row.roleId).then((response) => {
+        this.form = response.data;
+        this.openDataScope = true;
+        this.$nextTick(() => {
+          roleDeptTreeselect.then((res) => {
+            this.$refs.dept.setCheckedKeys(res.checkedKeys);
+          });
+        });
+        this.title = "分配数据权限";
+      });
+    },
+    /** 分配用户操作 */
+    handleAuthUser: function (row) {
+      const roleId = row.roleId;
+      this.$router.push("/system/role-auth/user/" + roleId);
+    },
+
     // 树权限（展开/折叠）
     handleCheckedTreeExpand(value, type) {
       debugger;
@@ -725,6 +715,12 @@ export default {
       }
     },
 
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map((item) => item.roleId);
+      this.single = selection.length != 1;
+      this.multiple = !selection.length;
+    },
     // 分页
     handleSizeChange(val) {
       this.pageQuery.page.pageSize = val;
