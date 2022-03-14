@@ -138,7 +138,7 @@
         align="center"
         class-name="small-padding fixed-width"
       >
-        <template slot-scope="scope" v-if="scope.row.roleId !== 1">
+        <template slot-scope="scope" v-if="scope.row.roleId !== '0'">
           <el-button
             size="mini"
             type="text"
@@ -593,9 +593,8 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const roleId = row.roleId;
-      const roleMenu = this.getRoleMenuTreeselect(roleId);
-      getRole(roleId).then((response) => {
+      // const roleMenu = this.getRoleMenuTreeselect(row.roleId);
+      roleApi.getRole(row.roleId).then((response) => {
         this.form = response.data;
         this.open = true;
         this.$nextTick(() => {

@@ -8,6 +8,12 @@ export default {
             data: pageQuery
         })
     },
+    getRole(roleId){
+        return request({
+            url: `/role/${roleId}`,
+            method: 'get'
+          })
+    },
     addRole(data){
         return request({
             url: '/role',
