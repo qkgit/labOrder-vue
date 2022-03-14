@@ -30,8 +30,8 @@ import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, 
 //   const { mockXHR } = require('../mock')
 //   mockXHR()
 // }
-console.log(process.env.NODE_ENV) // 开发环境 development ,生产环境 production
-console.log(process.env.VUE_APP_BASE_API)
+// console.log(process.env.NODE_ENV) // 开发环境 development ,生产环境 production
+// console.log(process.env.VUE_APP_BASE_API)
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts

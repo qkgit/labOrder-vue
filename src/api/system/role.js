@@ -20,5 +20,11 @@ export default {
             method: 'post',
             data
         }) 
+    },
+    getRole(roleId){
+        return request({
+            url: `/role/${roleId}`,
+            method: 'GET'
+        })
     }
 }
