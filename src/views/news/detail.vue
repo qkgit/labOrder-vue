@@ -28,10 +28,11 @@ export default {
         releaseTime: '',
         content: ''
       },
-      id: this.$route.params && this.$route.params.newsId
+      id: ''
     }
   },
   created() {
+    this.id = this.$route.params && this.$route.params.newsId;
     newsApi.getNewsDetail(this.id).then((response) => {
       this.new = response.data
     })

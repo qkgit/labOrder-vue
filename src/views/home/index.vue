@@ -230,9 +230,7 @@ export default {
       })
     },
     toNewsDetil(newsId) {
-      this.$router.push({
-        path: `/newsDetail/${newsId}`
-      })
+      this.$router.push({path: `/newsDetail/${newsId}`})
     },
     // 时间格式化
     dateFormat(date) {

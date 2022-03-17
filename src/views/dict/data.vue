@@ -233,47 +233,11 @@ export default {
       // 遮罩层
       loading: true,
       // 状态字典
-      statusOptions: [
-        {
-          name: "正常",
-          code: "0",
-          listClass: "primary",
-        },
-        {
-          name: "暂停",
-          code: "1",
-          listClass: "danger",
-        },
-      ],
+      statusOptions: [],
       // 字典管理表格数据
       dictList: [],
       // 数据标签回显样式
-      listClassOptions: [
-        {
-          code: "default",
-          name: "默认",
-        },
-        {
-          code: "primary",
-          name: "主要",
-        },
-        {
-          code: "success",
-          name: "成功",
-        },
-        {
-          code: "info",
-          name: "信息",
-        },
-        {
-          code: "warning",
-          name: "警告",
-        },
-        {
-          code: "danger",
-          name: "危险",
-        },
-      ],
+      listClassOptions: [],
       // 选中数组
       ids: [],
       // 非多个禁用
@@ -289,7 +253,7 @@ export default {
           code: "", // 字典编码
           name: "", // 字典名称
           status: "", // 字典状态
-          tableType: this.$route.params && this.$route.params.tableType, // 字典类型
+          tableType: '', // 字典类型
           params: {},
         },
       },
@@ -324,6 +288,7 @@ export default {
   },
   computed: {},
   created() {
+    this.pageQuery.item.tableType = this.$route.params && this.$route.params.tableType
     this.getList();
     this.getDicts("sys_job_status").then((response) => {
       this.statusOptions = response.data;

@@ -65,7 +65,7 @@ export default {
   components: { Tinymce },
   data() {
     return {
-      id: (this.$route.params && this.$route.params.id),
+      id: '',
       pojo: {
         newsId: '',
         newsType: '',
@@ -76,6 +76,7 @@ export default {
     }
   },
   created() {
+    this.id = this.$route.params && this.$route.params.id
     this.fetchData(this.id)
   },
   methods: {
@@ -149,7 +150,7 @@ export default {
       })
     },
     off() {
-      this.$router.push(`/news/index`)
+      this.$router.push({path: `/system/news`})
     }
   }
 }

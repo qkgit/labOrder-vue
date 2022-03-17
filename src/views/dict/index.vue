@@ -337,21 +337,7 @@ export default {
     },
     /** 获取字典项 */
     getSDictData(row) {
-      this.$router.push({
-        path: `/sDict/${row.code}`,
-      });
-      // 重置item
-      this.resetForm("queryForm");
-      // 添加当前选中类型
-      this.pageQuery.item.tableType = "";
-      this.pageQuery.item.tableType = row.code;
-      dictApi.listData(this.pageQuery).then((response) => {
-        this.dictList = response.data.list;
-        this.pageQuery.page.total = response.data.total;
-        this.loading = false;
-        // 重置item
-        this.resetForm("queryForm");
-      });
+      this.$router.push({path: `/system/dict-data/${row.code}`});
     },
 
     // 取消按钮

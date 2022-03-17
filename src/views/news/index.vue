@@ -207,7 +207,7 @@ export default {
     },
     // 进入添加文章页面
     handleAddNews(id) {
-      this.$router.push(`/news/edit/${id}`)
+      this.$router.push(`/system/news/edit/${id}`)
     },
     // 发布、撤回文章
     handleRelease(newsId) {
@@ -231,7 +231,7 @@ export default {
     },
     // 编辑文章
     handleEdit(id) {
-      this.$router.push(`/news/edit/${id}`)
+      this.$router.push(`/system/news/edit/${id}`)
     },
     // 删除文章
     handleDelete(id) {
