@@ -69,14 +69,15 @@
     >
       <el-table-column prop="icon" label="图标" align="center" width="100">
         <template slot-scope="scope">
+          <i
+            v-if="scope.row.icon.includes('el-icon')"
+            :class="scope.row.icon"
+          ></i>
           <svg-icon
-            v-if="scope.row.iconType == 'icon'"
+            v-else
             :icon-class="scope.row.icon"
           />
-          <i
-            v-if="scope.row.iconType == 'element'"
-            :class="'el-icon-' + scope.row.icon"
-          ></i>
+          
         </template>
       </el-table-column>
       <el-table-column
@@ -218,13 +219,13 @@
                     class="el-icon-search el-input__icon"
                   />
                   <i
-                    v-else-if="form.iconType == 'element'"
+                    v-else-if="form.icon.includes('el-icon')"
                     slot="prefix"
-                    :class="'el-icon-' + form.icon"
+                    :class="form.icon"
                     style="height: 32px; width: 16px"
                   />
                   <svg-icon
-                    v-else-if="form.iconType == 'icon'"
+                    v-else
                     slot="prefix"
                     :icon-class="form.icon"
                     class="el-input__icon"
@@ -441,8 +442,7 @@ export default {
     },
     // 选择图标
     selected(name, type) {
-      this.form.icon = name;
-      this.form.iconType = type;
+      this.form.icon = type == 'icon' ? name : 'el-icon-'+name;
     },
     /** 重置按钮操作 */
     resetQuery() {

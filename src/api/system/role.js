@@ -21,10 +21,22 @@ export default {
             data
         }) 
     },
-    getRole(roleId){
+    updateRole(data){
         return request({
-            url: `/role/${roleId}`,
-            method: 'GET'
+            url: '/role',
+            method: 'put',
+            data
+        }) 
+    },
+    changeRoleStatus(roleId, status) {
+        const data = {
+          roleId,
+          status
+        }
+        return request({
+          url: '/role/changeStatus',
+          method: 'put',
+          data: data
         })
     }
 }

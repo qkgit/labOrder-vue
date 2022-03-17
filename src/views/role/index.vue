@@ -481,7 +481,6 @@ export default {
 
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
-      console.log("getRoleMenuTreeselect");
       return roleMenuTreeselect(roleId).then((response) => {
         this.menuOptions = response.data.menus;
         return response;
@@ -493,29 +492,6 @@ export default {
         this.deptOptions = response.depts;
         return response;
       });
-    },
-
-    // 角色状态修改
-    handleStatusChange(row) {
-      let text = row.status === "0" ? "启用" : "停用";
-      this.$confirm(
-        '确认要"' + text + '""' + row.roleName + '"角色吗?',
-        "警告",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
-        .then(function () {
-          return changeRoleStatus(row.roleId, row.status);
-        })
-        .then(() => {
-          this.msgSuccess(text + "成功");
-        })
-        .catch(function () {
-          row.status = row.status === "0" ? "1" : "0";
-        });
     },
 
     // 取消按钮
@@ -585,7 +561,28 @@ export default {
         this.title = "修改角色";
       });
     },
-
+     // 角色状态修改
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$confirm(
+        '确认要"' + text + '""' + row.roleName + '"角色吗?',
+        "警告",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(function () {
+          return roleApi.changeRoleStatus(row.roleId, row.status);
+        })
+        .then(() => {
+          this.msgSuccess(text + "成功");
+        })
+        .catch(function () {
+          row.status = row.status === "0" ? "1" : "0";
+        });
+    },
     
     /** 提交按钮 */
     submitForm: function () {
@@ -594,15 +591,15 @@ export default {
           debugger;
           if (this.form.roleId != undefined) {
             this.form.menuIds = this.getMenuAllCheckedKeys();
-            updateRole(this.form).then((response) => {
-              this.msgSuccess("修改成功");
+            roleApi.updateRole(this.form).then((response) => {
+              this.msgSuccess(response.message);
               this.open = false;
               this.getList();
             });
           } else {
             this.form.menuIds = this.getMenuAllCheckedKeys();
             roleApi.addRole(this.form).then((response) => {
-              this.msgSuccess("新增成功");
+              this.msgSuccess(response.message);
               this.open = false;
               this.getList();
             });
