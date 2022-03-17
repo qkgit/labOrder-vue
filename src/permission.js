@@ -11,48 +11,36 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration|进度条
 const whiteList = ['/login'] // 白名单
 
 router.beforeEach(async(to, from, next) => {
-
   // 开始进度条
   NProgress.start()
   // 设置页面标题
   document.title = getPageTitle(to.meta.title)
-
   // 确定用户是否已经登录
   const hasToken = getToken()
-
   if (hasToken) {
+    // 如果已登录，则重定向到主页
     if (to.path === '/login') {
-      // 如果已登录，则重定向到主页
       next({ path: '/' })
       NProgress.done()
     } else {
-      // 看下是否有用户信息
+      // 看下是否有用户信息 有信息进入目标路由
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo) {
-        // 有信息进入目标路由
         next()
       } else {
         // 通过token 获取用户信息
         try {
           // 判断用户是否为首次登录
-          const { isFirstLogin, roles } = await store.dispatch('user/getInfo')
-          debugger
-          if (isFirstLogin === '1') {
-            // 弹出修改密码界面
-            next('/updPwd')
-            NProgress.done()
-            return
-          } else {
-            // 根据roles生成可访问的路由表
-            const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
-            // 动态添加可访问路由
-            router.addRoutes(accessRoutes)
-            // next()
-            // router.addRoutes 之后的next()可能失效，可能因为next()时 路由并没有完全add好
-            // 可以简单的通过next(to) 避开这个问题 这行代码重新进入router.beforEach()这个钩子
-            // 再通过next() 来释放钩子
-            next({ ...to, replace: true })
-          }
+          const { isFirstLogin } = await store.dispatch('user/getInfo')         
+          // 生成可访问的路由表
+          const accessRoutes = await store.dispatch('permission/generateRoutes', isFirstLogin)
+          // 动态添加可访问路由
+          router.addRoutes(accessRoutes)
+          // next()
+          // router.addRoutes 之后的next()可能失效，可能因为next()时 路由并没有完全add好
+          // 可以简单的通过next(to) 避开这个问题 这行代码重新进入router.beforEach()这个钩子
+          // 再通过next() 来释放钩子
+          next({ ...to, replace: true })  
         } catch (error) {
           // 删除令牌，转到登录页面重新登录
           await store.dispatch('user/resetToken')

@@ -51,3 +51,11 @@ export function roleMenuTreeselect(roleId) {
         method: 'get'
     })
 } 
+
+// 用户获取路由菜单
+export const getRouters = ()=>{
+    return request({
+        url: '/getRouters',
+        method: 'GET'
+    })
+}

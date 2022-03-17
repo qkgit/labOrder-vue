@@ -1,36 +1,7 @@
 import { asyncRoutes, constantRoutes } from '@/router'
-
-/**
- * 使用 meta.role 来确定当前用户是否具有权限
- */
-function hasPermission(roles, route) {
-  if (route.meta && route.meta.roles) {
-    // 如果该路由项配置了 权限
-    // 判断路由权限中包不包括该用户
-    return route.meta.roles.includes(roles)
-  } else {
-    // 如果没有配置权限 则所有人可见
-    return true
-  }
-}
-
-/**
- * 通过递归过滤异步路由表
- */
-export function filterAsyncRoutes(routes, roles) {
-  const res = []
-
-  routes.forEach(route => {
-    const tmp = { ...route }
-    if (hasPermission(roles, tmp)) {
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, roles)
-      }
-      res.push(tmp)
-    }
-  })
-  return res
-}
+import { getRouters } from '@/api/system/menu'
+import Layout from '@/layout'
+import ParentView from '@/components/ParentView'
 
 const state = {
   routes: [],
@@ -45,27 +16,98 @@ const mutations = {
 }
 
 const actions = {
-  generateRoutes({ commit }, roles) {
+  generateRoutes({ commit }, isFirstLogin) {
     return new Promise(resolve => {
-      let accessedRoutes
-      let isAdmin = 0
-      roles.forEach((role) => {
-        if (role.roleId === '0') {
-          isAdmin = 1
-        }
-      })
-      // roles.includes('0')
-      if (isAdmin === 1) {
-        accessedRoutes = asyncRoutes || []
+      if (isFirstLogin == '1') {
+        accessedRoutes.push({ 
+          path: '/updPwd',
+          component: ParentView,
+          children: [{
+            path: '/',
+            name: 'UpdPwd',
+            component: () => import('@/views/updPassword/index'),
+            meta: { title: '修改密码', icon: '' },
+            hidden: true
+          }]
+        })
+        accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
+        commit('SET_ROUTES', accessedRoutes)
+        resolve(accessedRoutes)
       } else {
-        roles.forEach((role) => {
-          accessedRoutes = filterAsyncRoutes(asyncRoutes, role.roleId)
+        getRouters().then(res => {
+          const data = JSON.parse(JSON.stringify(res.data))
+          const accessedRoutes = filterAsyncRoutes(data)
+          // 404页面必须放在最后!!
+          accessedRoutes.push({
+              path: '/404',
+              component: () => import('@/views/404'),
+              meta: { title: '404', icon: 'el-icon-error' },
+              hidden: true
+          });
+          accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
+          commit('SET_ROUTES', accessedRoutes)
+          resolve(accessedRoutes)
         })
       }
-      commit('SET_ROUTES', accessedRoutes)
-      resolve(accessedRoutes)
     })
   }
+}
+
+/**
+ * 遍历后台传来的路由字符串，转换为组件对象
+ */
+function filterAsyncRoutes(routes) {
+  return routes.filter(route => {
+    if (route.children) {
+      route.children = filterChildren(route.children)
+    }
+    if (route.component) {
+      // Layout ParentView 组件特殊处理
+      if (route.component === 'Layout') {
+        route.component = Layout
+      } else if (route.component === 'ParentView') {
+        route.component = ParentView
+      } else {
+        route.component = loadView(route.component)
+      }
+    }
+    if (route.children != null && route.children && route.children.length) {
+      route.children = filterAsyncRoutes(route.children)
+    } else {
+      delete route['children']
+      delete route['redirect']
+    }
+    return true
+  })
+}
+
+function filterChildren(childrenMap, lastRouter = false) {
+  var children = []
+  childrenMap.forEach((el, index) => {
+    if (el.children && el.children.length) {
+      if (el.component === 'ParentView') {
+        el.children.forEach(c => {
+          c.path = el.path + '/' + c.path
+          if (c.children && c.children.length) {
+            children = children.concat(filterChildren(c.children, c))
+            return
+          }
+          children.push(c)
+        })
+        return
+      }
+    }
+    if (lastRouter) {
+      el.path = lastRouter.path + '/' + el.path
+    }
+    children = children.concat(el)
+  })
+  return children;
+}
+
+// 路由懒加载
+export const loadView = (view) => {
+  return (resolve) => require([`@/views/${view}`], resolve)
 }
 
 export default {
