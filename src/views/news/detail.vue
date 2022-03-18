@@ -20,7 +20,6 @@ import moment from 'moment'
 
 export default {
   components: {},
-  props: ['newsId'],
   data() {
     return {
       new: {
@@ -45,7 +44,6 @@ export default {
       return moment(date).format('YYYY-MM-DD')
     },
     goBack() {
-      console.log('go back')
       this.$router.back()
     }
   }

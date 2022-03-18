@@ -153,7 +153,14 @@
             @click="handleDelete(scope.row)"
             >删除</el-button
           >
-          <el-dropdown
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-user"
+            @click="handleAuthUser(scope.row)"
+            >分配用户</el-button
+          >
+          <!-- <el-dropdown
             size="mini"
             @command="(command) => handleCommand(command, scope.row)"
           >
@@ -170,7 +177,7 @@
                 >分配用户</el-dropdown-item
               >
             </el-dropdown-menu>
-          </el-dropdown>
+          </el-dropdown> -->
         </template>
       </el-table-column>
     </el-table>
@@ -256,7 +263,7 @@
     </el-dialog>
 
     <!-- 分配角色数据权限对话框 -->
-    <el-dialog
+    <!-- <el-dialog
       :title="title"
       :visible.sync="openDataScope"
       width="500px"
@@ -312,7 +319,7 @@
         <el-button type="primary" @click="submitDataScope">确 定</el-button>
         <el-button @click="cancelDataScope">取 消</el-button>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -433,7 +440,7 @@ export default {
           this.loading = false;
         });
     },
-     /** 搜索按钮操作 */
+    /** 搜索按钮操作 */
     handleQuery() {
       this.pageQuery.page.pageNum = 1;
       this.getList();
@@ -477,7 +484,6 @@ export default {
       checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
       return checkedKeys;
     },
-
 
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
@@ -561,7 +567,7 @@ export default {
         this.title = "修改角色";
       });
     },
-     // 角色状态修改
+    // 角色状态修改
     handleStatusChange(row) {
       let text = row.status === "0" ? "启用" : "停用";
       this.$confirm(
@@ -583,7 +589,7 @@ export default {
           row.status = row.status === "0" ? "1" : "0";
         });
     },
-    
+
     /** 提交按钮 */
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
@@ -621,26 +627,32 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const roleIds = row.roleId || this.ids;
-      this.$confirm(
-        '是否确认删除角色编号为"' + roleIds + '"的数据项?',
-        "警告",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
+      this.$confirm("是否确认删除选中角色?", "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
         .then(function () {
-          return delRole(roleIds);
+          return roleApi.delRole(roleIds);
         })
-        .then(() => {
+        .then((res) => {
           this.getList();
-          this.msgSuccess("删除成功");
+          this.msgSuccess(res.message);
         })
         .catch(() => {});
     },
 
-     // 更多操作触发
+
+    /** 分配用户操作 */
+    handleAuthUser: function (row) {
+      const roleId = row.roleId;
+      this.$router.push({path: "/role-auth/user/" + roleId });
+    },
+
+
+
+    // 待定-----------------------------
+    // 更多操作触发
     handleCommand(command, row) {
       switch (command) {
         case "handleDataScope":
@@ -674,11 +686,11 @@ export default {
         this.title = "分配数据权限";
       });
     },
-    /** 分配用户操作 */
-    handleAuthUser: function (row) {
-      const roleId = row.roleId;
-      this.$router.push("/system/role-auth/user/" + roleId);
-    },
+    // end--------------------------------
+
+
+
+
 
     // 树权限（展开/折叠）
     handleCheckedTreeExpand(value, type) {

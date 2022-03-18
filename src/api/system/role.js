@@ -38,5 +38,11 @@ export default {
           method: 'put',
           data: data
         })
+    },
+    delRole(roleIds){
+        return request({
+            url: `/role/${roleIds}`,
+            method: 'DELETE',
+        })
     }
 }

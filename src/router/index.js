@@ -58,6 +58,13 @@ export const constantRoutes = [
         component: () => import('@/views/news/detail'),
         meta: { title: '文章详情', breadcrumb: false },
         hidden: true,
+      },
+      {
+        path: '/role-auth/user/:roleId',
+        name: 'AuthUser',
+        component: ()=> import('@/views/role/authUser'),
+        meta: { title: '分配用户', activeMenu: '/system/role'},
+        hidden: true
       }
     ]
   }
