@@ -17,6 +17,8 @@ import '@/icons' // icon | 图标
 import '@/permission' // permission control | 权限控制
 import { getDicts } from '@/api/system/dict.js' // 获取字典项
 import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, download, handleTree } from '@/utils/baseUtils'
+import qs from 'qs'     
+Vue.prototype.$qs = qs
 // import { from } from 'core-js/core/array'
 /**
  * 如果您不想使用模拟服务器 mock-server
