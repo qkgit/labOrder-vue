@@ -4,7 +4,7 @@
       :content="this.role.roleName + '-分配用户'"
       @back="goBack"
     />
-    
+    <br />
     <el-form :model="pageQuery.item" ref="queryForm" :inline="true">
       <el-form-item label="用户名称" prop="realName">
         <el-input
