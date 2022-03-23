@@ -45,6 +45,7 @@ export default {
             method: 'DELETE',
         })
     },
+    // 查询角色已授权用户
     allocatedUserList(data) {
         return request({
             url: '/role/authUser/allocatedList',
@@ -75,5 +76,14 @@ export default {
             method: 'put',
             data
           })
-    }
+    },
+   
+}
+
+// 获取角色部门用户下拉数
+export function deptUserTreeSelect(roleId){
+    return request({
+        url: `/userTreeSelect/${roleId}`,
+        method: 'GET'
+    })
 }

@@ -86,16 +86,10 @@
       />
       <el-table-column label="操作" width="150">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="primary"
-            @click="handleEdit(scope.row.lid)"
+          <el-button size="mini" type="primary" @click="handleEdit(scope.row)"
             >修改</el-button
           >
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.row.lid)"
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)"
             >删除</el-button
           >
         </template>
@@ -129,15 +123,9 @@
             </el-form-item>
           </el-col>
           <el-col :span="10">
-            <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="pojo.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.name"
-                  :label="dict.code"
-                  >{{ dict.name }}</el-radio
-                >
-              </el-radio-group>
+            <el-form-item label="容量" prop="cap">
+              <el-input size="medium" v-model="pojo.cap" style="width: 70%" />
+              (人)
             </el-form-item>
           </el-col>
         </el-row>
@@ -148,31 +136,48 @@
             </el-form-item>
           </el-col>
           <el-col :span="10">
-            <el-form-item label="容量" prop="cap">
-              <el-input size="medium" v-model="pojo.cap" style="width: 70%" />
-              人
+            <el-form-item label="楼层" prop="level">
+              <el-input-number
+                v-model="pojo.level"
+                size="medium"
+                controls-position="right"
+                :min="1"
+              />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-form-item label="教室负责人" prop="leader">
+          <el-form-item label="教室负责人" prop="leaderId">
             <el-col :span="10">
               <treeselect
-                v-model="pojo.leader"
+                v-model="pojo.leaderId"
                 :options="userOptions"
+                :props="defaultProps"
                 :show-count="true"
                 :disable-branch-nodes="true"
                 placeholder="请选择教室负责人"
               />
             </el-col>
+            <el-col :span="10">
+              <el-form-item label="状态" prop="status">
+                <el-radio-group v-model="pojo.status">
+                  <el-radio
+                    v-for="dict in statusOptions"
+                    :key="dict.name"
+                    :label="dict.code"
+                    >{{ dict.name }}</el-radio
+                  >
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
           </el-form-item>
         </el-row>
         <el-row>
           <el-form-item label="备注" prop="remark">
-            <el-col :span="15">
+            <el-col :span="20">
               <el-input
                 type="textarea"
-                :rows="2"
+                :rows="3"
                 placeholder="请输入备注"
                 v-model="pojo.remark"
               >
@@ -182,12 +187,8 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button
-          type="primary"
-          @click="pojo.lid === '' ? addData() : updataDate()"
-          >确 定</el-button
-        >
-        <el-button @click="open = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -195,6 +196,7 @@
 
 <script>
 import roomApi from "@/api/system/classroom";
+import { deptUserTreeSelect } from "@/api/system/role";
 import DictTag from "@/components/DictTag";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
@@ -224,7 +226,7 @@ export default {
       pageQuery: {
         page: {
           total: 10,
-          pageNum: 1, // 每页显示条数，10条
+          pageNum: 1,
         },
         item: {
           name: undefined,
@@ -234,15 +236,8 @@ export default {
         },
       },
 
-      pojo: {
-        lid: "",
-        lname: "",
-        ltype: "",
-        laddress: "",
-        lcap: "",
-      },
-      open: false, // 是否显示弹出对话框
-      // 弹出层标题
+      pojo: {},
+      open: false,
       title: "",
       rules: {},
     };
@@ -268,94 +263,67 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
+      this.resetForm("ruleForm");
       this.getList();
     },
-
     // 表单重置
     reset() {
       this.pojo = {
-        code: null,
-        name: null,
-        orderNum: null,
-        tableType: null,
-        remark: null,
+        uuid: undefined,
+        name: undefined,
+        cap: undefined,
+        address: undefined,
+        level: 1,
+        leader: undefined,
         status: "0",
+        remark: undefined,
       };
       this.resetForm("pojoForm");
     },
-
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+    getUserTreeSelect() {
+      deptUserTreeSelect("3").then((res) => {
+        this.userOptions = res.data;
+      });
+    },
     // 打开添加窗口
     handleAdd() {
       this.reset();
+      this.getUserTreeSelect();
       this.open = true;
       this.title = "添加教室";
     },
     // 打开编辑窗口
-    handleEdit(id) {
+    handleEdit(row) {
       this.reset();
-      // //通过id查询数据
-      roomApi.getById(id).then((response) => {
+      this.getUserTreeSelect();      
+      roomApi.getRoom(row.uuid).then((response) => {
         this.pojo = response.data;
         this.open = true;
         this.title = "修改教室";
       });
     },
-    // 添加
-    addData() {
+
+    submitForm: function () {
       this.$refs.pojoForm.validate((valid) => {
         if (valid) {
-          var that = this;
-          // 验证通过，提交添加
-          labApi.addLab(this.pojo).then((response) => {
-            if (response.resultCode == 200) {
+          if (this.pojo.uuid != undefined) {
+             roomApi.updateRoom(this.pojo).then((res) => {
               this.open = false;
-              this.$message({
-                message: "添加成功",
-                type: "success",
-              });
-              // 新增成功 刷新数据列表
-              that.getList(this.pageQuery);
-            } else {
-              // 失败 弹出提示
-              this.$message({
-                message: "response.message",
-                type: "warning",
-              });
-            }
-          });
-        } else {
-          // 验证失败
-          return false;
-        }
-      });
-    },
-    // 修改
-    updataDate() {
-      this.$refs.pojoForm.validate((valid) => {
-        if (valid) {
-          // 验证通过，提交添加
-          var that = this;
-          labApi.update(this.pojo).then((response) => {
-            if (response.resultCode == 200) {
+              this.msgSuccess(res.message);
+              this.getList();
+            });
+          } else {
+            roomApi.addRoom(this.pojo).then((res) => {
               this.open = false;
-              this.$message({
-                message: "修改成功",
-                type: "success",
-              });
-              // 修改成功 刷新数据列表
-              that.getList(this.pageQuery);
-            } else {
-              // 失败 弹出提示
-              this.$message({
-                message: "response.message",
-                type: "warning",
-              });
-            }
-          });
-        } else {
-          // 验证失败
-          return false;
+              this.msgSuccess(res.message);
+              this.getList();
+            });
+          }
         }
       });
     },
