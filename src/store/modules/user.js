@@ -45,10 +45,9 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ loginName: username.trim(), password: password }).then(response => {
-        //todo 判断用户首次登录  
         const { data } = response
         commit('SET_TOKEN', data)
-        // //将token存入cookies中
+        // 将token存入cookies中
         setToken(data)
         resolve()
       }).catch(error => {
@@ -66,16 +65,12 @@ const actions = {
         if (!data) {
           return reject(response.message)
         }
-        debugger
         const { realName, avatar, institute, major, isFirstLogin } = data
         commit('SET_NAME', realName)
         commit('SET_AVATAR', avatar)
         commit('SET_INSTITUTE', institute)
         commit('SET_MAJOR', major)
         commit('SET_ISFIRSTLOGIN',isFirstLogin)
-        // if (isFirstlogin === '1') {
-        //   data.roles = 99
-        // }
         resolve(data)
       }).catch(error => {
         reject(error)

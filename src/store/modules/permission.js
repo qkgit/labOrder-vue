@@ -16,39 +16,22 @@ const mutations = {
 }
 
 const actions = {
-  generateRoutes({ commit }, isFirstLogin) {
+  generateRoutes({ commit }) {
     return new Promise(resolve => {
-      if (isFirstLogin == '1') {
-        accessedRoutes.push({ 
-          path: '/updPwd',
-          component: ParentView,
-          children: [{
-            path: '/',
-            name: 'UpdPwd',
-            component: () => import('@/views/updPassword/index'),
-            meta: { title: '修改密码', icon: '' },
+      getRouters().then(res => {
+        const data = JSON.parse(JSON.stringify(res.data))
+        const accessedRoutes = filterAsyncRoutes(data)
+        // 404页面必须放在最后!!
+        accessedRoutes.push({
+            path: '/404',
+            component: () => import('@/views/404'),
+            meta: { title: '404', icon: 'el-icon-error' },
             hidden: true
-          }]
-        })
+        });
         accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
         commit('SET_ROUTES', accessedRoutes)
         resolve(accessedRoutes)
-      } else {
-        getRouters().then(res => {
-          const data = JSON.parse(JSON.stringify(res.data))
-          const accessedRoutes = filterAsyncRoutes(data)
-          // 404页面必须放在最后!!
-          accessedRoutes.push({
-              path: '/404',
-              component: () => import('@/views/404'),
-              meta: { title: '404', icon: 'el-icon-error' },
-              hidden: true
-          });
-          accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
-          commit('SET_ROUTES', accessedRoutes)
-          resolve(accessedRoutes)
-        })
-      }
+      })
     })
   }
 }

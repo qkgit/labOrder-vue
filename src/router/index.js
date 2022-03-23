@@ -21,6 +21,17 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/updPwd',
+    component: ParentView,
+    children: [{
+      path: '/',
+      name: 'UpdPwd',
+      component: () => import('@/views/updPassword/index'),
+      meta: { title: '修改密码' },
+      hidden: true
+    }]
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/home',
@@ -49,7 +60,7 @@ export const constantRoutes = [
         path: '/system/news/edit/:id',
         name: 'EditNews',
         component: () => import('@/views/news/edit'),
-        meta: {title: '文章编辑', activeMenu: '/system/news'},
+        meta: { title: '文章编辑', activeMenu: '/system/news' },
         hidden: true,
       },
       {
@@ -62,8 +73,8 @@ export const constantRoutes = [
       {
         path: '/role-auth/user/:roleId',
         name: 'AuthUser',
-        component: ()=> import('@/views/role/authUser'),
-        meta: { title: '分配用户', activeMenu: '/system/role'},
+        component: () => import('@/views/role/authUser'),
+        meta: { title: '分配用户', activeMenu: '/system/role' },
         hidden: true
       }
     ]
