@@ -49,7 +49,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item prop="roles">
+          <el-form-item prop="roleId">
             <el-select
               v-model="pageQuery.item.roleId"
               placeholder="请选择用户身份"
