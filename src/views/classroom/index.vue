@@ -329,31 +329,21 @@ export default {
     },
 
     // 删除
-    handleDelete(id) {
-      console.log("删除" + id);
-      this.$confirm("确认删除这条记录吗？", "提示", {
+    handleDelete(row) {
+     const ids = row.uuid || this.ids;
+     this.$confirm("确认删除选中教室吗?", "警告", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",
         type: "warning",
       })
-        .then(() => {
-          // 确认
-          var that = this;
-          labApi.deleteById(id).then((response) => {
-            // 提示信息
-            this.$message({
-              type: response.resultCode == 200 ? "success" : "error",
-              message: response.message,
-            });
-            if (response.resultCode == 200) {
-              // 删除成功 刷新列表
-              that.getList(this.pageQuery);
-            }
-          });
+        .then( function() {
+          return roomApi.delRoom(ids);
         })
-        .catch(() => {
-          // 取消删除 不理会
-        });
+        .then((res)=>{
+          this.getList();
+          this.msgSuccess(res.message);
+        })
+        .catch(() => {});
     },
 
     // 多选框选中数据

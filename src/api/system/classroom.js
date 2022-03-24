@@ -27,5 +27,11 @@ export default {
             method: 'put',
             data
         })
-    }
+    },
+    delRoom(ids) {
+        return request({
+            url: `/room/${ids}`,
+            method: 'DELETE',
+        })
+    },
 }
