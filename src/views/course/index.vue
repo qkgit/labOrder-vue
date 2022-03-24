@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    课程管理
     <!-- 查询表单 :inline="true"行内表单-->
     <el-form
       ref="ruleForm"
@@ -8,18 +7,11 @@
       :model="pageQuery.item"
       class="demo-form-inline"
     >
-      <el-form-item prop="eName">
-        <el-input v-model="pageQuery.item.eName" placeholder="实验名称" />
+      <el-form-item prop="name">
+        <el-input v-model="pageQuery.item.name" placeholder="课程名称" />
       </el-form-item>
-      <el-form-item prop="eType">
-        <el-select v-model="pageQuery.item.eType" placeholder="请选择实验类型">
-          <el-option
-            v-for="option in expTypeOptions"
-            :key="option.type"
-            :label="option.name"
-            :value="option.type"
-          />
-        </el-select>
+      <el-form-item prop="leader">
+        <el-input v-model="pageQuery.item.leader" placeholder="任课教师" />
       </el-form-item>
       <el-form-item>
         <el-button
@@ -32,32 +24,25 @@
           type="primary"
           icon="el-icon-circle-plus-outline"
           @click="handleAdd"
-          >添加实验</el-button
+          >添加课程</el-button
         >
       </el-form-item>
     </el-form>
     <!-- 数据列表  -->
-    <el-table :data="expList" stripe border style="width: 95%">
+    <el-table :data="courseList" stripe border style="width: 95%">
       <el-table-column type="index" label="序号" width="60" />
 
-      <el-table-column prop="expName" label="实验名称" />
-      <el-table-column prop="expType" label="实验类型">
-        <template slot-scope="scope">
-          <span>{{ scope.row.expType | expTypeFilter }} </span>
-        </template>
+      <el-table-column prop="name" label="课程名称" width="200" />
+      <el-table-column prop="leader" label="任课教师" width="120" />
+      <el-table-column prop="type" label="课程类型" width="100">
       </el-table-column>
+      <el-table-column prop="remark" label="备注" />
       <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="primary"
-            @click="handleEdit(scope.row.expId)"
+          <el-button size="mini" type="primary" @click="handleEdit(scope.row)"
             >修改</el-button
           >
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.row.expId)"
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)"
             >删除</el-button
           >
         </template>
@@ -75,7 +60,7 @@
       @current-change="handleCurrentChange"
     />
     <!-- 新增对话框 -->
-    <el-dialog title="新增实验" :visible.sync="dialogFormVisible">
+    <el-dialog title="新增课程" :visible.sync="dialogFormVisible">
       <el-form
         ref="pojoForm"
         status-icon
@@ -89,20 +74,7 @@
           <el-input v-model="pojo.expName" type="expName" />
         </el-form-item>
 
-        <el-form-item label="实验类型" prop="expType">
-          <el-select
-            v-model="pojo.expType"
-            type="expType"
-            placeholder="请点击选择"
-          >
-            <el-option
-              v-for="option in expTypeOptions"
-              :key="option.type"
-              :label="option.name"
-              :value="option.type"
-            />
-          </el-select>
-        </el-form-item>
+        <el-form-item label="实验类型" prop="expType"> </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button
@@ -118,66 +90,39 @@
 
 <script>
 import expApi from "@/api/exp";
-const expTypeOptions = [
-  { type: "1", name: "物理" },
-  { type: "2", name: "化学" },
-  { type: "3", name: "生物" },
-  { type: "4", name: "计算机" },
-];
 export default {
-  filters: {
-    expTypeFilter(type) {
-      const obj = expTypeOptions.find((obj) => obj.type === type);
-      return obj ? obj.name : null;
-    },
-  },
-
   components: {},
   data() {
     return {
-      expList: [],
+      courseList: [],
       pageQuery: {
         page: {
-          total: 10, // 总记录数
-          pageNum: 1, // 当前页,，默认第1页
-          pageSize: 10, // 每页显示条数，10条
+          total: 10, 
+          pageNum: 1, 
+          pageSize: 10, 
         },
         item: {
-          eType: "",
-          eName: "",
+          name: undefined,
+          leader: undefined,
         },
       },
-      expTypeOptions,
-      pojo: {
-        // 新增提交的数据
-        expId: null,
-        expName: "",
-        expType: "",
-      },
-      dialogFormVisible: false, // 控制弹出对话框
-      rules: {
-        // cardNum: [
-        //   { required: true, message: '卡号不能为空',trigger: 'blur'},
-        //   { type: 'number', message: '卡号必须为数字值',trigger: 'blur'}
-        // ],
-        // name: [{required: true, message: '实验名称不能为空',trigger: 'blur'}],
-        // payType: [{required: true, message: '请选择实验所属实验室',trigger: 'change'}]
-      },
+      typeOptions: [],
+      pojo: {},
+      dialogFormVisible: false, 
+      rules: {},
     };
   },
   // 钩子函数获取数据
   created() {
-    console.log("---钩子函数启动---");
-    this.fetchData(this.pageQuery);
+    this.fetchData();
   },
 
   methods: {
-    fetchData(pageQuery) {
-      expApi.getExpList(pageQuery).then((response) => {
+    fetchData() {
+      expApi.getExpList(this.pageQuery).then((response) => {
         const resp = response.data;
-        console.log("resp", resp);
         this.pageQuery.page.total = resp.total;
-        this.expList = resp.list;
+        this.courseList = resp.list;
         // 重置item
         this.$refs["ruleForm"].resetFields();
       });
@@ -255,7 +200,7 @@ export default {
                 type: "success",
               });
               // 修改成功 刷新数据列表
-              that.fetchData(this.pageQuery);
+              that.getList(this.pageQuery);
             } else {
               // 失败 弹出提示
               this.$message({

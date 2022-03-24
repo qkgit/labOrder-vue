@@ -51,6 +51,15 @@ export default {
             url: `/course/time/${id}`,
             method: 'put',
         }) 
+    },
+
+
+    listCourse(data){
+        return request({
+            url: '/course/times',
+            method: 'post',
+            data
+          })
     }
 
 }
