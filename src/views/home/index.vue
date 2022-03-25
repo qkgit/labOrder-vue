@@ -106,13 +106,12 @@
       </div>
 
       <div class="home-layout">
-        <!-- 实验室预约排行榜 -->
         <el-card class="box-list" style="width: 100% float: left">
-          <div slot="header" class="clearfix">
+           <!-- 实验室预约排行榜 -->
+          <!-- <div slot="header" class="clearfix">
             <span>实验室使用排行榜</span>
-          </div>
-
-          <el-table :data="labTop" stripe>
+          </div> -->
+          <!-- <el-table :data="labTop" stripe>
             <el-table-column type="index" label="排名" width="100" />
             <el-table-column prop="lname" label="实验室名称" />
             <el-table-column prop="laddress" label="实验室地址" />
@@ -121,24 +120,13 @@
                 <span>{{ scope.row.allTime }} 天 </span>
               </template>
             </el-table-column>
-          </el-table>
-        </el-card>
-        <!-- 实验预约排行榜
-         <el-card class="box-list" style="float: right">
+          </el-table> -->
           <div slot="header" class="clearfix">
-            <span>开放性实验</span>
-            <el-button style="float: right; padding: 3px 0" type="text"
-              >更多</el-button
-            >
+            <span>我的课表</span>
           </div>
-          <el-table :data="tableData" stripe >
-            <el-table-column prop="date" label="序号" >
-            </el-table-column>
-            <el-table-column prop="name" label="实验名称" >
-            </el-table-column>
-            <el-table-column prop="address" label="时长"> </el-table-column>
-          </el-table>
-        </el-card> -->
+          <class-table>
+          </class-table>
+        </el-card>
       </div>
     </div>
   </div>
@@ -150,9 +138,11 @@ import newsApi from '@/api/news'
 import labApi from '@/api/labs'
 import moment from 'moment'
 import axios from 'axios'
+import classTable from '@/components/classTable'
 
 export default {
   name: 'Home',
+  components: {classTable},
   data() {
     return {
       labTop: [
