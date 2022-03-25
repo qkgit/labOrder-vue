@@ -113,12 +113,26 @@
         prop="code"
         width="150"
       />
-      <el-table-column
-        label="字典名称"
-        align="center"
-        prop="name"
-        width="150"
-      />
+      <el-table-column label="字典名称" align="center" prop="name" width="150">
+        <template slot-scope="scope">
+          <span
+            v-if="scope.row.listClass == 'default' || scope.row.listClass == ''"
+            :key="scope.row.code"
+            :index="index"
+            :class="scope.row.cssClass"
+            >{{ scope.row.name }}</span
+          >
+          <el-tag
+            v-else
+            :key="scope.row.code"
+            :index="index"
+            :type="scope.row.listClass == 'primary' ? '' : scope.row.listClass"
+            :class="scope.row.cssClass"
+          >
+            {{ scope.row.name }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status" width="70">
         <template slot-scope="scope">
           <dict-tag :options="statusOptions" :value="scope.row.status" />
@@ -187,7 +201,25 @@
               :key="item.code"
               :label="item.name"
               :value="item.code"
-            />
+              style="text-align:center"
+            >
+              <span
+                v-if="item.code == 'default' || item.code == ''"
+                :key="item.code"
+                :index="index"
+                :class="item.code"
+                >{{ item.name }}</span
+              >
+              <el-tag
+                v-else
+                :key="item.code"
+                :index="index"
+                :type="item.code == 'primary' ? '' : item.code"
+                :class="item.code"
+                style="width: 120px"
+                >{{ item.name }}</el-tag
+              >
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -253,7 +285,7 @@ export default {
           code: "", // 字典编码
           name: "", // 字典名称
           status: "", // 字典状态
-          tableType: '', // 字典类型
+          tableType: "", // 字典类型
           params: {},
         },
       },
@@ -288,7 +320,8 @@ export default {
   },
   computed: {},
   created() {
-    this.pageQuery.item.tableType = this.$route.params && this.$route.params.tableType
+    this.pageQuery.item.tableType =
+      this.$route.params && this.$route.params.tableType;
     this.getList();
     this.getDicts("sys_job_status").then((response) => {
       this.statusOptions = response.data;
