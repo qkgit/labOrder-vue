@@ -285,6 +285,7 @@ export default {
       this.open = false;
       this.reset();
     },
+    
     getUserTreeSelect() {
       deptUserTreeSelect("3").then((res) => {
         this.userOptions = res.data;
@@ -348,7 +349,6 @@ export default {
 
     // 多选框选中数据
     handleSelectionChange(selection) {
-      console.log(selection);
       this.ids = selection.map((item) => item.uuid);
       this.multiple = !selection.length;
     },

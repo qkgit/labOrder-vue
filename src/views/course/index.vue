@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <!-- 查询表单 :inline="true"行内表单-->
     <el-form
       ref="ruleForm"
       :inline="true"
@@ -14,27 +13,54 @@
         <el-input v-model="pageQuery.item.leader" placeholder="任课教师" />
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          @click="fetchData(pageQuery)"
+        <el-button type="primary" icon="el-icon-search" @click="getList()"
           >查询
         </el-button>
-        <el-button
-          type="primary"
-          icon="el-icon-circle-plus-outline"
-          @click="handleAdd"
-          >添加课程</el-button
-        >
+        <el-button @click="resetQuery" icon="el-icon-refresh-right"
+          >重置
+        </el-button>
       </el-form-item>
     </el-form>
-    <!-- 数据列表  -->
-    <el-table :data="courseList" stripe border style="width: 95%">
-      <el-table-column type="index" label="序号" width="60" />
 
+    <el-row :gutter="10" style="margin-bottom: 8px">
+      <el-col :span="1.5">
+        <el-button
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+          >新增</el-button
+        >
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="danger"
+          plain
+          icon="el-icon-delete"
+          size="mini"
+          :disabled="multiple"
+          @click="handleDelete"
+          >删除</el-button
+        >
+      </el-col>
+    </el-row>
+
+    <!-- 数据列表  -->
+    <el-table
+      v-loading="loading"
+      :data="courseList"
+      stripe
+      border
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="课程名称" width="200" />
       <el-table-column prop="leader" label="任课教师" width="120" />
       <el-table-column prop="type" label="课程类型" width="100">
+        <template slot-scope="scope">
+          <dict-tag :options="typeOptions" :value="scope.row.type" />
+        </template>
       </el-table-column>
       <el-table-column prop="remark" label="备注" />
       <el-table-column label="操作" align="center" width="150">
@@ -60,7 +86,7 @@
       @current-change="handleCurrentChange"
     />
     <!-- 新增对话框 -->
-    <el-dialog title="新增课程" :visible.sync="dialogFormVisible">
+    <el-dialog :title="title" :visible.sync="dialogFormVisible">
       <el-form
         ref="pojoForm"
         status-icon
@@ -68,154 +94,187 @@
         :rules="rules"
         label-width="100px"
         label-position="right"
-        style="width: 400px"
       >
-        <el-form-item label="实验名称" prop="expName">
-          <el-input v-model="pojo.expName" type="expName" />
-        </el-form-item>
-
-        <el-form-item label="实验类型" prop="expType"> </el-form-item>
+        <el-row>
+          <el-col :span="10">
+            <el-form-item label="课程名称" prop="name">
+              <el-input v-model="pojo.name" type="name" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="课程类型" prop="type">
+              <el-radio-group v-model="pojo.type">
+                <el-radio
+                  v-for="dict in typeOptions"
+                  :key="dict.name"
+                  :label="dict.code"
+                  >{{ dict.name }}</el-radio
+                >
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="10">
+            <el-form-item label="任课教师" prop="leaderId">
+              <treeselect
+                v-model="pojo.leaderId"
+                :options="userOptions"
+                :props="defaultProps"
+                :show-count="true"
+                :disable-branch-nodes="true"
+                placeholder="请选择任课教师"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="课程学分" prop="credit">
+              <el-input v-model="pojo.credit" type="credit" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-form-item label="备注" prop="remark">
+            <el-col :span="20">
+              <el-input
+                type="textarea"
+                :rows="3"
+                placeholder="请输入备注"
+                v-model="pojo.remark"
+              >
+              </el-input>
+            </el-col>
+          </el-form-item>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button
-          type="primary"
-          @click="pojo.expId === null ? addData() : updataDate()"
-          >确 定</el-button
-        >
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import expApi from "@/api/exp";
+import courseApi from "@/api/system/course";
+import { deptUserTreeSelect } from "@/api/system/role";
+import DictTag from "@/components/DictTag";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+
 export default {
-  components: {},
+  components: { DictTag, Treeselect },
   data() {
     return {
+      loading: false,
+      typeOptions: [],
       courseList: [],
+      ids: [],
+      multiple: true,
+      userOptions: [],
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
       pageQuery: {
         page: {
-          total: 10, 
-          pageNum: 1, 
-          pageSize: 10, 
+          total: 10,
+          pageNum: 1,
+          pageSize: 10,
         },
         item: {
           name: undefined,
           leader: undefined,
         },
       },
-      typeOptions: [],
       pojo: {},
-      dialogFormVisible: false, 
+      dialogFormVisible: false,
+      title: "",
       rules: {},
     };
   },
-  // 钩子函数获取数据
   created() {
-    this.fetchData();
+    this.getDicts("course_type").then((response) => {
+      this.typeOptions = response.data;
+    });
+    this.getList();
   },
 
   methods: {
-    fetchData() {
-      expApi.getExpList(this.pageQuery).then((response) => {
-        const resp = response.data;
+    getList() {
+      this.loading = true;
+      courseApi.listCourse(this.pageQuery).then((res) => {
+        const resp = res.data;
         this.pageQuery.page.total = resp.total;
         this.courseList = resp.list;
-        // 重置item
-        this.$refs["ruleForm"].resetFields();
+        this.loading = false;
       });
     },
-    // 分页
-    handleSizeChange(val) {
-      // 当每页显示条数改变后 被触发
-      console.log(val);
-      this.pageQuery.page.pageSize = val;
-      this.fetchData(this.pageQuery);
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("ruleForm");
+      this.getList();
     },
-    handleCurrentChange(val) {
-      // 当页码改变后 被触发
-      console.log(val);
-      debugger;
-      this.pageQuery.page.pageNum = val;
-      this.fetchData(this.pageQuery);
+    // 表单重置
+    reset() {
+      this.pojo = {
+        uuid: undefined,
+        name: undefined,
+        leaderId: undefined,
+        type: "1",
+        credit: undefined,
+        remark: undefined,
+      };
+      this.resetForm("pojoForm");
+    },
+    // 取消按钮
+    cancel() {
+      this.dialogFormVisible = false;
+      this.reset();
+    },
+    getUserTreeSelect() {
+      deptUserTreeSelect("1").then((res) => {
+        this.userOptions = res.data;
+      });
     },
     // 弹出窗口
     handleAdd() {
+      this.reset();
+      this.getUserTreeSelect();
       this.dialogFormVisible = true;
-      this.$nextTick(() => {
-        this.$refs["pojoForm"].resetFields();
-      });
+      this.title = "添加课程";
     },
-    handleEdit(id) {
-      // 打开编辑窗口
-      this.handleAdd();
-      // 通过id查询数据
-      expApi.getById(id).then((response) => {
+    handleEdit(row) {
+      this.reset();
+      this.getUserTreeSelect();
+      courseApi.getCourse(row.uuid).then((response) => {
         this.pojo = response.data;
+        this.title = "修改课程";
+        this.dialogFormVisible = true;
       });
     },
+
     // 事务
-    addData() {
-      console.log("add");
+    submitForm: function () {
       this.$refs.pojoForm.validate((valid) => {
         if (valid) {
-          // 验证通过，提交添加
-          var that = this;
-          expApi.addLab(this.pojo).then((response) => {
-            if (response.resultCode == 200) {
+          if (this.pojo.uuid != undefined) {
+            courseApi.updateCourse(this.pojo).then((res)=>{
               this.dialogFormVisible = false;
-              this.$message({
-                message: "添加成功",
-                type: "success",
-              });
-              // 新增成功 刷新数据列表
-              that.fetchData(this.pageQuery);
-            } else {
-              // 失败 弹出提示
-              this.$message({
-                message: "response.message",
-                type: "warning",
-              });
-            }
-          });
-        } else {
-          // 验证失败
-          return false;
+              this.msgSuccess(res.message);
+              this.getList();
+            })
+          } else {
+            courseApi.addCourse(this.pojo).then((res)=>{
+              this.dialogFormVisible = false;
+              this.msgSuccess(res.message);
+              this.getList();
+            })
+          }
         }
       });
     },
-    updataDate() {
-      console.log("upd");
-      this.$refs.pojoForm.validate((valid) => {
-        if (valid) {
-          // 验证通过，提交添加
-          var that = this;
-          expApi.update(this.pojo).then((response) => {
-            if (response.resultCode == 200) {
-              this.dialogFormVisible = false;
-              this.$message({
-                message: "修改成功",
-                type: "success",
-              });
-              // 修改成功 刷新数据列表
-              that.getList(this.pageQuery);
-            } else {
-              // 失败 弹出提示
-              this.$message({
-                message: "response.message",
-                type: "warning",
-              });
-            }
-          });
-        } else {
-          // 验证失败
-          return false;
-        }
-      });
-    },
-    handleDelete(id) {
+    handleDelete(row) {
       this.$confirm("确认删除这条记录吗？", "提示", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",
@@ -232,13 +291,28 @@ export default {
             });
             if (response.resultCode == 200) {
               // 删除成功 刷新列表
-              that.fetchData(this.pageQuery);
+              that.getList(this.pageQuery);
             }
           });
         })
         .catch(() => {
           // 取消删除 不理会
         });
+    },
+
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map((item) => item.uuid);
+      this.multiple = !selection.length;
+    },
+    // 分页
+    handleSizeChange(val) {
+      this.pageQuery.page.pageSize = val;
+      this.getList(this.pageQuery);
+    },
+    handleCurrentChange(val) {
+      this.pageQuery.page.pageNum = val;
+      this.getList(this.pageQuery);
     },
   },
 };
