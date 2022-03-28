@@ -109,19 +109,22 @@
 
         <!-- 数据列表  -->
         <el-table
+          v-show="false"
           v-loading="loading"
+          border
           :data="courseTableList"
           :span-method="objectSpanMethod"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="expName" label="星期" width="120" />
-          <el-table-column prop="expType" label="节次" width="120">
-            <template slot-scope="scope">
-              <span>{{ scope.row.expType | expTypeFilter }} </span>
-            </template>
-          </el-table-column>
-          <el-table-column label="课程信息"> </el-table-column>
+          <el-table-column
+            prop="week"
+            label="星期"
+            width="80"
+            align="center"
+            :formatter="weekFormatter"
+          />
+          <el-table-column prop="node" label="节次" width="80" align="center" />
+          <el-table-column prop="course" label="课程信息"> </el-table-column>
           <el-table-column label="操作" width="150">
             <template slot-scope="scope">
               <el-button
@@ -138,6 +141,17 @@
               >
             </template>
           </el-table-column>
+          <el-table-column type="selection" width="55" />
+        </el-table>
+        <el-table v-loading="loading" border :data="courseTable">
+          <el-table-column prop="node" label="节次" width="80" align="center" />
+          <el-table-column prop="" label="星期一" />
+          <el-table-column prop="" label="星期二" />
+          <el-table-column prop="" label="星期三" />
+          <el-table-column prop="" label="星期四" />
+          <el-table-column prop="" label="星期五" />
+          <el-table-column prop="" label="星期六" />
+          <el-table-column prop="" label="星期日" />
         </el-table>
       </el-col>
     </el-row>
@@ -211,6 +225,8 @@ export default {
       ids: [],
       multiple: true,
       courseTableList: [],
+      courseTable: [],
+      spanArr: [],
       // 部门树选项
       deptName: undefined,
       deptOptions: undefined,
@@ -259,11 +275,29 @@ export default {
 
   methods: {
     getList() {
-      expApi.getExpList(this.pageQuery).then((response) => {
-        const resp = response.data;
-        this.courseTableList = resp.list;
-        this.pageQuery.page.total = resp.total;
-      });
+      // expApi.getExpList(this.pageQuery).then((response) => {
+      //   const resp = response.data;
+      //   this.courseTableList = resp.list;
+      //   this.pageQuery.page.total = resp.total;
+      // });
+      this.courseTableList = [
+        { week: "1", node: 1, course: "课程信息..." },
+        { week: "1", node: 2, course: "课程信息..." },
+        { week: "1", node: 3, course: "课程信息.." },
+        { week: "2", node: 1, course: "课程信息.." },
+        { week: "2", node: 3, course: "课程信息....." },
+        { week: "2", node: 4, course: "课程信息.." },
+        { week: "3", node: 1, course: "课程信息..." },
+        { week: "3", node: 2, course: "课程信息..." },
+        { week: "4", node: 3, course: "课程信息.." },
+        { week: "4", node: 1, course: "课程信息.." },
+        { week: "5", node: 3, course: "课程信息....." },
+      ];
+      this.courseTable = [
+        { node: 1, courseInfo: ["课程信息...","课程信息...","课程信息...","课程信息...","课程信息...","课程信息...","课程信息...",] },
+
+      ]
+      this.getSpanArr(this.courseTableList);
     },
     handleQuery() {
       this.$refs.ruleForm.validate((valid) => {
@@ -272,6 +306,37 @@ export default {
         }
       });
     },
+
+    // 合并表格单元格
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 0) {
+        const _row = this.spanArr[rowIndex];
+        const _col = _row > 0 ? 1 : 0;
+        return {
+          rowspan: _row,
+          colspan: _col,
+        };
+      }
+    },
+    getSpanArr(data) {
+      this.spanArr = [];
+      for (var i = 0; i < data.length; i++) {
+        if (i === 0) {
+          this.spanArr.push(1);
+          this.pos = 0;
+        } else {
+          // 判断当前元素与上一个元素是否相同
+          if (data[i].week === data[i - 1].week) {
+            this.spanArr[this.pos] += 1;
+            this.spanArr.push(0);
+          } else {
+            this.spanArr.push(1);
+            this.pos = i;
+          }
+        }
+      }
+    },
+
     resetQuery() {
       this.resetForm("ruleForm");
       this.getList();
@@ -379,9 +444,11 @@ export default {
             }
           });
         })
-        .catch(() => {
-          // 取消删除 不理会
-        });
+        .catch(() => {});
+    },
+
+    weekFormatter(row, column) {
+      return this.digital2Chinese(row.week, "week");
     },
     // 节点单击事件
     handleNodeClick(data) {

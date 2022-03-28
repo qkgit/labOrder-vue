@@ -114,6 +114,16 @@ export function sprintf(str) {
   })
   return flag ? str : ''
 }
+/**
+ * 数字转中文
+ * @param {Number} num 需要转换的数字
+ * @param {String} identifier 标识符
+ * @returns {String} 转换后的中文
+ */
+export function digital2Chinese(num, identifier) {
+  const character = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+  return identifier === 'week' && (num === 0 || num === 7) ? '日' : character[num];
+}
 
 // 转换字符串，undefined,null等转化为""
 export function praseStrEmpty(str) {
