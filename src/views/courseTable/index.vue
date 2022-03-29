@@ -107,9 +107,9 @@
           </div>
         </el-row>
 
-        <!-- 数据列表  -->
+        <!-- 列表  -->
         <el-table
-          v-show="false"
+          v-show="display == '列表'"
           v-loading="loading"
           border
           :data="courseTableList"
@@ -143,15 +143,50 @@
           </el-table-column>
           <el-table-column type="selection" width="55" />
         </el-table>
-        <el-table v-loading="loading" border :data="courseTable">
+
+        <!-- 表格  -->
+        <!-- <m-ytable></m-ytable> -->
+        <el-table
+          v-show="display == '表格'"
+          v-loading="loading"
+          border
+          :data="courseTable"
+          @cell-click="clickFun"
+        >
           <el-table-column prop="node" label="节次" width="80" align="center" />
-          <el-table-column prop="" label="星期一" />
-          <el-table-column prop="" label="星期二" />
-          <el-table-column prop="" label="星期三" />
-          <el-table-column prop="" label="星期四" />
-          <el-table-column prop="" label="星期五" />
-          <el-table-column prop="" label="星期六" />
-          <el-table-column prop="" label="星期日" />
+          <el-table-column
+            v-for="(v, i) in weekOptions"
+            :key="i"
+            align="center"
+          >
+            <template slot="header">
+              <div class="tabletitle-timeline">
+                {{ v.name }}
+              </div>
+            </template>
+            <template slot-scope="scope">
+              <hover-mask @click="handleClick">
+                <div v-if="scope.row.courseInfo[i] != ''">
+                  {{ scope.row.courseInfo[i] }}<br />
+                  课程名称<br />
+                  任课老师<br />
+                  教室位置<br />
+                  课程类型 学分 。。
+                </div>
+                <div v-else>----</div>
+                <template v-solt:action>
+                  <!-- <el-button
+                    type="primary"
+                    plain
+                    icon="el-icon-plus"
+                    size="mini"
+                    @click="handleAdd"
+                    >新增</el-button
+                  > -->
+                </template>
+              </hover-mask>
+            </template>
+          </el-table-column>
         </el-table>
       </el-col>
     </el-row>
@@ -177,12 +212,12 @@
             type="expType"
             placeholder="请点击选择"
           >
-            <el-option
+            <!-- <el-option
               v-for="option in expTypeOptions"
               :key="option.type"
               :label="option.name"
               :value="option.type"
-            />
+            /> -->
           </el-select>
         </el-form-item>
       </el-form>
@@ -201,24 +236,12 @@
 <script>
 import expApi from "@/api/exp";
 import { treeselect } from "@/api/system/dept";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
-const expTypeOptions = [
-  { type: "1", name: "物理" },
-  { type: "2", name: "化学" },
-  { type: "3", name: "生物" },
-  { type: "4", name: "计算机" },
-];
+import HoverMask from "@/components/HoverMask/index";
+import MYtable from "./table";
+
 export default {
-  filters: {
-    expTypeFilter(type) {
-      const obj = expTypeOptions.find((obj) => obj.type === type);
-      return obj ? obj.name : null;
-    },
-  },
-
-  components: {},
+  components: { MYtable, HoverMask },
   data() {
     return {
       loading: false,
@@ -258,7 +281,15 @@ export default {
         },
       },
       display: "列表",
-      expTypeOptions,
+      weekOptions: [
+        { code: "Monday", name: "周一" },
+        { code: "Tuesday", name: "周二" },
+        { code: "Wednesday", name: "周三" },
+        { code: "Thursday", name: "周四" },
+        { code: "Friday", name: "周五" },
+        { code: "Saturday", name: "周六" },
+        { code: "Sunday", name: "周日" },
+      ],
       pojo: {},
       dialogFormVisible: false,
       rules: {
@@ -294,11 +325,42 @@ export default {
         { week: "5", node: 3, course: "课程信息....." },
       ];
       this.courseTable = [
-        { node: 1, courseInfo: ["课程信息...","课程信息...","课程信息...","课程信息...","课程信息...","课程信息...","课程信息...",] },
-
-      ]
+        {
+          node: 1,
+          courseInfo: [
+            "课程信息...",
+            "课程信息...",
+            "课程信息...",
+            "",
+            "",
+            "",
+            "",
+          ],
+        },
+        {
+          node: 2,
+          courseInfo: ["课程信息...", "", "课程信息...", "", "", "", ""],
+        },
+        {
+          node: 3,
+          courseInfo: [
+            "课程信息...",
+            "课程信息...",
+            "",
+            "课程信息...",
+            "课程信息...",
+            "",
+            "",
+          ],
+        },
+        {
+          node: 4,
+          courseInfo: ["", "课程信息...", "", "", "", "", ""],
+        },
+      ];
       this.getSpanArr(this.courseTableList);
     },
+    handleClick() {},
     handleQuery() {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
@@ -336,7 +398,9 @@ export default {
         }
       }
     },
-
+    clickFun(row, column, cell, event) {
+      console.log(1111 + cell);
+    },
     resetQuery() {
       this.resetForm("ruleForm");
       this.getList();
