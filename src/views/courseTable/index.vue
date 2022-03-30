@@ -230,7 +230,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="星期">
-              <el-select v-model="pojo.periodEnd">
+              <el-select v-model="pojo.week">
                 <el-option
                   v-for="i in 7"
                   :key="i"
@@ -242,7 +242,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="节次">
-              <el-select v-model="pojo.periodEnd">
+              <el-select v-model="pojo.node">
                 <el-option v-for="i in 4" :key="i" :label="i" :value="i" />
               </el-select>
             </el-form-item>
@@ -338,9 +338,10 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="addData()">确 定</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
+
     </el-dialog>
   </div>
 </template>
