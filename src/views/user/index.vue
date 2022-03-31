@@ -63,16 +63,12 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button
-              type="primary"
-              icon="el-icon-search"
-              @click="getList()"
-            >查询
+            <el-button type="primary" icon="el-icon-search" @click="getList()"
+              >查询
             </el-button>
-            <el-button
-              icon="el-icon-refresh"
-              @click="resetQuery"
-            >重置</el-button>
+            <el-button icon="el-icon-refresh" @click="resetQuery"
+              >重置</el-button
+            >
           </el-form-item>
         </el-form>
 
@@ -84,7 +80,8 @@
               icon="el-icon-plus"
               size="small"
               @click="handleAdd"
-            >添加用户</el-button>
+              >添加用户</el-button
+            >
           </el-col>
           <el-col :span="1.5">
             <el-button
@@ -94,7 +91,8 @@
               size="small"
               :disabled="multiple"
               @click="handleResetPwd"
-            >重置密码</el-button>
+              >重置密码</el-button
+            >
           </el-col>
           <el-col :span="1.5">
             <el-button
@@ -104,9 +102,10 @@
               size="small"
               :disabled="multiple"
               @click="handleDelete"
-            >删除</el-button>
+              >删除</el-button
+            >
           </el-col>
-          
+
           <!-- <el-col :span="1.5">
             <el-dropdown size="small" split-button type="warning">
               更改状态
@@ -124,7 +123,6 @@
           :data="userList"
           stripe
           border
-        
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="55" />
@@ -176,19 +174,22 @@
                 size="mini"
                 type="primary"
                 @click="handleEdit(scope.row.userId)"
-              >修改</el-button>
+                >修改</el-button
+              >
               <el-button
                 v-if="scope.row.userId != '1'"
                 size="mini"
                 type="warning"
                 @click="handleResetPwd(scope.row)"
-              >重置密码</el-button>
+                >重置密码</el-button
+              >
               <el-button
                 v-if="scope.row.userId != '1'"
                 size="mini"
                 type="danger"
                 @click="handleDelete(scope.row)"
-              >删除</el-button>
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -294,7 +295,8 @@
                   v-for="dict in statusOptions"
                   :key="dict.name"
                   :label="dict.code"
-                >{{ dict.name }}</el-radio>
+                  >{{ dict.name }}</el-radio
+                >
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -310,11 +312,11 @@
 </template>
 
 <script>
-import userApi from '@/api/users'
-import { treeselect } from '@/api/system/dept'
-import Treeselect from '@riophae/vue-treeselect'
-import DictTag from '@/components/DictTag'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import userApi from "@/api/users";
+import { treeselect } from "@/api/system/dept";
+import Treeselect from "@riophae/vue-treeselect";
+import DictTag from "@/components/DictTag";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   components: { Treeselect, DictTag },
@@ -336,260 +338,259 @@ export default {
         page: {
           total: 10, // 总记录数
           pageNum: 1, // 当前页,，默认第1页
-          pageSize: 10 // 每页显示条数，10条
+          pageSize: 10, // 每页显示条数，10条
         },
         item: {
-          loginName: '', //
-          deptId: '',
-          mobile: '',
-          status: '',
-          roleId: ''
-        }
+          loginName: "", //
+          deptId: "",
+          mobile: "",
+          status: "",
+          roleId: "",
+        },
       },
       // 部门名称
       deptName: undefined,
       // 部门树选项
       deptOptions: undefined,
       defaultProps: {
-        children: 'children',
-        label: 'label'
+        children: "children",
+        label: "label",
       },
       // 弹出层标题
-      title: '',
+      title: "",
       // 新增提交的数据
       pojo: {},
       // 非多个禁用
       multiple: true,
       // 控制弹出对话框
       dialogFormVisible: false,
-      rules: {}
-    }
+      rules: {},
+    };
   },
 
   watch: {
     // 根据名称筛选部门树
     deptName(val) {
-      this.$refs.tree.filter(val)
-    }
+      this.$refs.tree.filter(val);
+    },
   },
   // 钩子函数获取数据
   created() {
-    this.getTreeselect()
-    this.getList(true)
+    this.getTreeselect();
+    this.getList(true);
 
-    this.getDicts('sys_user_sex').then((response) => {
-      this.sexOptions = response.data
-    })
-    this.getDicts('sys_user_roles').then((response) => {
-      this.rolesOptions = response.data
-    })
-    this.getDicts('sys_common_status').then((response) => {
-      this.statusOptions = response.data
-    })
+    this.getDicts("sys_user_sex").then((response) => {
+      this.sexOptions = response.data;
+    });
+    this.getDicts("sys_user_roles").then((response) => {
+      this.rolesOptions = response.data;
+    });
+    this.getDicts("sys_common_status").then((response) => {
+      this.statusOptions = response.data;
+    });
   },
 
   methods: {
     getList(click) {
-      this.loading = true
+      this.loading = true;
       userApi.getUserList(this.pageQuery).then((response) => {
-        this.userList = response.data.list
-        this.pageQuery.page.total = response.data.total
-        this.loading = false
+        this.userList = response.data.list;
+        this.pageQuery.page.total = response.data.total;
+        this.loading = false;
         // 重置item
         // this.$refs["ruleForm"].resetFields();
         if (click) {
           this.$nextTick(() => {
             document
-              .getElementsByClassName('el-tree-node__content')
+              .getElementsByClassName("el-tree-node__content")
               .forEach((element) => {
                 element
-                  .getElementsByClassName('el-tree-node__expand-icon')[0]
-                  .click()
-              })
-          })
+                  .getElementsByClassName("el-tree-node__expand-icon")[0]
+                  .click();
+              });
+          });
         }
-      })
+      });
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
       treeselect().then((response) => {
-        this.deptOptions = response.data
-      })
+        this.deptOptions = response.data;
+      });
     },
     // 筛选节点
     filterNode(value, data) {
-      if (!value) return true
-      return data.label.indexOf(value) !== -1
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
     },
     // 节点单击事件
     handleNodeClick(data) {
-      this.pageQuery.item.deptId = data.id
-      this.getList()
+      this.pageQuery.item.deptId = data.id;
+      this.getList();
     },
 
     // 字典状态字典翻译
     sexFormat(row, column) {
-      return this.selectDictLabel(this.sexOptions, row.sex)
+      return this.selectDictLabel(this.sexOptions, row.sex);
     },
     rolesFormat(row, column) {
-      var userrole = ''
+      var userrole = "";
       row.roles.forEach((a) => {
-        userrole += a.roleName + ' / '
-      })
-      return userrole.substring(0, userrole.length - 3)
+        userrole += a.roleName + " / ";
+      });
+      return userrole.substring(0, userrole.length - 3);
       // return this.selectDictLabel(this.rolesOptions, row.roles);
     },
     statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status)
+      return this.selectDictLabel(this.statusOptions, row.status);
     },
     // 表单重置
     reset() {
       this.pojo = {
         userId: undefined,
         realName: undefined,
-        loginName: '',
+        loginName: "",
         email: undefined,
         mobile: undefined,
         sex: undefined,
         roleIds: undefined,
-        status: '0'
-      }
+        status: "0",
+      };
     },
     // 取消按钮
     cancel() {
-      this.dialogFormVisible = false
-      this.reset()
+      this.dialogFormVisible = false;
+      this.reset();
     },
     // 用户状态修改
     handleStatusChange(row) {
-      const text = row.status === '0' ? '启用' : '停用'
+      const text = row.status === "0" ? "启用" : "停用";
       this.$confirm(
         '确认要"' + text + '""' + row.realName + '"用户吗?',
-        '警告',
+        "警告",
         {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
         }
       )
-        .then(function() {
-          return userApi.changeUserStatus(row.userId, row.status)
+        .then(function () {
+          return userApi.changeUserStatus(row.userId, row.status);
         })
         .then((response) => {
           if (response.resultCode == 200) {
-            this.msgSuccess(response.message)
+            this.msgSuccess(response.message);
           } else {
-            return
+            return;
           }
         })
-        .catch(function() {
-          row.status = row.status === '0' ? '1' : '0'
-        })
+        .catch(function () {
+          row.status = row.status === "0" ? "1" : "0";
+        });
     },
     handleAdd() {
-      this.reset()
-      this.dialogFormVisible = true
-      this.title = '添加用户'
+      this.reset();
+      this.dialogFormVisible = true;
+      this.title = "添加用户";
     },
     handleEdit(id) {
-      this.reset()
-      this.dialogFormVisible = true
-      this.title = '修改用户'
+      this.reset();
+      this.dialogFormVisible = true;
+      this.title = "修改用户";
       // 通过id查询数据
       userApi.getUserById(id).then((response) => {
-        this.pojo = response.data
-      })
+        this.pojo = response.data;
+      });
     },
 
-
     handleResetPwd(row) {
-      const userIds = row.userId || this.ids
-      var that = this
-      this.$confirm('确认要重置密码吗？', '提示', {
-        cancelButtonText: '取消',
-        confirmButtonText: '确认',
-        type: 'warning'
+      const userIds = row.userId || this.ids;
+      var that = this;
+      this.$confirm("确认要重置密码吗？", "提示", {
+        cancelButtonText: "取消",
+        confirmButtonText: "确认",
+        type: "warning",
       })
         .then(() => {
           userApi.resetPwd(userIds).then((response) => {
             if (response.resultCode == 200) {
-              that.getList()
-              that.msgSuccess()
+              that.getList();
+              that.msgSuccess();
             }
-          })
+          });
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     handleDelete(row) {
-      const userIds = row.userId || this.ids
-      var that = this
-      var hint = '是否确认删除 "' + row.realName + '" 用户?'
-      if(row.userId === null || row.userId === undefined || row.userId === ''){
-        hint = '是否确认删除选中用户?'
+      const userIds = row.userId || this.ids;
+      var that = this;
+      var hint = '是否确认删除 "' + row.realName + '" 用户?';
+      if (
+        row.userId === null ||
+        row.userId === undefined ||
+        row.userId === ""
+      ) {
+        hint = "是否确认删除选中用户?";
       }
-      this.$confirm(hint, '提示', {
-        cancelButtonText: '取消',
-        confirmButtonText: '确认',
-        type: 'warning'
+      this.$confirm(hint, "提示", {
+        cancelButtonText: "取消",
+        confirmButtonText: "确认",
+        type: "warning",
       })
         .then(() => {
           userApi.deleteById(userIds).then((response) => {
             if (response.resultCode == 200) {
-              that.getList()
-              that.msgSuccess()
+              that.getList();
+              that.msgSuccess();
             }
-          })
+          });
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     /** 提交按钮 */
-    submitForm: function() {
-      this.$refs['pojoForm'].validate((valid) => {
+    submitForm: function () {
+      this.$refs["pojoForm"].validate((valid) => {
         if (valid) {
           if (this.pojo.userId != undefined) {
             userApi.update(this.pojo).then((response) => {
-              if (response.resultCode == 200) {
-                this.msgSuccess('新增成功')
-                this.dialogFormVisible = false
-                that.getList()
-              }
-            })
+              this.msgSuccess(response.message);
+              this.dialogFormVisible = false;
+              this.getList();
+            });
           } else {
             userApi.addUser(this.pojo).then((response) => {
-              if (response.resultCode == 200) {
-                this.msgSuccess('修改成功！')
-                this.dialogFormVisible = false
-                this.getList()
-              }
-            })
+              this.msgSuccess(response.message);
+              this.dialogFormVisible = false;
+              this.getList();
+            });
           }
         }
-      })
+      });
     },
 
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.userId)
-      this.multiple = !selection.length
+      this.ids = selection.map((item) => item.userId);
+      this.multiple = !selection.length;
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm('ruleForm')
-      this.getList()
+      this.resetForm("ruleForm");
+      this.getList();
     },
     // 分页
     handleSizeChange(val) {
       // 当每页显示条数改变后 被触发
-      this.pageQuery.page.pageSize = val
-      this.getList(this.pageQuery)
+      this.pageQuery.page.pageSize = val;
+      this.getList(this.pageQuery);
     },
     handleCurrentChange(val) {
       // 当页码改变后 被触发
-      this.pageQuery.page.pageNum = val
-      this.getList(this.pageQuery)
-    }
-  }
-}
+      this.pageQuery.page.pageNum = val;
+      this.getList(this.pageQuery);
+    },
+  },
+};
 </script>
 
 <style scoped>
