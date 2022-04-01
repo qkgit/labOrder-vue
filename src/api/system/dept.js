@@ -58,3 +58,11 @@ export function roleDeptTreeselect(roleId) {
     method: 'get'
   })
 }
+
+// 根据部门名称查询部门
+export function getDeptByName(name) {
+  return request({
+    url: '/dept/getByName/' + name,
+    method: 'get'
+  })
+}

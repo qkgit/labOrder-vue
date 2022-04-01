@@ -10,6 +10,12 @@ export default {
             data
           })
     },
+    getDefaultTime(){
+        return request({
+            url: '/course/defaultTime',
+            method: 'get',
+        })
+    },
     getTime(id){
         return request({
             url: `/course/time/${id}`,
@@ -82,7 +88,29 @@ export default {
             url: `/course/${ids}`,
             method: 'delete',
         })
+    },
+
+/** ===========>> 课程表Api  */
+    listCourseTable(data) {
+        return request({
+            url: '/course/table/list',
+            method: 'post',
+            data
+        })
+    },
+    getTableInfo(id){
+        return request({
+            url: `/course/table/${id}`,
+            method: 'get',
+        })
     }
 
+}
 
+// 根据部门名称查询部门
+export function getCourseByName(name) {
+    return request({
+        url: '/course/getByName/' + name,
+        method: 'get'
+    })
 }

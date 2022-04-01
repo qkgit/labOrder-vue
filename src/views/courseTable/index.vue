@@ -42,7 +42,7 @@
                 v-for="option in yearOptions"
                 :key="option.code"
                 :label="option.name"
-                :value="option.name"
+                :value="option.code"
               />
             </el-select>
           </el-form-item>
@@ -243,7 +243,12 @@
           <el-col :span="12">
             <el-form-item label="节次">
               <el-select v-model="pojo.node">
-                <el-option v-for="i in 4" :key="i" :label="i" :value="i" />
+                <el-option
+                  v-for="i in nodeNum"
+                  :key="i"
+                  :label="i"
+                  :value="i"
+                />
               </el-select>
             </el-form-item>
           </el-col>
@@ -295,9 +300,10 @@
           <el-col :span="12">
             <el-form-item label="班级">
               <el-select
-                v-model="pojo.dept"
+                v-model="pojo.deptId"
                 filterable
                 remote
+                clearable
                 placeholder="请输入班级"
                 :remote-method="remoteDept"
                 :loading="pojoLoading"
@@ -315,9 +321,10 @@
           <el-col :span="12">
             <el-form-item label="教室">
               <el-select
-                v-model="pojo.room"
+                v-model="pojo.roomId"
                 filterable
                 remote
+                clearable
                 placeholder="请输入教室"
                 :remote-method="remoteRoom"
                 :loading="pojoLoading"
@@ -325,7 +332,7 @@
                 <el-option
                   v-for="i in pojoRoomList"
                   :key="i.uuid"
-                  :label="i.name"
+                  :label="i.name + '--' + i.address"
                   :value="i.uuid"
                 >
                 </el-option>
@@ -334,20 +341,51 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-form-item label="课程"> </el-form-item>
+          <el-form-item label="课程">
+            <el-select
+              v-model="pojo.courseId"
+              filterable
+              remote
+              clearable
+              placeholder="请输入课程"
+              :remote-method="remoteCourse"
+              :loading="pojoLoading"
+            >
+              <el-option
+                v-for="i in pojoCourseList"
+                :key="i.uuid"
+                :label="i.name+'--'+i.leader"
+                :value="i.uuid"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="备注" prop="remark">
+            <el-input
+              type="textarea"
+              :rows="3"
+              placeholder="请输入备注"
+              v-model="pojo.remark"
+            >
+            </el-input>
+          </el-form-item>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
-
     </el-dialog>
   </div>
 </template>
 
 <script>
-import expApi from "@/api/exp";
+import courseApi from "@/api/system/course";
+import { getCourseByName } from "@/api/system/course";
+import { getDeptByName } from "@/api/system/dept";
+import { getRoomByName } from "@/api/system/classroom";
 import { treeselect } from "@/api/system/dept";
 
 export default {
@@ -371,11 +409,8 @@ export default {
         children: "children",
         label: "label",
       },
-      // 学期
-      semesterOptions: [
-        { code: "1", name: "1" },
-        { code: "2", name: "2" },
-      ],
+      // 课程时间
+      courseTime: undefined,
       // 学年
       yearOptions: [
         { code: "2022", name: "2021-2022" },
@@ -384,6 +419,13 @@ export default {
         { code: "2019", name: "2018-2019" },
         { code: "2018", name: "2017-2018" },
       ],
+      // 学期
+      semesterOptions: [
+        { code: "1", name: "1" },
+        { code: "2", name: "2" },
+      ],
+      // 当前最大节次
+      nodeNum: undefined,
       pageQuery: {
         page: {
           total: 10,
@@ -396,7 +438,9 @@ export default {
           deptId: undefined,
         },
       },
+
       display: "列表",
+
       weekOptions: [
         { code: "Monday", name: "周一" },
         { code: "Tuesday", name: "周二" },
@@ -406,7 +450,9 @@ export default {
         { code: "Saturday", name: "周六" },
         { code: "Sunday", name: "周日" },
       ],
+
       pojo: {},
+      title: "",
       dialogFormVisible: false,
       // 是否单双周
       limitWeekOptions: [
@@ -414,11 +460,13 @@ export default {
         { code: "1", name: "单" },
         { code: "2", name: "双" },
       ],
-      // pojo班级下拉框数据
+      // pojo-班级下拉框数据
       pojoDeptList: [],
-      // pojo教室下拉框数据
+      // pojo-教室下拉框数据
       pojoRoomList: [],
-      title: "",
+      // pojo-课程下拉框数据
+      pojoCourseList: [],
+
       rules: {
         year: [{ required: true, message: "请选择学年", trigger: "blur" }],
         semester: [{ required: true, message: "请选择学期", trigger: "blur" }],
@@ -431,65 +479,33 @@ export default {
   },
   // 钩子函数获取数据
   created() {
+    this.getDefaultTime();
     this.getTreeselect();
     this.getList();
   },
   methods: {
     /** 查询数据列表 */
     getList() {
-      // expApi.getExpList(this.pageQuery).then((response) => {
-      //   const resp = response.data;
-      //   this.courseTableList = resp.list;
-      //   this.pageQuery.page.total = resp.total;
-      // });
-      this.courseTableList = [
-        { week: "1", node: 1, course: "课程信息..." },
-        { week: "1", node: 2, course: "课程信息..." },
-        { week: "1", node: 3, course: "课程信息.." },
-        { week: "2", node: 1, course: "课程信息.." },
-        { week: "2", node: 3, course: "课程信息....." },
-        { week: "2", node: 4, course: "课程信息.." },
-        { week: "3", node: 1, course: "课程信息..." },
-        { week: "3", node: 2, course: "课程信息..." },
-        { week: "4", node: 3, course: "课程信息.." },
-        { week: "4", node: 1, course: "课程信息.." },
-        { week: "5", node: 3, course: "课程信息....." },
-      ];
-      this.courseTable = [
-        {
-          node: 1,
-          courseInfo: [
-            "课程信息...",
-            "课程信息...",
-            "课程信息...",
-            "",
-            "",
-            "",
-            "",
-          ],
-        },
-        {
-          node: 2,
-          courseInfo: ["课程信息...", "", "课程信息...", "", "", "", ""],
-        },
-        {
-          node: 3,
-          courseInfo: [
-            "课程信息...",
-            "课程信息...",
-            "",
-            "课程信息...",
-            "课程信息...",
-            "",
-            "",
-          ],
-        },
-        {
-          node: 4,
-          courseInfo: ["", "课程信息...", "", "", "", "", ""],
-        },
-      ];
-      this.getSpanArr(this.courseTableList);
+      this.loading = true;
+      courseApi.listCourseTable(this.pageQuery.item).then((res)=>{
+        this.loading = false;
+        this.courseTableList = res.data;
+        this.getSpanArr(this.courseTableList);
+        
+      }).catch(()=>{this.loading = false;})
+      // this.courseTableList = [
+      //   { week: "1", node: 1, course: "课程信息..." },
+      //   { week: "1", node: 2, course: "课程信息..." },
+      //   { week: "1", node: 3, course: "课程信息.." },
+      //   { week: "2", node: 1, course: "课程信息.." },
+      //   { week: "2", node: 3, course: "课程信息....." },
+      //   { week: "2", node: 4, course: "课程信息.." },
+      //   { week: "3", node: 1, course: "课程信息..." },
+      //   { week: "3", node: 2, course: "课程信息..." },
+      //   { week: "4", node: 3, course: "课程信息.." },
+      //   { week: "4", node: 1, course: "课程信息.." },
+      //   { week: "5", node: 3, course: "课程信息....." },
+      // ];
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
@@ -497,6 +513,14 @@ export default {
         this.deptTree = response.data;
       });
     },
+    /** 查询当前课程时间 */
+    getDefaultTime() {
+      courseApi.getDefaultTime().then((res) => {
+        this.courseTime = res.data;
+        this.nodeNum = res.data.num;
+      });
+    },
+
     handleQuery() {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
@@ -512,10 +536,12 @@ export default {
     // 下拉框查询班级
     remoteDept(query) {
       if (query !== "") {
-        this.pojoDeptList = [
-          { deptId: "1", deptName: query + "1" },
-          { deptId: "2", deptName: query + "2" },
-        ];
+        this.pojoLoading = true;
+        // 后端查询接口
+        getDeptByName(query).then((res) => {
+          this.pojoDeptList = res.data;
+          this.pojoLoading = false;
+        });
       } else {
         this.pojoDeptList = [];
       }
@@ -523,12 +549,28 @@ export default {
     // 下拉框查询教室
     remoteRoom(query) {
       if (query !== "") {
-        this.pojoRoomList = [
-          { uuid: "1", name: query + "1" },
-          { uuid: "2", name: query + "2" },
-        ];
+        this.pojoLoading = true;
+        // 后端查询接口
+        getRoomByName(query).then((res) => {
+          this.pojoRoomList = res.data;
+          this.pojoLoading = false;
+        });
       } else {
         this.pojoRoomList = [];
+      }
+    },
+    // 下拉框查询课程
+    remoteCourse(query) {
+      debugger;
+      if (query !== "") {
+        this.pojoLoading = true;
+        // 后端查询接口
+        getCourseByName(query).then((res) => {
+          this.pojoCourseList = res.data;
+          this.pojoLoading = false;
+        });
+      } else {
+        this.pojoCourseList = [];
       }
     },
 
@@ -548,7 +590,6 @@ export default {
         classRoomId: undefined,
         courseId: undefined,
         deptId: undefined,
-        dept: undefined,
       };
       this.resetForm("pojoForm");
     },
@@ -557,20 +598,19 @@ export default {
       this.dialogFormVisible = false;
       this.reset();
     },
+
     // 弹出窗口
     handleAdd() {
-      this.dialogFormVisible = true;
       this.reset();
-      this.$nextTick(() => {
-        this.$refs["pojoForm"].resetFields();
-      });
+      this.dialogFormVisible = true;
+      this.title = "添加课程表数据";
     },
-    handleEdit(id) {
-      // 打开编辑窗口
-      this.handleAdd();
-      // 通过id查询数据
-      expApi.getById(id).then((response) => {
+    handleEdit(row) {
+      this.reset();
+      courseApi.getTableInfo(row.uuid).then((response) => {
         this.pojo = response.data;
+        this.dialogFormVisible = true;
+        this.title = "修改课程表数据";
       });
     },
 
@@ -586,7 +626,7 @@ export default {
       });
     },
 
-    handleDelete(id) {
+    handleDelete(row) {
       this.$confirm("确认删除这条记录吗？", "提示", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",
@@ -595,7 +635,7 @@ export default {
         .then(() => {
           // 确认
           var that = this;
-          expApi.deleteById(id).then((response) => {
+          courseApi.deleteById(id).then((response) => {
             // 提示信息
             this.$message({
               type: response.resultCode == 200 ? "success" : "error",
@@ -652,15 +692,6 @@ export default {
     filterNode(value, data) {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
-    },
-    // 分页
-    handleSizeChange(val) {
-      this.pageQuery.page.pageSize = val;
-      this.getList();
-    },
-    handleCurrentChange(val) {
-      this.pageQuery.page.pageNum = val;
-      this.getList();
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
