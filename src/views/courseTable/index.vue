@@ -617,11 +617,14 @@ export default {
     handleEdit(row) {
       this.reset();
       courseApi.getTableInfo(row.uuid).then((response) => {
+         // 解析课程、班级、教室id 
+        this.pojoDeptList= [];
+        this.pojoDeptList.push(response.data.dept);
+        this.pojoRoomList = [];
+        this.pojoRoomList.push(response.data.classroom);
+        this.pojoCourseList = [];
+        this.pojoCourseList.push(response.data.course);
         this.pojo = response.data;
-        // 解析课程、班级、教室id 
-        // this.pojoDeptList = response.data.dept;
-        // this.pojoRoomList = response.data.classroom;
-        // this.pojoCourseList = response.data.course;
         this.dialogFormVisible = true;
         this.title = "修改课程表数据";
       });
