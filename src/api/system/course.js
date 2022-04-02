@@ -103,6 +103,13 @@ export default {
             url: `/course/table/${id}`,
             method: 'get',
         })
+    },
+    addTableInfo(data){
+        return request({
+            url: '/course/table',
+            method: 'post',
+            data
+        })
     }
 
 }

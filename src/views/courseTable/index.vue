@@ -19,6 +19,8 @@
             :props="defaultProps"
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
+            :highlight-current="true"
+            :default-expand-all="true"
             @node-click="handleNodeClick"
           />
         </div>
@@ -128,11 +130,19 @@
             :formatter="weekFormatter"
           />
           <el-table-column prop="node" label="节次" width="80" align="center" />
-          <el-table-column label="课程信息">
+          <el-table-column label="课程信息" align="center">
             <template slot-scope="scope">
-              {{ scope.row.course }}
+              <div style="font-weight: 700">{{ scope.row.course.name }}</div>
+              <div>
+                {{ scope.row.periodStart }}-{{ scope.row.periodEnd }}周/
+                {{ scope.row.classroom.address }}/
+                {{ scope.row.course.leader }}/
+                {{ scope.row.course.type == '1' ? '考查课':'考试课' }}/
+                {{ scope.row.course.credit }}
+              </div>
             </template>
           </el-table-column>
+
           <el-table-column label="操作" width="150">
             <template slot-scope="scope">
               <el-button
@@ -209,7 +219,7 @@
                   v-for="option in yearOptions"
                   :key="option.code"
                   :label="option.name"
-                  :value="option.name"
+                  :value="option.code"
                 />
               </el-select>
             </el-form-item>
@@ -221,7 +231,7 @@
                   v-for="option in semesterOptions"
                   :key="option.code"
                   :label="option.name"
-                  :value="option.name"
+                  :value="option.code"
                 />
               </el-select>
             </el-form-item>
@@ -229,7 +239,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="星期">
+            <el-form-item label="星期" prop="week">
               <el-select v-model="pojo.week">
                 <el-option
                   v-for="i in 7"
@@ -241,7 +251,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="节次">
+            <el-form-item label="节次" prop="node">
               <el-select v-model="pojo.node">
                 <el-option
                   v-for="i in nodeNum"
@@ -284,7 +294,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="是否单双周">
+            <el-form-item label="是否单双周" prop="limitWeek">
               <el-radio-group v-model="pojo.limitWeek">
                 <el-radio
                   v-for="dict in limitWeekOptions"
@@ -298,7 +308,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="班级">
+            <el-form-item label="班级" prop="deptId">
               <el-select
                 v-model="pojo.deptId"
                 filterable
@@ -319,9 +329,9 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="教室">
+            <el-form-item label="教室" prop="classRoomId">
               <el-select
-                v-model="pojo.roomId"
+                v-model="pojo.classRoomId"
                 filterable
                 remote
                 clearable
@@ -341,7 +351,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-form-item label="课程">
+          <el-form-item label="课程" prop="courseId">
             <el-select
               v-model="pojo.courseId"
               filterable
@@ -354,7 +364,7 @@
               <el-option
                 v-for="i in pojoCourseList"
                 :key="i.uuid"
-                :label="i.name+'--'+i.leader"
+                :label="i.name + '--' + i.leader"
                 :value="i.uuid"
               >
               </el-option>
@@ -385,6 +395,7 @@
 import courseApi from "@/api/system/course";
 import { getCourseByName } from "@/api/system/course";
 import { getDeptByName } from "@/api/system/dept";
+import deptApi from "@/api/system/dept";
 import { getRoomByName } from "@/api/system/classroom";
 import { treeselect } from "@/api/system/dept";
 
@@ -413,11 +424,12 @@ export default {
       courseTime: undefined,
       // 学年
       yearOptions: [
-        { code: "2022", name: "2021-2022" },
-        { code: "2021", name: "2020-2021" },
-        { code: "2020", name: "2019-2020" },
-        { code: "2019", name: "2018-2019" },
-        { code: "2018", name: "2017-2018" },
+        { code: "2022", name: "2022-2023" },
+        { code: "2021", name: "2021-2022" },
+        { code: "2020", name: "2020-2021" },
+        { code: "2019", name: "2019-2020" },
+        { code: "2018", name: "2018-2019" },
+        { code: "2017", name: "2017-2018" },
       ],
       // 学期
       semesterOptions: [
@@ -460,6 +472,7 @@ export default {
         { code: "1", name: "单" },
         { code: "2", name: "双" },
       ],
+      courseTypeOptions: undefined,
       // pojo-班级下拉框数据
       pojoDeptList: [],
       // pojo-教室下拉框数据
@@ -479,6 +492,11 @@ export default {
   },
   // 钩子函数获取数据
   created() {
+    this.getDicts("course_type").then((response) => {
+      this.courseTypeOptions = response.data;
+    });
+    // 初始化查询年份条件（当前时间）
+    this.initQuery();
     this.getDefaultTime();
     this.getTreeselect();
     this.getList();
@@ -487,25 +505,16 @@ export default {
     /** 查询数据列表 */
     getList() {
       this.loading = true;
-      courseApi.listCourseTable(this.pageQuery.item).then((res)=>{
-        this.loading = false;
-        this.courseTableList = res.data;
-        this.getSpanArr(this.courseTableList);
-        
-      }).catch(()=>{this.loading = false;})
-      // this.courseTableList = [
-      //   { week: "1", node: 1, course: "课程信息..." },
-      //   { week: "1", node: 2, course: "课程信息..." },
-      //   { week: "1", node: 3, course: "课程信息.." },
-      //   { week: "2", node: 1, course: "课程信息.." },
-      //   { week: "2", node: 3, course: "课程信息....." },
-      //   { week: "2", node: 4, course: "课程信息.." },
-      //   { week: "3", node: 1, course: "课程信息..." },
-      //   { week: "3", node: 2, course: "课程信息..." },
-      //   { week: "4", node: 3, course: "课程信息.." },
-      //   { week: "4", node: 1, course: "课程信息.." },
-      //   { week: "5", node: 3, course: "课程信息....." },
-      // ];
+      courseApi
+        .listCourseTable(this.pageQuery.item)
+        .then((res) => {
+          this.loading = false;
+          this.courseTableList = res.data;
+          this.getSpanArr(this.courseTableList);
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
@@ -609,18 +618,26 @@ export default {
       this.reset();
       courseApi.getTableInfo(row.uuid).then((response) => {
         this.pojo = response.data;
+        // 解析课程、班级、教室id 
+        // this.pojoDeptList = response.data.dept;
+        // this.pojoRoomList = response.data.classroom;
+        // this.pojoCourseList = response.data.course;
         this.dialogFormVisible = true;
         this.title = "修改课程表数据";
       });
     },
-
+  
     submitForm: function () {
       this.$refs.pojoForm.validate((valid) => {
         if (valid) {
           if (this.pojo.uuid != undefined) {
             console.log("更新");
           } else {
-            console.log("添加");
+            courseApi.addTableInfo(this.pojo).then((res)=>{
+              this.dialogFormVisible = false;
+              this.msgSuccess(res.message);
+              this.getList();
+            })
           }
         }
       });
@@ -678,6 +695,14 @@ export default {
           }
         }
       }
+    },
+
+    initQuery() {
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      this.pageQuery.item.year = year.toString();
+      this.pageQuery.item.semester = month.toString() > 6 ? 2 : 1;
     },
     // 星期格式化
     weekFormatter(row, column) {
