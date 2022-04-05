@@ -59,9 +59,9 @@
               <div style="height: 130px; width: 400px; float: left">
                 <h2>欢迎访问实验室预约系统</h2>
                 <h3>您好！{{ name }}</h3>
-                <p>
+                <!-- <p>
                   <span style="margin: 0 5px">学院：{{ institute }}</span><span style="margin: 0 5px">专业：{{ major }}</span>
-                </p>
+                </p> -->
               </div>
               <div
                 style="
