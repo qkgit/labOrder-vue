@@ -576,18 +576,19 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("ruleForm");
+      this.pageQuery.item.deptId = undefined;
       this.getList();
     },
     // 分页
     handleSizeChange(val) {
       // 当每页显示条数改变后 被触发
       this.pageQuery.page.pageSize = val;
-      this.getList(this.pageQuery);
+      this.getList();
     },
     handleCurrentChange(val) {
       // 当页码改变后 被触发
       this.pageQuery.page.pageNum = val;
-      this.getList(this.pageQuery);
+      this.getList();
     },
   },
 };

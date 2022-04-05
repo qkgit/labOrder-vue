@@ -52,12 +52,12 @@
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column
-          label="用户名称"
+          label="登录名"
           prop="loginName"
           :show-overflow-tooltip="true"
         />
         <el-table-column
-          label="用户昵称"
+          label="用户名称"
           prop="realName"
           :show-overflow-tooltip="true"
         />
