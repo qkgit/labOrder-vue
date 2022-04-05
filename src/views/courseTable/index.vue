@@ -522,6 +522,9 @@ export default {
         this.deptTree = response.data;
       });
     },
+    // 获取最近年份列表
+
+  
     /** 查询当前课程时间 */
     getDefaultTime() {
       courseApi.getDefaultTime().then((res) => {
@@ -539,6 +542,7 @@ export default {
     },
     resetQuery() {
       this.resetForm("ruleForm");
+      this.pageQuery.item.deptId = undefined;
       this.getList();
     },
 
@@ -634,7 +638,11 @@ export default {
       this.$refs.pojoForm.validate((valid) => {
         if (valid) {
           if (this.pojo.uuid != undefined) {
-            console.log("更新");
+            courseApi.updateTableInfo(this.pojo).then((res)=>{
+              this.dialogFormVisible = false;
+              this.msgSuccess(res.message);
+              this.getList();
+            })
           } else {
             courseApi.addTableInfo(this.pojo).then((res)=>{
               this.dialogFormVisible = false;
@@ -647,27 +655,17 @@ export default {
     },
 
     handleDelete(row) {
-      this.$confirm("确认删除这条记录吗？", "提示", {
+      const  ids = row.uuid || this.ids;
+      this.$confirm("确认删除选中记录？", "警告", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",
         type: "warning",
-      })
-        .then(() => {
-          // 确认
-          var that = this;
-          courseApi.deleteById(id).then((response) => {
-            // 提示信息
-            this.$message({
-              type: response.resultCode == 200 ? "success" : "error",
-              message: response.message,
-            });
-            if (response.resultCode == 200) {
-              // 删除成功 刷新列表
-              that.getList();
-            }
-          });
-        })
-        .catch(() => {});
+      }).then( function() {
+          return courseApi.deleteTableInfoByIds(ids);
+        }).then((res) => {
+          this.getList();
+          this.msgSuccess(res.message);
+        }).catch(() => {});
     },
 
     // 合并表格单元格

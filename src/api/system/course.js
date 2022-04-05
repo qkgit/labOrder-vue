@@ -110,6 +110,19 @@ export default {
             method: 'post',
             data
         })
+    },
+    updateTableInfo(data){
+        return request({
+            url: '/course/table',
+            method: 'put',
+            data
+        })
+    },
+    deleteTableInfoByIds(ids){
+        return request({
+            url: `/course/table/${ids}`,
+            method: 'delete',
+        })
     }
 
 }
