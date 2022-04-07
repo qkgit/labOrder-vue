@@ -45,6 +45,7 @@
           style="width: 100%; margin-bottom: 20px"
           @click.native.prevent="handleLogin"
         >登录</el-button>
+        <el-link type="primary" style="float: right;">忘记密码</el-link>
       </el-form>
     </div>
   </div>
