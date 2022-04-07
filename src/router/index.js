@@ -45,7 +45,7 @@ export const constantRoutes = [
       {
         path: '/myCenter',
         name: 'MyCenter',
-        component: () => import('@/views/myCenter/index'),
+        component: () => import('@/views/user/profile/index'),
         meta: { title: '个人中心' },
         hidden: true
       },

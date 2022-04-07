@@ -8,11 +8,10 @@ export function login(data) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
     url: '/user/info/',
-    method: 'post',
-    params: { token }
+    method: 'get',
   })
 }
 
@@ -25,8 +24,16 @@ export function logout() {
 
 export function updPwd(oldpwd, pwd) {
   return request({
-    url: '/user/updatePwd',
+    url: '/user/profile/updatePwd',
     method: 'put',
     data: { 'oldPwd': oldpwd, 'pwd': pwd }
+  })
+}
+
+export function updateUser(data){
+  return request({
+    url: '/user/profile',
+    method: 'put',
+    data
   })
 }
