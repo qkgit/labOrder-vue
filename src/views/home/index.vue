@@ -25,33 +25,6 @@
             </ul>
           </el-card>
         </div>
-        <!-- 新闻中心 -->
-        <!-- <div class="layout-item">
-          <el-card class="box-call">
-            <div slot="header" class="clearfix">
-              <span>新闻中心</span>
-               <el-button style="float: right; padding: 3px 0" type="text"
-                >更多</el-button
-              >
-            </div>
-            <ul>
-              <li v-for="news in newsList" :key="news.index" class="item">
-                <a
-                  class="text"
-                  @click="toNewsDetil(news.newsId)"
-                  title="文章标题"
-                >
-                  <span class="item_title" :title="news.title">
-                    {{ news.title }}
-                  </span>
-                  <span style="float: right">{{
-                    dateFormat(news.releaseTime)
-                  }}</span>
-                </a>
-              </li>
-            </ul>
-          </el-card>
-        </div> -->
         <!-- 个人信息 -->
         <div class="layout-item">
           <el-card class="box-info">
@@ -145,44 +118,7 @@ export default {
   components: {classTable},
   data() {
     return {
-      labTop: [
-        {
-          ltId: '1',
-          lname: '本科生创新实验室',
-          address: 'G-235',
-          allTime: '4526 天'
-        },
-        {
-          ltId: '2',
-          lname: '探测制导与信息对抗实验室',
-          address: 'G-235',
-          allTime: '1325 天'
-        },
-        {
-          ltId: '3',
-          lname: '电子信息实验室',
-          address: 'B-119',
-          allTime: '864 天'
-        },
-        {
-          ltId: '4',
-          lname: '雷达信号分析与处理实验室',
-          address: 'G-502',
-          allTime: '456 天'
-        },
-        {
-          ltId: '5',
-          lname: '学科实验室',
-          address: 'D-557',
-          allTime: '335 天'
-        }
-        // {
-        //   ltId: "6",
-        //   lname: "学科实验室",
-        //   address: "D-556",
-        //   allTime: "153 天",
-        // },
-      ],
+      labTop: [],
       newsList: [],
       informList: [],
       say: {
@@ -193,11 +129,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['name', 'institute', 'major', 'avatar'])
+    ...mapGetters(['name', 'avatar'])
   },
   created() {
     this.getNews()
-    this.getLabsTop()
+    // this.getLabsTop()
     this.getSomeSaying()
   },
   methods: {
