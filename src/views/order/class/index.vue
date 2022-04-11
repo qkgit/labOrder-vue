@@ -125,7 +125,7 @@ export default {
           // 判断当前时间所处节数
           var now = new Date();
           var node = 1;
-          var maxNode = this.timeList.length + 1;
+          var maxNode = this.timeList.length;
           this.timeList.forEach((t, i) => {
             var start = t.startTime.split(":");
             var end = t.endTime.split(":");
@@ -137,13 +137,13 @@ export default {
             endTime.setHours(end[0]);
             endTime.setMinutes(end[1]);
             endTime.setSeconds(end[2]);
-            if (now >= startTime && now <= endTime) {
-              this.queryParam.courseNode =
-                node > maxNode ? "1" : node.toString();
+            if (now <= endTime) {
+              return;
             } else {
               node = node + 1;
             }
           });
+          this.queryParam.courseNode = node > maxNode ? '1' : node+'';
         })
         .then(() => {
           this.getList();
