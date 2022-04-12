@@ -22,6 +22,14 @@ export function logout() {
   })
 }
 
+export function uploadAvatar(data){
+  return request({
+    url: '/user/profile/avatar',
+    method: 'post',
+    data: data
+  })
+}
+
 export function updPwd(oldpwd, pwd) {
   return request({
     url: '/user/profile/updatePwd',

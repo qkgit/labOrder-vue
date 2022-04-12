@@ -60,12 +60,12 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        
         const { data } = response
         if (!data) {
           return reject(response.message)
         }
-        const { realName, avatar, institute, major, isFirstLogin } = data
+        const { realName, institute, major, isFirstLogin } = data
+        const avatar = data.avatar == "" ? "" : process.env.VUE_APP_BASE_API + data.avatar;
         commit('SET_NAME', realName)
         commit('SET_AVATAR', avatar)
         commit('SET_INSTITUTE', institute)

@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import usersApi from "@/api/users";
+import { updateUser } from "@/api/user";
 
 export default {
   props: {
@@ -41,7 +41,7 @@ export default {
             trigger: ["blur", "change"]
           }
         ],
-        phonenumber: [
+        mobile: [
           { required: true, message: "手机号码不能为空", trigger: "blur" },
           {
             pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
@@ -56,8 +56,8 @@ export default {
     submit() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          usersApi.updateUser(this.user).then(response => {
-            this.msgSuccess("修改成功");
+          updateUser(this.user).then(response => {
+            this.msgSuccess(response.message);
           });
         }
       });
