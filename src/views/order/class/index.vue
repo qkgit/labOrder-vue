@@ -43,40 +43,46 @@
       >
         <div class="row_1">
           <div class="room_1">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 教室1 </el-card>
+            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 6教室 </el-card>
           </div>
           <div class="room_2">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 教室2 </el-card>
+            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 4教室 </el-card>
           </div>
-          <div class="room_3">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 教室3 </el-card>
+          <div class="room_3_1">
+            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 2教室西 </el-card>
+          </div>
+          <div class="room_3_2">
+            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 2教室东 </el-card>
           </div>
         </div>
         <div class="row_2">
           <div class="room_4">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 教室4 </el-card>
+            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 5教室 </el-card>
           </div>
           <div class="room_5">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 教室5 </el-card>
+            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 3教室 </el-card>
           </div>
-          <div class="room_6">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 教室6 </el-card>
+          <div class="room_6_1">
+            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 1教室西</el-card>
+          </div>
+          <div class="room_6_2">
+            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 1教室东 </el-card>
           </div>
         </div>
         <div class="row_3">
           <div class="room_7">
-            <el-card class="box-card-7" shadow="hover" @click.native="handleOrder"> 教室7 </el-card>
+            <el-card class="box-card-7" shadow="hover" @click.native="handleOrder"> 6阶梯教室 </el-card>
           </div>
           <div class="room_8">
-            <el-card class="box-card-8" shadow="hover" @click.native="handleOrder"> 教室8 </el-card>
+            <el-card class="box-card-8" shadow="hover" @click.native="handleOrder"> 5阶梯教室 </el-card>
           </div>
         </div>
         <div class="room_9">
-          <el-card class="box-card-9" shadow="hover" @click.native="handleOrder"> 教室9 </el-card>
+          <el-card class="box-card-9" shadow="hover" @click.native="handleOrder"> 4阶梯教室 </el-card>
         </div>
         <div class="col_1">
           <div class="room_10">
-            <el-card class="box-card-10" shadow="hover" @click.native="handleOrder"> 教室10 </el-card>
+            <el-card class="box-card-10" shadow="hover" @click.native="handleOrder"> 大阶梯教室 </el-card>
           </div>
         </div>
       </div>
@@ -211,6 +217,12 @@ export default {
   background: #f3f3f3;
   cursor: pointer;
 }
+.box-card-3 {
+  width: 59px;
+  height: 60px;
+  background: #f3f3f3;
+  cursor: pointer;
+}
 .box-card-7 {
   width: 108px;
   height: 71px;
@@ -282,9 +294,14 @@ export default {
   width: 123px;
   display: inline-block;
 }
-.room_3 {
+.room_3_1 {
   height: 60px;
-  width: 123px;
+  width: 61px;
+  display: inline-block;
+}
+.room_3_2 {
+  height: 60px;
+  width: 62px;
   display: inline-block;
 }
 
@@ -299,9 +316,14 @@ export default {
   width: 123px;
   display: inline-block;
 }
-.room_6 {
+.room_6_1 {
   height: 60px;
-  width: 123px;
+  width: 61px;
+  display: inline-block;
+}
+.room_6_2 {
+  height: 60px;
+  width: 62px;
   display: inline-block;
 }
 
