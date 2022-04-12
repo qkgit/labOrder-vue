@@ -131,11 +131,6 @@
         </el-row>
         <el-row>
           <el-col :span="10">
-            <el-form-item label="地址" prop="address">
-              <el-input size="medium" v-model="pojo.address" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="10">
             <el-form-item label="楼层" prop="level">
               <el-input-number
                 v-model="pojo.level"
@@ -143,6 +138,11 @@
                 controls-position="right"
                 :min="1"
               />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="位置" prop="address">
+              <el-input size="medium" v-model="pojo.address" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -225,7 +225,7 @@ export default {
       roomList: [],
       pageQuery: {
         page: {
-          total: 10,
+          pageSize: 10,
           pageNum: 1,
         },
         item: {

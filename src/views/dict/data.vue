@@ -358,12 +358,12 @@ export default {
     handleSizeChange(val) {
       // 当每页显示条数改变后 被触发
       this.pageQuery.page.pageSize = val;
-      this.fetchData(this.pageQuery);
+      this.getList();
     },
     handleCurrentChange(val) {
       // 当页码改变后 被触发
       this.pageQuery.page.pageNum = val;
-      this.fetchData(this.pageQuery);
+      this.getList();
     },
 
     // 表单重置
@@ -453,17 +453,7 @@ export default {
     handleSelectionChange(selection) {
       this.ids = selection.map((item) => item.uuid);
       this.multiple = !selection.length;
-    },
-
-    firstFun() {
-      this.secondFun();
-    },
-    secondFun() {
-      this.thirdFun();
-    },
-    thirdFun() {
-      console.log(new Error().stack);
-    },
+    }
   },
 };
 </script>
