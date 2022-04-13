@@ -161,8 +161,8 @@ export default {
         formData.append("avatarfile", data);
         uploadAvatar(formData).then((response) => {
           this.open = false;
-          this.options.img = process.env.VUE_APP_BASE_API + response.imgUrl;
-          store.commit("SET_AVATAR", this.options.img);
+          this.options.img = process.env.VUE_APP_BASE_API + response.data;
+          store.commit("user/SET_AVATAR", this.options.img);
           this.msgSuccess("修改成功");
           this.visible = false;
         });
