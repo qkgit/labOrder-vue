@@ -436,8 +436,11 @@ export default {
         { code: "1", name: "1" },
         { code: "2", name: "2" },
       ],
+      // 当前时间版本id
+      courseTimeId: undefined,
       // 当前最大节次
       nodeNum: undefined,
+      
       pageQuery: {
         page: {
           total: 10,
@@ -530,6 +533,7 @@ export default {
       courseApi.getDefaultTime().then((res) => {
         this.courseTime = res.data;
         this.nodeNum = res.data.num;
+        this.courseTimeId = res.data.uuid;
       });
     },
 
@@ -599,6 +603,7 @@ export default {
         week: undefined,
         limitWeek: "0",
         node: undefined,
+        courseTimeId: this.courseTimeId,
         remark: undefined,
         classRoomId: undefined,
         courseId: undefined,

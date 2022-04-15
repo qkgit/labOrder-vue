@@ -97,7 +97,8 @@
           <div slot="header" class="clearfix">
             <span>我的课表</span>
           </div>
-          <class-table>
+          <!--  :courses="courses" -->
+          <class-table :courseTime="courseTime">
           </class-table>
         </el-card>
       </div>
@@ -107,8 +108,10 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import courseApi from "@/api/system/course";
+import { getCourseTableByUser } from '@/api/system/course'
 import newsApi from '@/api/news'
-import labApi from '@/api/labs'
+// import labApi from '@/api/labs'
 import moment from 'moment'
 import axios from 'axios'
 import classTable from '@/components/classTable'
@@ -118,14 +121,14 @@ export default {
   components: {classTable},
   data() {
     return {
-      labTop: [],
-      newsList: [],
+      // 公告列表
       informList: [],
+      // 一言
       say: {
         hitokoto: ''
       },
-      image:
-        'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png'
+      courseTime: undefined,
+      courses: undefined,
     }
   },
   computed: {
@@ -133,28 +136,48 @@ export default {
   },
   created() {
     this.getNews()
-    // this.getLabsTop()
+    this.getCourseTable()
     this.getSomeSaying()
   },
   methods: {
+    /**
+     *  获取公告
+     */
     getNews() {
       newsApi.getHomeNews().then((response) => {
         this.informList = response.data
       })
-      // newsApi.getHomeInForm().then((response) => {
-      //   this.informList = response.data;
-      // });
     },
-    getLabsTop() {
-      labApi.getLabsTop().then((response) => {
-        this.labTop = response.data
+    /**
+     * 获取课程表数据
+     */
+    getCourseTable(){
+      courseApi.getDefaultTime().then((res)=>{
+        const times = [];
+        const defaultTimes = res.data.times;
+        defaultTimes.forEach((i)=>{
+          times.push(i.startTime+"-"+i.endTime);
+        })
+        this.courseTime = times;
+      })
+      getCourseTableByUser().then((res)=>{
+        debugger
+        const courseDate = res.data;
+
+        this.courses = res.data;
       })
     },
+    /**
+     *  获取一言数据
+     */
     getSomeSaying() {
       axios.get('https://v1.hitokoto.cn/?encode=json').then((resp) => {
         this.say = resp.data
       })
     },
+    /**
+     * 公告详情跳转
+     */
     toNewsDetil(newsId) {
       this.$router.push({path: `/newsDetail/${newsId}`})
     },

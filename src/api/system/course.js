@@ -127,10 +127,18 @@ export default {
 
 }
 
-// 根据部门名称查询部门
+// 根据课程名称或教师名称查询课程
 export function getCourseByName(name) {
     return request({
         url: '/course/getByName/' + name,
+        method: 'get'
+    })
+}
+
+// 查询用户课程表
+export function getCourseTableByUser(){
+    return request({
+        url: '/course/table',
         method: 'get'
     })
 }
