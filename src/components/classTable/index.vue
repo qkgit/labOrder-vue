@@ -2,7 +2,6 @@
     <div class="class-table">
         <div class="table-wrapper">
             <div class="tabel-container">
-
                 <table>
                     <thead>
                         <tr>
@@ -11,14 +10,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(lesson, lessonIndex) in classTableData.lessons" :key="lessonIndex">
+                        <tr v-for="(time, timeIndex) in courseTime" :key="timeIndex">
                             <td>
-                                <p>{{'第' + digital2Chinese(lessonIndex+1) + "节"}}</p>
-                                <p class="period">{{ lesson }}</p>
+                                <p>{{'第' + digital2Chinese(timeIndex+1) + "节"}}</p>
+                                <p class="period">{{ time }}</p>
                             </td>
 
                             <td v-for="(course, courseIndex) in classTableData.courses" :key="courseIndex">
-                                {{classTableData.courses[courseIndex][lessonIndex] || '-'}}
+                                {{classTableData.courses[courseIndex][timeIndex] || '-'}}
                             </td>
                         </tr>
                     </tbody>
@@ -31,6 +30,15 @@
 <script>
 
 export default {
+    name: 'ClassTable',
+    props: {
+        courseTime: {
+            type: Array,
+        },
+        courses: {
+            type: Array,
+        },
+    },
     data() {
         return {
             classTableData: {
