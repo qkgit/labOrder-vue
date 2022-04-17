@@ -98,7 +98,7 @@
             <span>我的课表</span>
           </div>
           <!--  :courses="courses" -->
-          <class-table :courseTime="courseTime">
+          <class-table :courseTime="courseTime"  >
           </class-table>
         </el-card>
       </div>
@@ -152,19 +152,15 @@ export default {
      * 获取课程表数据
      */
     getCourseTable(){
-      courseApi.getDefaultTime().then((res)=>{
-        const times = [];
-        const defaultTimes = res.data.times;
-        defaultTimes.forEach((i)=>{
-          times.push(i.startTime+"-"+i.endTime);
-        })
-        this.courseTime = times;
-      })
       getCourseTableByUser().then((res)=>{
-        debugger
-        const courseDate = res.data;
-
-        this.courses = res.data;
+        console.log(res)
+        this.courseTime = res.data.courseTime;
+        console.log("timeList",this.courseTime)
+        this.courses = res.data.courses;
+        console.log(this.courses[0])
+        console.log(this.courses[1])
+        console.log(this.courses[2])
+        console.log(this.courses[3])
       })
     },
     /**

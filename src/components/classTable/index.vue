@@ -1,130 +1,1078 @@
 <template>
-    <div class="class-table">
-        <div class="table-wrapper">
-            <div class="tabel-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>时间</th>
-                            <th v-for="(weekNum, weekIndex) in classTableData.courses.length" :key="weekIndex"> {{'周' + digital2Chinese(weekIndex+1, 'week')}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(time, timeIndex) in courseTime" :key="timeIndex">
-                            <td>
-                                <p>{{'第' + digital2Chinese(timeIndex+1) + "节"}}</p>
-                                <p class="period">{{ time }}</p>
-                            </td>
+  <div class="class-table">
+    <div class="table-wrapper">
+      <div class="tabel-container">
+        <table>
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th
+                v-for="(weekNum, weekIndex) in classTableData.courses.length"
+                :key="weekIndex"
+              >
+                {{ "周" + digital2Chinese(weekIndex + 1, "week") }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(time, timeIndex) in courseTime" :key="timeIndex">
+              <td>
+                <p>{{ "第" + digital2Chinese(timeIndex + 1) + "节" }}</p>
+                <p class="period">{{ time }}</p>
+              </td>
 
-                            <td v-for="(course, courseIndex) in classTableData.courses" :key="courseIndex">
-                                {{classTableData.courses[courseIndex][timeIndex] || '-'}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+              <td v-for="(c, ci) in classTableData.courses" :key="ci">
+                {{ classTableData.courses[timeIndex][ci] || "-" }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
-
 export default {
-    name: 'ClassTable',
-    props: {
-        courseTime: {
-            type: Array,
-        },
-        courses: {
-            type: Array,
-        },
+  name: "ClassTable",
+  props: {
+    courseTime: {
+      type: Array,
     },
-    data() {
-        return {
-            classTableData: {
-                lessons: [
-                    '08:00-10:00',
-                    '10:00-12:00',
-                    '13:00-15:00',
-                    '15:00-17:00'
-                ],
-                courses: [
-                    ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-                    ['语文', '数学', '英语', '历史', '', '化学', '物理', '生物'],
-                    ['生物', '', '化学', '政治', '历史', '英语', '数学', '语文'],
-                    ['语文', '数学', '英语', '历史', '政治', '', '物理', '生物'],
-                    ['生物', '物理', '化学', '', '历史', '英语', '数学', '语文'],
-                ]
-            }
-
-        };
+    courses: {
+      type: Array,
     },
-    created() {
-    	// /* mock随机数据*/
-        // Mock.mock({
-		//     lessons: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'],
-		//     'courses|7': [['生物', '物理', '化学', '政治', '历史', '英语', '', '语文']]
-		// });
+  },
+  data() {
+    return {
+      classTableData: {
+        lessons: ["08:00-10:00", "10:00-12:00", "13:00-15:00", "15:00-17:00"],
+        courses: [
+          ["生物", "物理", "化学", "政治", "历史", "英语", "", "语文"],
+          ["语文", "数学", "英语", "历史", "", "化学", "物理", "生物"],
+          ["生物", "", "化学", "政治", "历史", "英语", "数学", "语文"],
+          ["语文", "数学", "英语", "历史", "政治", "", "物理", "生物"],
+          ["生物", "物理", "化学", "", "历史", "英语", "数学", "语文"],
+        ],
+        a: [
+          [
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "286a367d0e1248da804bf4facbaec53b",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "1",
+              limitWeek: "0",
+              node: 1,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "405068cf5c95478e96f5bf25cb4520f2",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "405068cf5c95478e96f5bf25cb4520f2",
+                name: "23教室",
+                address: "B414",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "b老师",
+                leaderId: "d9e2ebd42df74ae096b33bce3ebd72cd",
+                delFlag: null,
+              },
+              courseId: "a305a31869f441c28a00554805c6b90a",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "a305a31869f441c28a00554805c6b90a",
+                name: "分子生物学",
+                leader: "b老师",
+                leaderId: "d9e2ebd42df74ae096b33bce3ebd72cd",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "b老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "1cf22cad01a142d781e2d9d5414dc0aa",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "1",
+              limitWeek: "0",
+              node: 2,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "67fcf86d6b2344cf9b8428c53e22013f",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "67fcf86d6b2344cf9b8428c53e22013f",
+                name: "24教室",
+                address: "B415",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "a老师",
+                leaderId: "4505fb239f88426c8f4d8679da32bd70",
+                delFlag: null,
+              },
+              courseId: "7cc7ab27e6ed4b918491d49a0a58520b",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "7cc7ab27e6ed4b918491d49a0a58520b",
+                name: "生物化学",
+                leader: "a老师",
+                leaderId: "4505fb239f88426c8f4d8679da32bd70",
+                type: "2",
+                credit: "5",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "a老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            null,
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "ff1322e92a6347d99e12918b9a8798b6",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "1",
+              limitWeek: "0",
+              node: 4,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "ad074572ac384e74991a26125f56960a",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "ad074572ac384e74991a26125f56960a",
+                name: "22教室",
+                address: "B417",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "c老师",
+                leaderId: "fa4535ab113a409c80795080716c5032",
+                delFlag: null,
+              },
+              courseId: "e11da893ba054febbfe6001f3cd2aa95",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "e11da893ba054febbfe6001f3cd2aa95",
+                name: "现代生物技术",
+                leader: "c老师",
+                leaderId: "fa4535ab113a409c80795080716c5032",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "c老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+          ],
+          [
+            null,
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "a4dd2fa440af4b14880fbeee0786324f",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "2",
+              limitWeek: "0",
+              node: 2,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "d80f9e6126d240b1b43576638134d1a7",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "d80f9e6126d240b1b43576638134d1a7",
+                name: "19教室",
+                address: "B418",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "g老师",
+                leaderId: "b2d7959f26644f9c921e343cfebb3f75",
+                delFlag: null,
+              },
+              courseId: "70e6c2f3b4ca44b08100fbaff6926546",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "70e6c2f3b4ca44b08100fbaff6926546",
+                name: "基因工程",
+                leader: "g老师",
+                leaderId: "b2d7959f26644f9c921e343cfebb3f75",
+                type: "1",
+                credit: "5",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "g老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "9f00f5d1f57f497696307c51f9fda911",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "2",
+              limitWeek: "0",
+              node: 3,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "6b907c89a0f14bccbd3f80248452025e",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "6b907c89a0f14bccbd3f80248452025e",
+                name: "20教室",
+                address: "B419",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "h老师",
+                leaderId: "5d02c400859341ea9f8589a456034e26",
+                delFlag: null,
+              },
+              courseId: "ac616fce6ab545ea80439af52e68f622",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "ac616fce6ab545ea80439af52e68f622",
+                name: "细胞工程",
+                leader: "h老师",
+                leaderId: "5d02c400859341ea9f8589a456034e26",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "h老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            null,
+          ],
+          [
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "17574bf9fb0647efbb60184ce822f80a",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "3",
+              limitWeek: "0",
+              node: 1,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "405068cf5c95478e96f5bf25cb4520f2",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "405068cf5c95478e96f5bf25cb4520f2",
+                name: "23教室",
+                address: "B414",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "b老师",
+                leaderId: "d9e2ebd42df74ae096b33bce3ebd72cd",
+                delFlag: null,
+              },
+              courseId: "a305a31869f441c28a00554805c6b90a",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "a305a31869f441c28a00554805c6b90a",
+                name: "分子生物学",
+                leader: "b老师",
+                leaderId: "d9e2ebd42df74ae096b33bce3ebd72cd",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "b老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "becfc580ece4434292a75694b24ed45e",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "3",
+              limitWeek: "0",
+              node: 2,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "67fcf86d6b2344cf9b8428c53e22013f",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "67fcf86d6b2344cf9b8428c53e22013f",
+                name: "24教室",
+                address: "B415",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "a老师",
+                leaderId: "4505fb239f88426c8f4d8679da32bd70",
+                delFlag: null,
+              },
+              courseId: "7cc7ab27e6ed4b918491d49a0a58520b",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "7cc7ab27e6ed4b918491d49a0a58520b",
+                name: "生物化学",
+                leader: "a老师",
+                leaderId: "4505fb239f88426c8f4d8679da32bd70",
+                type: "2",
+                credit: "5",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "a老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            null,
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "8b81c1210c774abc82c2e4305a260a0f",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "3",
+              limitWeek: "0",
+              node: 4,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "ad074572ac384e74991a26125f56960a",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "ad074572ac384e74991a26125f56960a",
+                name: "22教室",
+                address: "B417",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "c老师",
+                leaderId: "fa4535ab113a409c80795080716c5032",
+                delFlag: null,
+              },
+              courseId: "e11da893ba054febbfe6001f3cd2aa95",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "e11da893ba054febbfe6001f3cd2aa95",
+                name: "现代生物技术",
+                leader: "c老师",
+                leaderId: "fa4535ab113a409c80795080716c5032",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "c老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+          ],
+          [
+            null,
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "70426574000c44f49a44a7e031812293",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "4",
+              limitWeek: "0",
+              node: 2,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "d80f9e6126d240b1b43576638134d1a7",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "d80f9e6126d240b1b43576638134d1a7",
+                name: "19教室",
+                address: "B418",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "g老师",
+                leaderId: "b2d7959f26644f9c921e343cfebb3f75",
+                delFlag: null,
+              },
+              courseId: "70e6c2f3b4ca44b08100fbaff6926546",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "70e6c2f3b4ca44b08100fbaff6926546",
+                name: "基因工程",
+                leader: "g老师",
+                leaderId: "b2d7959f26644f9c921e343cfebb3f75",
+                type: "1",
+                credit: "5",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "g老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "38e3535c590441cb897acab602af6b97",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "4",
+              limitWeek: "0",
+              node: 3,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "d3da578ce1f140c389412f9b808d6c2c",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "d3da578ce1f140c389412f9b808d6c2c",
+                name: "15阶梯",
+                address: "B423",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "i老师",
+                leaderId: "b28d347b75aa4c939e89750690368d5a",
+                delFlag: null,
+              },
+              courseId: "ecaa19c731194f1b9c940c659a2bfd92",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "ecaa19c731194f1b9c940c659a2bfd92",
+                name: "发酵工程",
+                leader: "i老师",
+                leaderId: "b28d347b75aa4c939e89750690368d5a",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "i老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            null,
+          ],
+          [
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "679d12c6f40f40cf8d3be738d4a5d9fe",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "5",
+              limitWeek: "0",
+              node: 1,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "6b907c89a0f14bccbd3f80248452025e",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "6b907c89a0f14bccbd3f80248452025e",
+                name: "20教室",
+                address: "B419",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "h老师",
+                leaderId: "5d02c400859341ea9f8589a456034e26",
+                delFlag: null,
+              },
+              courseId: "ac616fce6ab545ea80439af52e68f622",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "ac616fce6ab545ea80439af52e68f622",
+                name: "细胞工程",
+                leader: "h老师",
+                leaderId: "5d02c400859341ea9f8589a456034e26",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "h老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            {
+              searchValue: null,
+              createBy: null,
+              createTime: null,
+              updateBy: null,
+              updateTime: null,
+              remark: null,
+              params: {},
+              uuid: "40a48c94bbb34db4932e26caac10aee3",
+              year: "2022",
+              semester: "1",
+              periodStart: "1",
+              periodEnd: "18",
+              week: "5",
+              limitWeek: "0",
+              node: 2,
+              courseTimeId: "4780780cec0b412a83c239f4b114d3ee",
+              classRoomId: "d3da578ce1f140c389412f9b808d6c2c",
+              classroom: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "d3da578ce1f140c389412f9b808d6c2c",
+                name: "15阶梯",
+                address: "B423",
+                level: null,
+                cap: null,
+                status: null,
+                leader: "i老师",
+                leaderId: "b28d347b75aa4c939e89750690368d5a",
+                delFlag: null,
+              },
+              courseId: "ecaa19c731194f1b9c940c659a2bfd92",
+              course: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                uuid: "ecaa19c731194f1b9c940c659a2bfd92",
+                name: "发酵工程",
+                leader: "i老师",
+                leaderId: "b28d347b75aa4c939e89750690368d5a",
+                type: "2",
+                credit: "10",
+              },
+              deptId: "71cf01b84a8e41b4be545c29c61ea912",
+              dept: {
+                searchValue: null,
+                createBy: null,
+                createTime: null,
+                updateBy: null,
+                updateTime: null,
+                remark: null,
+                params: {},
+                deptId: "71cf01b84a8e41b4be545c29c61ea912",
+                parentId: null,
+                ancestors: null,
+                deptName: "生物技术",
+                deptType: null,
+                orderNum: null,
+                leader: "i老师",
+                phone: null,
+                email: null,
+                status: null,
+                delFlag: null,
+                parentName: null,
+                children: [],
+              },
+            },
+            null,
+            null,
+          ],
+          [null, null, null, null],
+          [null, null, null, null],
+        ],
+      },
+    };
+  },
+  created() {
+    // /* mock随机数据*/
+    // Mock.mock({
+    //     lessons: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'],
+    //     'courses|7': [['生物', '物理', '化学', '政治', '历史', '英语', '', '语文']]
+    // });
+  },
+  methods: {
+    /**
+     * 数字转中文
+     * @param {Number} num 需要转换的数字
+     * @param {String} identifier 标识符
+     * @returns {String} 转换后的中文
+     */
+    digital2Chinese(num, identifier) {
+      const character = [
+        "零",
+        "一",
+        "二",
+        "三",
+        "四",
+        "五",
+        "六",
+        "七",
+        "八",
+        "九",
+        "十",
+        "十一",
+        "十二",
+      ];
+      return identifier === "week" && (num === 0 || num === 7)
+        ? "日"
+        : character[num];
     },
-    methods: {
-        /**
-        * 数字转中文
-        * @param {Number} num 需要转换的数字
-        * @param {String} identifier 标识符
-        * @returns {String} 转换后的中文
-        */
-        digital2Chinese(num, identifier) {
-            const character = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
-            return identifier === 'week' && (num === 0 || num === 7) ? '日' : character[num];
-        }
-    }
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .class-table {
-    .table-wrapper {
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-    }
-    .tabel-container {
-        margin: 7px;
+  .table-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+  .tabel-container {
+    margin: 7px;
 
-        table {
-            table-layout: fixed;
-            width: 100%;
+    table {
+      table-layout: fixed;
+      width: 100%;
 
-            thead {
-                background-color: #67a1ff;
-                th {
-                    color: #fff;
-                    line-height: 17px;
-                    font-weight: normal;
-                }
-            }
-            tbody {
-                background-color: #eaf2ff;
-                td {
-                    color: #677998;
-                    line-height: 12px;
-                }
-            }
-            th,
-            td {
-                width: 60px;
-                padding: 12px 2px;
-                font-size: 12px;
-                text-align: center;
-            }
-
-            tr td:first-child {
-                color: #333;
-                .period {
-                    font-size: 8px;
-                }
-            }
+      thead {
+        background-color: #67a1ff;
+        th {
+          color: #fff;
+          line-height: 17px;
+          font-weight: normal;
         }
+      }
+      tbody {
+        background-color: #eaf2ff;
+        td {
+          color: #677998;
+          line-height: 12px;
+        }
+      }
+      th,
+      td {
+        width: 60px;
+        padding: 12px 2px;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      tr td:first-child {
+        color: #333;
+        .period {
+          font-size: 8px;
+        }
+      }
     }
+  }
 }
 </style>
