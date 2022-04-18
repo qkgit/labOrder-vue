@@ -98,7 +98,7 @@
             <span>我的课表</span>
           </div>
           <!--  :courses="courses" -->
-          <class-table :courseTime="courseTime"  >
+          <class-table>
           </class-table>
         </el-card>
       </div>
@@ -108,7 +108,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import courseApi from "@/api/system/course";
 import { getCourseTableByUser } from '@/api/system/course'
 import newsApi from '@/api/news'
 // import labApi from '@/api/labs'
@@ -136,7 +135,7 @@ export default {
   },
   created() {
     this.getNews()
-    this.getCourseTable()
+    // this.getCourseTable()
     this.getSomeSaying()
   },
   methods: {
@@ -157,10 +156,13 @@ export default {
         this.courseTime = res.data.courseTime;
         console.log("timeList",this.courseTime)
         this.courses = res.data.courses;
-        console.log(this.courses[0])
-        console.log(this.courses[1])
-        console.log(this.courses[2])
-        console.log(this.courses[3])
+        // var courseList = res.data.courses;
+        // console.log(courseList[0][0])
+        console.log(this.courses)
+        console.log("***************************")
+        // console.log(courseList[0][0].course)
+        console.log(this.courses[0][0].course)
+
       })
     },
     /**
