@@ -11,7 +11,15 @@
         <el-input v-model="pageQuery.item.name" placeholder="教室名称" />
       </el-form-item>
       <el-form-item prop="address">
-        <el-input v-model="pageQuery.item.address" placeholder="教室地址" />
+        <!-- <el-input v-model="pageQuery.item.address" placeholder="教室地址" /> -->
+        <el-select v-model="pageQuery.item.address" placeholder="请选择教室位置">
+          <el-option
+            v-for="option in addressOptions"
+            :key="option.code"
+            :label="option.name"
+            :value="option.code"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item prop="leader">
         <el-input v-model="pageQuery.item.leader" placeholder="教室负责人" />
@@ -59,6 +67,16 @@
           >删除</el-button
         >
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="el-icon-question"
+          size="mini"
+          @click="handleDialog"
+          >说明</el-button
+        >
+      </el-col>
     </el-row>
 
     <!-- 数据列表  -->
@@ -71,7 +89,8 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="教室" />
-      <el-table-column prop="address" label="地址" />
+      <!-- :formatter="addressFormat" -->
+      <el-table-column prop="address" label="位置" />
       <el-table-column prop="cap" label="容量" width="80" />
       <el-table-column align="center" width="70" label="状态" prop="status">
         <template slot-scope="scope">
@@ -142,7 +161,18 @@
           </el-col>
           <el-col :span="10">
             <el-form-item label="位置" prop="address">
-              <el-input size="medium" v-model="pojo.address" />
+              <!-- <el-input size="medium" v-model="pojo.address" /> -->
+              <el-select
+                v-model="pojo.address"
+                placeholder="请选择教室位置"
+              >
+                <el-option
+                  v-for="option in addressOptions"
+                  :key="option.code"
+                  :label="option.name"
+                  :value="option.code"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -191,6 +221,10 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog  :visible.sync="showDialog">
+        <el-image :src="imgSrc">
+        </el-image>
+    </el-dialog>
   </div>
 </template>
 
@@ -212,6 +246,8 @@ export default {
       loading: false,
       // 状态
       statusOptions: [],
+      // 教室位置
+      addressOptions: [],
       // 选中数组
       ids: [],
       // 非多个禁用
@@ -235,17 +271,21 @@ export default {
           status: undefined,
         },
       },
-
       pojo: {},
       open: false,
       title: "",
       rules: {},
+      showDialog: false,
+      imgSrc: require('@/assets/floor_pic/教室说明.png')
     };
   },
   // 钩子函数获取数据
   created() {
     this.getDicts("sys_common_status").then((response) => {
       this.statusOptions = response.data;
+    });
+    this.getDicts("room_address").then((response) => {
+      this.addressOptions = response.data;
     });
     this.getList();
   },
@@ -285,7 +325,7 @@ export default {
       this.open = false;
       this.reset();
     },
-    
+
     getUserTreeSelect() {
       deptUserTreeSelect("3").then((res) => {
         this.userOptions = res.data;
@@ -301,7 +341,7 @@ export default {
     // 打开编辑窗口
     handleEdit(row) {
       this.reset();
-      this.getUserTreeSelect();      
+      this.getUserTreeSelect();
       roomApi.getRoom(row.uuid).then((response) => {
         this.pojo = response.data;
         this.open = true;
@@ -313,7 +353,7 @@ export default {
       this.$refs.pojoForm.validate((valid) => {
         if (valid) {
           if (this.pojo.uuid != undefined) {
-             roomApi.updateRoom(this.pojo).then((res) => {
+            roomApi.updateRoom(this.pojo).then((res) => {
               this.open = false;
               this.msgSuccess(res.message);
               this.getList();
@@ -331,22 +371,27 @@ export default {
 
     // 删除
     handleDelete(row) {
-     const ids = row.uuid || this.ids;
-     this.$confirm("确认删除选中教室吗?", "警告", {
+      const ids = row.uuid || this.ids;
+      this.$confirm("确认删除选中教室吗?", "警告", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",
         type: "warning",
       })
-        .then( function() {
+        .then(function () {
           return roomApi.delRoom(ids);
         })
-        .then((res)=>{
+        .then((res) => {
           this.getList();
           this.msgSuccess(res.message);
         })
         .catch(() => {});
     },
-
+    handleDialog(){
+      this.showDialog = true;
+    },
+    addressFormat(row){
+      return this.selectDictLabel(this.addressOptions, row.address);
+    },
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map((item) => item.uuid);
