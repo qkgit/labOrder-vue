@@ -1,89 +1,193 @@
 <template>
   <div class="container">
-    <div class="rule-top">
-      <el-row class="item">
-        <el-radio-group v-model="queryParam.week" @change="fetchWeek">
-          <el-radio-button label="1">周一</el-radio-button>
-          <el-radio-button label="2">周二</el-radio-button>
-          <el-radio-button label="3">周三</el-radio-button>
-          <el-radio-button label="4">周四</el-radio-button>
-          <el-radio-button label="5">周五</el-radio-button>
-          <el-radio-button label="6">周六</el-radio-button>
-          <el-radio-button label="7">周日</el-radio-button>
-        </el-radio-group>
-      </el-row>
-      <el-row>
-        <el-tabs v-model="queryParam.courseNode" @tab-click="fetchNode">
-          <el-tab-pane
+    <el-form ref="ruleForm" :inline="true" :model="queryParam" class="rule-top">
+      <el-form-item label="预约日期" prop="date">
+        <el-date-picker
+          v-model="queryParam.date"
+          type="date"
+          placeholder="选择预约日期"
+          @change="getList"
+        >
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item label="节数" prop="courseNode">
+        <el-select v-model="queryParam.courseNode" @change="getList">
+          <el-option
             v-for="(t, i) in timeList"
             :key="i + 1"
             :label="'第' + digital2Chinese(i + 1) + '节课'"
-            :name="(i + 1).toString()"
+            :value="(i + 1).toString()"
           />
-        </el-tabs>
-      </el-row>
-    </div>
-    <div style="">
-      <el-card shadow="never" style="width: 10%; float: right">
-        <el-tabs
-          v-model="queryParam.floor"
-          tab-position="left"
-          style="height: 180px"
-          @tab-click="fetchFloor"
-        >
-          <el-tab-pane label="四层" name="4" />
-          <el-tab-pane label="三层" name="3" />
-          <el-tab-pane label="二层" name="2" />
-          <el-tab-pane label="一层" name="1" />
-        </el-tabs>
-      </el-card>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="层数" prop="floor">
+        <el-select v-model="queryParam.floor" @change="getList">
+          <el-option
+            v-for="i in 4"
+            :key="i + 1"
+            :label="digital2Chinese(i) + '层'"
+            :value="i.toString()"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <el-divider></el-divider>
 
-      <div
-        :class="queryParam.floor > 1 ? 'room_background_2' : 'room_background'"
-      >
-        <div class="row_1">
-          <div class="room_1">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 6教室 </el-card>
-          </div>
-          <div class="room_2">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 4教室 </el-card>
-          </div>
-          <div class="room_3_1">
-            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 2教室西 </el-card>
-          </div>
-          <div class="room_3_2">
-            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 2教室东 </el-card>
-          </div>
+    <el-card shadow="never" style="width: 15%; float: right">
+      <div slot="header" class="clearfix">
+        <span>说明</span>
+      </div>
+      <p><el-tag>教室正常 可预约</el-tag></p> 
+      <p><el-tag type="info">教室有课/关闭 不可预约</el-tag></p>
+      <p><el-tag type="success">预约成功</el-tag></p>
+      <p><el-tag type="danger">预约失败</el-tag></p>
+      <p><el-tag type="warning">预约审核中</el-tag></p>
+      
+      
+    </el-card>
+    <div
+      :class="queryParam.floor > 1 ? 'room_background_2' : 'room_background'"
+    >
+      <div class="row_1">
+        <div class="room_6">
+          <el-card
+            class="box-card normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            <div ref="c6">6教室</div>
+          </el-card>
         </div>
-        <div class="row_2">
-          <div class="room_4">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 5教室 </el-card>
-          </div>
-          <div class="room_5">
-            <el-card class="box-card" shadow="hover" @click.native="handleOrder"> 3教室 </el-card>
-          </div>
-          <div class="room_6_1">
-            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 1教室西</el-card>
-          </div>
-          <div class="room_6_2">
-            <el-card class="box-card-3" shadow="hover" @click.native="handleOrder"> 1教室东 </el-card>
-          </div>
+        <div class="room_4">
+          <el-card
+            ref="4"
+            class="box-card normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            4教室
+          </el-card>
         </div>
-        <div class="row_3">
-          <div class="room_7">
-            <el-card class="box-card-7" shadow="hover" @click.native="handleOrder"> 6阶梯教室 </el-card>
-          </div>
-          <div class="room_8">
-            <el-card class="box-card-8" shadow="hover" @click.native="handleOrder"> 5阶梯教室 </el-card>
-          </div>
+        <div class="room_2_2">
+          <el-card
+            ref="2_2"
+            class="box-card-2 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            2教室西
+          </el-card>
         </div>
-        <div class="room_9">
-          <el-card class="box-card-9" shadow="hover" @click.native="handleOrder"> 4阶梯教室 </el-card>
+        <div class="room_2_1">
+          <el-card
+            ref="2_1"
+            class="box-card-2 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            2教室东
+          </el-card>
         </div>
-        <div class="col_1">
-          <div class="room_10">
-            <el-card class="box-card-10" shadow="hover" @click.native="handleOrder"> 大阶梯教室 </el-card>
-          </div>
+      </div>
+
+      <div class="row_2">
+        <div class="room_5">
+          <el-card
+            ref="5"
+            class="box-card normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            5教室
+          </el-card>
+        </div>
+        <div class="room_3">
+          <el-card
+            ref="3"
+            class="box-card normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            3教室
+          </el-card>
+        </div>
+        <div class="room_1_2">
+          <el-card
+            ref="1_2"
+            class="box-card-2 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            1教室西</el-card
+          >
+        </div>
+        <div class="room_1_1">
+          <el-card
+            ref="1_1"
+            class="box-card-2 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            1教室东
+          </el-card>
+        </div>
+      </div>
+
+      <div class="row_3">
+        <div class="room_j6">
+          <el-card
+            ref="j6"
+            class="box-card-j6 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            6阶梯教室
+          </el-card>
+        </div>
+        <div class="room_j5">
+          <el-card
+            ref="j5"
+            class="box-card-j5 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            5阶梯教室
+          </el-card>
+        </div>
+      </div>
+      <div class="room_j4">
+        <el-card
+          ref="j4"
+          class="box-card-j4 normal"
+          shadow="hover"
+          body-style="padding: 0;"
+          @click.native="handleOrder"
+        >
+          4阶梯教室
+        </el-card>
+      </div>
+
+      <div class="col_1">
+        <div class="room_10">
+          <el-card
+            ref="j0"
+            class="box-card-j0 normal"
+            shadow="hover"
+            body-style="padding: 0;"
+            @click.native="handleOrder"
+          >
+            大阶梯教室
+          </el-card>
         </div>
       </div>
     </div>
@@ -98,6 +202,7 @@ export default {
     return {
       // 查询参数
       queryParam: {
+        date: "",
         // 课程节数
         courseNode: "",
         // 星期
@@ -123,6 +228,8 @@ export default {
           this.timeList = defaultTime.times;
         })
         .then(() => {
+          // 日期
+          this.queryParam.date = new Date();
           // 星期
           const wk = new Date().getDay();
           this.queryParam.week = wk;
@@ -149,7 +256,7 @@ export default {
               node = node + 1;
             }
           });
-          this.queryParam.courseNode = node > maxNode ? '1' : node+'';
+          this.queryParam.courseNode = node > maxNode ? "1" : node + "";
         })
         .then(() => {
           this.getList();
@@ -159,14 +266,19 @@ export default {
     getList() {
       console.log("=> getList");
       console.log(
-        "=>周" +
-          this.queryParam.week +
-          " 第" +
+        "=>天" +
+          this.queryParam.date +
+          "周" +
+          new Date(this.queryParam.date).getDay() +
+          "第" +
           this.queryParam.courseNode +
           "节 " +
           this.queryParam.floor +
           "层"
       );
+      var t = this.$refs.c6;
+      debugger;
+      console.log(t);
     },
 
     // 预约
@@ -176,8 +288,8 @@ export default {
         confirmButtonText: "确认",
         type: "warning",
       })
-        .then(function(){
-          return orderApi.orderLab(row.uuid)
+        .then(function () {
+          return orderApi.orderLab(row.uuid);
         })
         .then((response) => {
           this.getList();
@@ -206,47 +318,83 @@ export default {
 
 <style>
 .rule-top {
+  margin-top: 24px;
 }
-.rule-top .item {
-  margin: 0 15px;
-  padding: 18px 0;
+
+/* 正常 */
+.normal{
+  background-color: #ecf5ff;
+  border-color: #d9ecff;
+  color: #409eff;
+  line-height: 30px;
+  font-size: 12px;
 }
+/* 关闭 */
+.info {
+  background-color: #f4f4f5;
+  border-color: #e9e9eb;
+  color: #909399;
+  line-height: 30px;
+  font-size: 12px;
+}
+/* 成功 */
+.success {
+  background-color: #f0f9eb;
+  border-color: #e1f3d8;
+  color: #67c23a;
+  line-height: 30px;
+  font-size: 12px;
+}
+
+/* 失败 */
+.danger {
+  background-color: #fef0f0;
+  border-color: #fde2e2;
+  color: #f56c6c;
+  line-height: 30px;
+  font-size: 12px;
+}
+/* 审核中 */
+.warning {
+  background-color: #fdf6ec;
+  border-color: #faecd8;
+  color: #e6a23c;
+  line-height: 30px;
+  font-size: 12px;
+}
+
 .box-card {
   width: 118px;
   height: 60px;
-  background: #f3f3f3;
   cursor: pointer;
 }
-.box-card-3 {
+.box-card-2 {
   width: 59px;
   height: 60px;
-  background: #f3f3f3;
   cursor: pointer;
 }
-.box-card-7 {
+.box-card-j6 {
   width: 108px;
   height: 71px;
-  background: #f3f3f3;
   cursor: pointer;
 }
-.box-card-8 {
+.box-card-j5 {
   width: 107px;
   height: 71px;
-  background: #f3f3f3;
   cursor: pointer;
 }
-.box-card-9 {
+.box-card-j4 {
   width: 120px;
   height: 88px;
-  background: #f3f3f3;
   cursor: pointer;
 }
-.box-card-10 {
+.box-card-j0 {
   width: 243px;
   height: 241px;
-  background: #f3f3f3;
   cursor: pointer;
 }
+
+/* 背景 */
 .room_background {
   background: url("../../../assets/floor_pic/1.jpg");
   background-position: 0px -80px;
@@ -263,6 +411,8 @@ export default {
   width: 1060px;
   float: left;
 }
+
+/* 行 列 样式 */
 .row_1 {
   margin-top: 70px;
   width: 65%;
@@ -279,66 +429,66 @@ export default {
   float: left;
 }
 .col_1 {
-  display: inline-block;
   margin-top: 84px;
   margin-left: 85px;
-}
-.room_1 {
-  height: 60px;
-  width: 123px;
-  margin-left: 319px;
   display: inline-block;
 }
-.room_2 {
-  height: 60px;
-  width: 123px;
-  display: inline-block;
-}
-.room_3_1 {
-  height: 60px;
-  width: 61px;
-  display: inline-block;
-}
-.room_3_2 {
+
+/* 教室样式 */
+.room_1_1 {
   height: 60px;
   width: 62px;
   display: inline-block;
 }
-
+.room_1_2 {
+  height: 60px;
+  width: 61px;
+  display: inline-block;
+}
+.room_2_1 {
+  height: 60px;
+  width: 62px;
+  display: inline-block;
+}
+.room_2_2 {
+  height: 60px;
+  width: 61px;
+  display: inline-block;
+}
+.room_3 {
+  height: 60px;
+  width: 123px;
+  display: inline-block;
+}
 .room_4 {
   height: 60px;
   width: 123px;
-  margin-left: 319px;
   display: inline-block;
 }
 .room_5 {
   height: 60px;
   width: 123px;
+  margin-left: 319px;
   display: inline-block;
 }
-.room_6_1 {
+.room_6 {
   height: 60px;
-  width: 61px;
+  width: 123px;
+  margin-left: 319px;
   display: inline-block;
 }
-.room_6_2 {
-  height: 60px;
-  width: 62px;
-  display: inline-block;
-}
-
-.room_7 {
+.room_j6 {
   height: 71px;
   width: 115px;
   margin-left: 339px;
   display: inline-block;
 }
-.room_8 {
+.room_j5 {
   height: 71px;
   width: 107px;
   display: inline-block;
 }
-.room_9 {
+.room_j4 {
   height: 88px;
   width: 120px;
   display: inline-block;
