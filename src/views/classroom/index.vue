@@ -90,7 +90,7 @@
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="教室" />
       <!-- :formatter="addressFormat" -->
-      <el-table-column prop="address" label="位置" />
+      <el-table-column prop="address" label="位置"  :formatter="addressFormat" />
       <el-table-column prop="cap" label="容量" width="80" />
       <el-table-column align="center" width="70" label="状态" prop="status">
         <template slot-scope="scope">

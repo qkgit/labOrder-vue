@@ -135,7 +135,7 @@
               <div style="font-weight: 700">{{ scope.row.course.name }}</div>
               <div>
                 {{ scope.row.periodStart }}-{{ scope.row.periodEnd }}周/
-                {{ scope.row.classroom.address }}/
+                {{ scope.row.classroom.name }}/
                 {{ scope.row.course.leader }}/
                 {{ scope.row.course.type == '1' ? '考查课':'考试课' }}/
                 {{ scope.row.course.credit }}
