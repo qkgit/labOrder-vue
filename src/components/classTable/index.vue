@@ -26,7 +26,7 @@
                   <p>{{ courses[ci][timeIndex].course.name }}</p>
                   <p>
                     {{courses[ci][timeIndex].periodStart}}-{{courses[ci][timeIndex].periodEnd}}周/ 
-                    {{ courses[ci][timeIndex].classroom.address }}/
+                    {{ courses[ci][timeIndex].classroom.name }}/
                     {{ courses[ci][timeIndex].course.leader }}/
                     {{
                       courses[ci][timeIndex].course.type == "1"
