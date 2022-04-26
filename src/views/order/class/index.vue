@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <el-form ref="ruleForm" :inline="true" :model="queryParam" class="rule-top">
-      <el-form-item label="预约日期" prop="date">
+      <el-form-item label="预约日期" prop="orderDate">
         <el-date-picker
-          v-model="queryParam.date"
+          v-model="queryParam.orderDate"
           type="date"
           placeholder="选择预约日期"
           @change="getList"
         >
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="节数" prop="courseNode">
-        <el-select v-model="queryParam.courseNode" @change="getList">
+      <el-form-item label="节数" prop="orderNode">
+        <el-select v-model="queryParam.orderNode" @change="getList">
           <el-option
             v-for="(t, i) in timeList"
             :key="i + 1"
@@ -20,8 +20,8 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="层数" prop="floor">
-        <el-select v-model="queryParam.floor" @change="getList">
+      <el-form-item label="层数" prop="level">
+        <el-select v-model="queryParam.level" @change="getList">
           <el-option
             v-for="i in 4"
             :key="i + 1"
@@ -32,185 +32,72 @@
       </el-form-item>
     </el-form>
     <el-divider></el-divider>
-
     <el-card shadow="never" style="width: 15%; float: right">
       <div slot="header" class="clearfix">
         <span>说明</span>
       </div>
-      <p><el-tag>教室正常 可预约</el-tag></p> 
+      <p><el-tag>教室正常 可预约</el-tag></p>
       <p><el-tag type="info">教室有课/关闭 不可预约</el-tag></p>
       <p><el-tag type="success">预约成功</el-tag></p>
       <p><el-tag type="danger">预约失败</el-tag></p>
       <p><el-tag type="warning">预约审核中</el-tag></p>
-      
-      
     </el-card>
     <div
-      :class="queryParam.floor > 1 ? 'room_background_2' : 'room_background'"
+      v-loading="loading"
+      :class="queryParam.level > 1 ? 'room_background_2' : 'room_background'"
     >
-      <div class="row_1">
-        <div class="room_6">
-          <el-card
-            class="box-card normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            <div ref="c6">6教室</div>
-          </el-card>
-        </div>
-        <div class="room_4">
-          <el-card
-            ref="4"
-            class="box-card normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            4教室
-          </el-card>
-        </div>
-        <div class="room_2_2">
-          <el-card
-            ref="2_2"
-            class="box-card-2 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            2教室西
-          </el-card>
-        </div>
-        <div class="room_2_1">
-          <el-card
-            ref="2_1"
-            class="box-card-2 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            2教室东
-          </el-card>
-        </div>
-      </div>
-
-      <div class="row_2">
-        <div class="room_5">
-          <el-card
-            ref="5"
-            class="box-card normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            5教室
-          </el-card>
-        </div>
-        <div class="room_3">
-          <el-card
-            ref="3"
-            class="box-card normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            3教室
-          </el-card>
-        </div>
-        <div class="room_1_2">
-          <el-card
-            ref="1_2"
-            class="box-card-2 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            1教室西</el-card
-          >
-        </div>
-        <div class="room_1_1">
-          <el-card
-            ref="1_1"
-            class="box-card-2 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            1教室东
-          </el-card>
-        </div>
-      </div>
-
-      <div class="row_3">
-        <div class="room_j6">
-          <el-card
-            ref="j6"
-            class="box-card-j6 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            6阶梯教室
-          </el-card>
-        </div>
-        <div class="room_j5">
-          <el-card
-            ref="j5"
-            class="box-card-j5 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            5阶梯教室
-          </el-card>
-        </div>
-      </div>
-      <div class="room_j4">
-        <el-card
-          ref="j4"
-          class="box-card-j4 normal"
-          shadow="hover"
-          body-style="padding: 0;"
-          @click.native="handleOrder"
+      <el-card
+        v-for="(item, index) in classroomList"
+        :key="index"
+        :class="'room_' + item.roomAddress + ' orderStatus_' + item.orderStatus"
+        shadow="hover"
+        body-style="padding: 0;"
+        @click.native="handleOrder(item.roomAddress)"
+      >
+        <p
+          style="
+            font-size: 14px;
+            line-height: 23px;
+            text-align: center;
+            font-weight: bold;
+            margin: 0;
+          "
         >
-          4阶梯教室
-        </el-card>
-      </div>
-
-      <div class="col_1">
-        <div class="room_10">
-          <el-card
-            ref="j0"
-            class="box-card-j0 normal"
-            shadow="hover"
-            body-style="padding: 0;"
-            @click.native="handleOrder"
-          >
-            大阶梯教室
-          </el-card>
-        </div>
-      </div>
+          {{ item.roomName }}
+        </p>
+        <p v-if="item.orderStatus != 1" style="margin: 0">
+          人数:{{ item.orderNum }}/{{ item.roomCap }}
+        </p>
+        <p v-else-if="item.table != null" style="margin: 0">
+          {{ item.table.course.name }}/{{ item.table.dept.deptName }}
+        </p>
+        <p v-else style="margin: 0">教室已关闭</p>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script>
 import courseApi from "@/api/system/course";
+import orderApi from "@/api/system/classroomOrder";
 
 export default {
   data() {
     return {
+      loading: true,
       // 查询参数
       queryParam: {
-        date: "",
+        // 预约时间
+        orderDate: "",
         // 课程节数
-        courseNode: "",
+        orderNode: "",
         // 星期
-        week: "",
+        orderWeek: "",
         // 楼层
-        floor: "1",
+        level: "1",
       },
       timeList: [],
+      classroomList: [],
     };
   },
   created() {
@@ -229,12 +116,12 @@ export default {
         })
         .then(() => {
           // 日期
-          this.queryParam.date = new Date();
+          this.queryParam.orderDate = new Date();
           // 星期
           const wk = new Date().getDay();
-          this.queryParam.week = wk;
+          this.queryParam.orderWeek = wk;
           // 楼层
-          this.queryParam.floor = "1";
+          this.queryParam.level = "1";
           // 判断当前时间所处节数
           var now = new Date();
           var node = 1;
@@ -256,61 +143,56 @@ export default {
               node = node + 1;
             }
           });
-          this.queryParam.courseNode = node > maxNode ? "1" : node + "";
+          this.queryParam.orderNode = node > maxNode ? "1" : node + "";
         })
         .then(() => {
           this.getList();
         });
     },
-
     getList() {
-      console.log("=> getList");
-      console.log(
-        "=>天" +
-          this.queryParam.date +
-          "周" +
-          new Date(this.queryParam.date).getDay() +
-          "第" +
-          this.queryParam.courseNode +
-          "节 " +
-          this.queryParam.floor +
-          "层"
-      );
-      var t = this.$refs.c6;
-      debugger;
-      console.log(t);
+      this.loading = true;
+      orderApi.getClassroomCourseList(this.queryParam).then((res) => {
+        this.classroomList = res.data;
+        this.loading = false;
+      });
     },
 
     // 预约
-    handleOrder(row) {
-      this.$confirm("确认预约该教室吗?", "提示", {
-        cancelButtonText: "取消",
-        confirmButtonText: "确认",
-        type: "warning",
-      })
-        .then(function () {
-          return orderApi.orderLab(row.uuid);
+    handleOrder(roomAddress) {
+      // 获取当前选择教室信息
+      var roomList = this.classroomList;
+      var room = roomList.filter((r) => r.roomAddress == roomAddress)[0];
+      var alert = "";
+      // 判断预约状态
+      if (room.orderStatus == 1) {
+        alert = room.table != null? "当前教室存在课程不可预约!":"教室已关闭不可预约!";
+      } else if (room.orderStatus == 6 || room.orderStatus == 7) {
+        alert = "已经预约请等待审核结果!";
+      } else if (room.orderStatus == 8) {
+        alert = "已经成功预约该教室,不可重复预约!";
+      }
+      // 
+      if (alert != "") {
+        this.$alert(alert, "提示", {
+          confirmButtonText: "确定",
+          callback: (action) => {},
+        });
+      } else {
+        // 确认预约
+        this.$confirm("确认预约" + room.roomName + "教室吗?", "提示", {
+          cancelButtonText: "取消",
+          confirmButtonText: "确认",
+          type: "warning",
         })
-        .then((response) => {
-          this.getList();
-        })
-        .catch(() => {});
-    },
-
-    // 选择周
-    fetchWeek(value) {
-      this.queryParam.week = value;
-      this.getList();
-    },
-    // 选择节数
-    fetchNode(tab, event) {
-      this.queryParam.courseNode = tab.name;
-      this.getList();
-    },
-    // 选择楼层
-    fetchFloor(tab, event) {
-      this.queryParam.floor = tab.name;
-      this.getList();
+          .then(function () {
+            return orderApi.orderLab(row.uuid);
+          })
+          .then((response) => {
+            this.msgSuccess(response.message)
+            this.getList();
+          })
+          .catch(() => {});
+      }
     },
   },
 };
@@ -319,79 +201,6 @@ export default {
 <style>
 .rule-top {
   margin-top: 24px;
-}
-
-/* 正常 */
-.normal{
-  background-color: #ecf5ff;
-  border-color: #d9ecff;
-  color: #409eff;
-  line-height: 30px;
-  font-size: 12px;
-}
-/* 关闭 */
-.info {
-  background-color: #f4f4f5;
-  border-color: #e9e9eb;
-  color: #909399;
-  line-height: 30px;
-  font-size: 12px;
-}
-/* 成功 */
-.success {
-  background-color: #f0f9eb;
-  border-color: #e1f3d8;
-  color: #67c23a;
-  line-height: 30px;
-  font-size: 12px;
-}
-
-/* 失败 */
-.danger {
-  background-color: #fef0f0;
-  border-color: #fde2e2;
-  color: #f56c6c;
-  line-height: 30px;
-  font-size: 12px;
-}
-/* 审核中 */
-.warning {
-  background-color: #fdf6ec;
-  border-color: #faecd8;
-  color: #e6a23c;
-  line-height: 30px;
-  font-size: 12px;
-}
-
-.box-card {
-  width: 118px;
-  height: 60px;
-  cursor: pointer;
-}
-.box-card-2 {
-  width: 59px;
-  height: 60px;
-  cursor: pointer;
-}
-.box-card-j6 {
-  width: 108px;
-  height: 71px;
-  cursor: pointer;
-}
-.box-card-j5 {
-  width: 107px;
-  height: 71px;
-  cursor: pointer;
-}
-.box-card-j4 {
-  width: 120px;
-  height: 88px;
-  cursor: pointer;
-}
-.box-card-j0 {
-  width: 243px;
-  height: 241px;
-  cursor: pointer;
 }
 
 /* 背景 */
@@ -412,88 +221,167 @@ export default {
   float: left;
 }
 
-/* 行 列 样式 */
-.row_1 {
-  margin-top: 70px;
-  width: 65%;
-  float: left;
+/* 状态样式 */
+/* 正常 */
+.orderStatus_0 {
+  background-color: #ecf5ff;
+  border-color: #d9ecff;
+  color: #409eff;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 600;
 }
-.row_2 {
-  margin-top: 55px;
-  width: 65%;
-  float: left;
+/* 关闭 */
+.orderStatus_1 {
+  background-color: #f4f4f5;
+  border-color: #e9e9eb;
+  color: #909399;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 600;
 }
-.row_3 {
-  margin-top: 278px;
-  width: 53%;
-  float: left;
+/* 审核中 */
+.orderStatus_6 {
+  background-color: #fdf6ec;
+  border-color: #faecd8;
+  color: #e6a23c;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 600;
 }
-.col_1 {
-  margin-top: 84px;
-  margin-left: 85px;
-  display: inline-block;
+.orderStatus_7 {
+  background-color: #fdf6ec;
+  border-color: #faecd8;
+  color: #e6a23c;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+/* 成功 */
+.orderStatus_8 {
+  background-color: #f0f9eb;
+  border-color: #e1f3d8;
+  color: #67c23a;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+/* 失败 */
+.orderStatus_9 {
+  background-color: #fef0f0;
+  border-color: #fde2e2;
+  color: #f56c6c;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* 教室样式 */
-.room_1_1 {
-  height: 60px;
-  width: 62px;
+.room_c1_1 {
+  float: left;
   display: inline-block;
-}
-.room_1_2 {
+  margin-top: 58px;
+  margin-left: 1px;
+  width: 59px;
   height: 60px;
-  width: 61px;
+  cursor: pointer;
+}
+.room_c1_2 {
+  float: left;
   display: inline-block;
-}
-.room_2_1 {
+  margin-top: 58px;
+  margin-left: 5px;
+  width: 59px;
   height: 60px;
-  width: 62px;
+  cursor: pointer;
+}
+.room_c2_1 {
+  float: left;
   display: inline-block;
-}
-.room_2_2 {
+  margin-top: 70px;
+  margin-left: 1px;
+  width: 59px;
   height: 60px;
-  width: 61px;
+  cursor: pointer;
+}
+.room_c2_2 {
+  float: left;
   display: inline-block;
-}
-.room_3 {
+  margin-top: 70px;
+  margin-left: 5px;
+  width: 59px;
   height: 60px;
-  width: 123px;
+  cursor: pointer;
+}
+.room_c3 {
+  float: left;
   display: inline-block;
-}
-.room_4 {
+  margin-top: 58px;
+  margin-left: 5px;
+  width: 118px;
   height: 60px;
-  width: 123px;
+  cursor: pointer;
+}
+.room_c4 {
+  float: left;
   display: inline-block;
-}
-.room_5 {
+  margin-top: 70px;
+  margin-left: 5px;
+  width: 118px;
   height: 60px;
-  width: 123px;
+  cursor: pointer;
+}
+.room_c5 {
+  float: left;
+  display: inline-block;
+  margin-top: 58px;
   margin-left: 319px;
-  display: inline-block;
-}
-.room_6 {
+  width: 118px;
   height: 60px;
-  width: 123px;
-  margin-left: 319px;
+  cursor: pointer;
+}
+.room_c6 {
+  float: left;
   display: inline-block;
+  margin-top: 70px;
+  margin-left: 319px;
+  width: 118px;
+  height: 60px;
+  cursor: pointer;
 }
 .room_j6 {
-  height: 71px;
-  width: 115px;
-  margin-left: 339px;
+  float: left;
   display: inline-block;
+  margin-top: 284px;
+  margin-left: 339px;
+  width: 108px;
+  height: 71px;
+  cursor: pointer;
 }
 .room_j5 {
-  height: 71px;
-  width: 107px;
+  float: left;
   display: inline-block;
+  margin-top: 284px;
+  margin-left: 7px;
+  width: 107px;
+  height: 71px;
+  cursor: pointer;
 }
 .room_j4 {
-  height: 88px;
-  width: 120px;
-  display: inline-block;
-  margin-top: 278px;
-  margin-left: 5px;
   float: left;
+  display: inline-block;
+  margin-top: 284px;
+  margin-left: 5px;
+  width: 120px;
+  height: 88px;
+  cursor: pointer;
+}
+.room_j0 {
+  display: inline-block;
+  margin-top: 84px;
+  margin-left: 88px;
+  width: 243px;
+  height: 241px;
+  cursor: pointer;
 }
 </style>
