@@ -118,14 +118,14 @@
           <span
             v-if="scope.row.listClass == 'default' || scope.row.listClass == ''"
             :key="scope.row.code"
-            :index="index"
+           
             :class="scope.row.cssClass"
             >{{ scope.row.name }}</span
           >
           <el-tag
             v-else
             :key="scope.row.code"
-            :index="index"
+            
             :type="scope.row.listClass == 'primary' ? '' : scope.row.listClass"
             :class="scope.row.cssClass"
           >
@@ -206,14 +206,14 @@
               <span
                 v-if="item.code == 'default' || item.code == ''"
                 :key="item.code"
-                :index="index"
+              
                 :class="item.code"
                 >{{ item.name }}</span
               >
               <el-tag
                 v-else
                 :key="item.code"
-                :index="index"
+               
                 :type="item.code == 'primary' ? '' : item.code"
                 :class="item.code"
                 style="width: 120px"
