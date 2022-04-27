@@ -8,8 +8,7 @@ const getDefaultState = () => {
     isFirstLogin: '',
     name: '',
     avatar: '',
-    institute: '',
-    major: ''
+    roles: []
   }
 }
 
@@ -28,14 +27,11 @@ const mutations = {
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
   },
-  SET_INSTITUTE: (state, institute) => {
-    state.institute = institute
-  },
-  SET_MAJOR: (state, major) => {
-    state.major = major
-  },
   SET_ISFIRSTLOGIN: (state, isFirstLogin) => {
     state.isFirstLogin = isFirstLogin
+  },
+  SET_ROLES: (state,roles) =>{
+    state.roles = roles
   }
 }
 
@@ -59,18 +55,17 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+      getInfo().then(response => {
         const { data } = response
         if (!data) {
           return reject(response.message)
         }
-        const { realName, institute, major, isFirstLogin } = data
+        const { realName, isFirstLogin,roles } = data
         const avatar = data.avatar == "" ? "" : process.env.VUE_APP_BASE_API + data.avatar;
         commit('SET_NAME', realName)
         commit('SET_AVATAR', avatar)
-        commit('SET_INSTITUTE', institute)
-        commit('SET_MAJOR', major)
         commit('SET_ISFIRSTLOGIN',isFirstLogin)
+        commit('SET_ROLES',roles.map(r=>r.roleId))
         resolve(data)
       }).catch(error => {
         reject(error)
