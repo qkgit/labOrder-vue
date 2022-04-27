@@ -6,12 +6,12 @@
           v-model="queryParam.orderDate"
           type="date"
           placeholder="选择预约日期"
-          @change="getList"
+          :picker-options="pickerOptions"
         >
         </el-date-picker>
       </el-form-item>
       <el-form-item label="节数" prop="orderNode">
-        <el-select v-model="queryParam.orderNode" @change="getList">
+        <el-select v-model="queryParam.orderNode">
           <el-option
             v-for="(t, i) in timeList"
             :key="i + 1"
@@ -21,7 +21,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="层数" prop="level">
-        <el-select v-model="queryParam.level" @change="getList">
+        <el-select v-model="queryParam.level">
           <el-option
             v-for="i in 4"
             :key="i + 1"
@@ -29,6 +29,11 @@
             :value="i.toString()"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" @click="getList()"
+          >查询
+        </el-button>
       </el-form-item>
     </el-form>
     <el-divider></el-divider>
@@ -39,7 +44,7 @@
       <p><el-tag>教室正常 可预约</el-tag></p>
       <p><el-tag type="info">教室有课/关闭 不可预约</el-tag></p>
       <p><el-tag type="success">预约成功</el-tag></p>
-      <p><el-tag type="danger">预约失败</el-tag></p>
+      <p><el-tag type="danger">预约失败/教室已满</el-tag></p>
       <p><el-tag type="warning">预约审核中</el-tag></p>
     </el-card>
     <div
@@ -80,6 +85,7 @@
 <script>
 import courseApi from "@/api/system/course";
 import orderApi from "@/api/system/classroomOrder";
+import store from "@/store";
 
 export default {
   data() {
@@ -98,6 +104,21 @@ export default {
       },
       timeList: [],
       classroomList: [],
+      pickerOptions: {
+        disabledDate(time) {
+          const startDate = new Date();
+          const endDate = new Date();
+          startDate.setTime(startDate.getTime() - 3600 * 1000 * 24);
+          endDate.setTime(endDate.getTime() + 3600 * 1000 * 24 * 6);
+          var userRoles = store.getters.roles;
+          if (userRoles.includes("1")) {
+            return time.getTime() < endDate;
+          } else if (userRoles.includes("2")) {
+            return time.getTime() < startDate || time.getTime() > endDate;
+          }
+          return time.getTime() < startDate;
+        },
+      },
     };
   },
   created() {
@@ -108,6 +129,7 @@ export default {
      *  初始化数据并查询
      */
     initParamAndQuery() {
+      var userRoles = store.getters.roles;
       courseApi
         .getDefaultTime()
         .then((res) => {
@@ -116,7 +138,13 @@ export default {
         })
         .then(() => {
           // 日期
-          this.queryParam.orderDate = new Date();
+          if (userRoles.includes("1")) {
+            this.queryParam.orderDate = new Date().setTime(
+              new Date().getTime() + 3600 * 1000 * 24 * 7
+            );
+          } else if (userRoles.includes("2")) {
+            this.queryParam.orderDate = new Date();
+          }
           // 星期
           const wk = new Date().getDay();
           this.queryParam.orderWeek = wk;
@@ -159,19 +187,23 @@ export default {
 
     // 预约
     handleOrder(roomAddress) {
+      var that = this;
       // 获取当前选择教室信息
       var roomList = this.classroomList;
       var room = roomList.filter((r) => r.roomAddress == roomAddress)[0];
       var alert = "";
       // 判断预约状态
       if (room.orderStatus == 1) {
-        alert = room.table != null? "当前教室存在课程不可预约!":"教室已关闭不可预约!";
+        alert =
+          room.table != null
+            ? "当前教室存在课程不可预约!"
+            : "教室已关闭不可预约!";
       } else if (room.orderStatus == 6 || room.orderStatus == 7) {
         alert = "已经预约请等待审核结果!";
       } else if (room.orderStatus == 8) {
         alert = "已经成功预约该教室,不可重复预约!";
       }
-      // 
+      //
       if (alert != "") {
         this.$alert(alert, "提示", {
           confirmButtonText: "确定",
@@ -185,10 +217,14 @@ export default {
           type: "warning",
         })
           .then(function () {
-            return orderApi.orderLab(row.uuid);
+            const orderId = room.uuid
+            const classroomId = room.roomId
+            const orderDate = that.queryParam.orderDate
+            const orderNode = that.queryParam.orderNode
+            return orderApi.orderClassroom(orderId,classroomId,orderDate,orderNode);
           })
           .then((response) => {
-            this.msgSuccess(response.message)
+            this.msgSuccess(response.message);
             this.getList();
           })
           .catch(() => {});
