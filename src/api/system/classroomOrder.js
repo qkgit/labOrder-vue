@@ -9,17 +9,17 @@ export default {
           })
     },
 
-    orderClassroom(orderId,classroomId,orderDate,orderNode){
-        const orderData = {
-            orderId ,
-            classroomId,
-            orderDate,
-            orderNode
-         }
+    orderClassroom(data){
+        // const orderData = {
+        //     orderId ,
+        //     classroomId,
+        //     orderDate,
+        //     orderNode
+        //  }
         return request({
             url: '/order',
             method: 'post',
-            data: orderData
+            data
           })
     }
 
