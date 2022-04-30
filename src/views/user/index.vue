@@ -313,6 +313,7 @@
 
 <script>
 import userApi from "@/api/users";
+import roleApi from "@/api/system/role";
 import { treeselect } from "@/api/system/dept";
 import Treeselect from "@riophae/vue-treeselect";
 import DictTag from "@/components/DictTag";
@@ -377,20 +378,26 @@ export default {
   // 钩子函数获取数据
   created() {
     this.getTreeselect();
+    this.getRoleList();
     this.getList(true);
 
     this.getDicts("sys_user_sex").then((response) => {
       this.sexOptions = response.data;
     });
-    this.getDicts("sys_user_roles").then((response) => {
-      this.rolesOptions = response.data;
-    });
+    // this.getDicts("sys_user_roles").then((response) => {
+    //   this.rolesOptions = response.data;
+    // });
     this.getDicts("sys_common_status").then((response) => {
       this.statusOptions = response.data;
     });
   },
 
   methods: {
+    getRoleList(){
+      roleApi.listAllRole().then((res)=>{
+        this.rolesOptions = res.data;
+      })
+    },
     getList(click) {
       this.loading = true;
       userApi.getUserList(this.pageQuery).then((response) => {

@@ -8,6 +8,12 @@ export default {
             data: pageQuery
         })
     },
+    listAllRole(){
+        return request({
+            url: '/role/list/all',
+            method: 'get',
+        })
+    },
     getRole(roleId) {
         return request({
             url: `/role/${roleId}`,
