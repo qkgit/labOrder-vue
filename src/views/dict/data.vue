@@ -356,12 +356,10 @@ export default {
 
     // 分页
     handleSizeChange(val) {
-      // 当每页显示条数改变后 被触发
       this.pageQuery.page.pageSize = val;
       this.getList();
     },
     handleCurrentChange(val) {
-      // 当页码改变后 被触发
       this.pageQuery.page.pageNum = val;
       this.getList();
     },
@@ -438,12 +436,8 @@ export default {
       })
         .then(function () {
           dictApi.delDict(dictIds).then((response) => {
-            if (response.resultCode === 200) {
-              that.getList();
-              that.msgSuccess("删除成功");
-            } else {
-              that.msgError(response.message);
-            }
+            that.msgSuccess(response.message);
+            that.getList();
           });
         })
         .catch(() => {});
