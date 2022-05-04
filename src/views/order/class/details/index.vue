@@ -24,61 +24,64 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="层数" prop="level">
-        <el-select v-model="pageQuery.item.level">
-          <el-option
-            v-for="i in 4"
-            :key="i + 1"
-            :label="digital2Chinese(i) + '层'"
-            :value="i.toString()"
-          />
-        </el-select>
+      <el-form-item label="教室" prop="classroomName">
+        <el-input
+          v-model="pageQuery.item.classroomName"
+          placeholder="教室名称"
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="getList()"
           >查询
         </el-button>
+        <el-button @click="resetQuery" icon="el-icon-refresh-right"
+          >重置
+        </el-button>
       </el-form-item>
     </el-form>
 
     <!-- 数据列表  -->
-    <!-- <el-card
-      shadow="hover"
-      style="margin: 10px 0px"
-      v-for="(k, i) in 1"
-      :key="i"
-    >
-      <el-descriptions :title="'教室名称'" column="4" >
-        <el-descriptions-item label="预约时间">{{
-          "2022年4月30日 第三节"
-        }}</el-descriptions-item>
-        <el-descriptions-item label="预约状态">{{
-          "审核中"
-        }}</el-descriptions-item>
-        <el-descriptions-item label="预约说明">
-          {{ "预约说明" }}
-        </el-descriptions-item>
-        <el-descriptions-item>
-          <el-button type="primary" size="small">取消预约</el-button>
-        </el-descriptions-item>
-      </el-descriptions>
-    </el-card> -->
-    <el-table :data="labOrderList" stripe border>
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="lname" label="教室" width="150" />
-      <el-table-column prop="expName" label="预约时间" width="200" />
-      <el-table-column prop="" label="预约说明" />
-      <el-table-column prop="loState" label="预约状态" width="100" />
-      <el-table-column label="操作" width="150">
+    <el-table v-loading="loading" :data="orderRoomList" stripe border>
+      <!-- <el-table-column type="selection" width="55" /> -->
+      <el-table-column type="index" label="序号" width="60" />
+      <el-table-column prop="classroomName" label="教室" width="120" />
+      <el-table-column prop="orderDate" label="预约时间" width="170">
         <template slot-scope="scope">
+          {{
+            scope.row.orderDate +
+            "  第" +
+            digital2Chinese(scope.row.orderNode) +
+            "节课"
+          }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="remark" label="预约说明" />
+
+      <el-table-column
+        prop="orderStatus"
+        label="预约状态"
+        width="180"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <dict-tag :options="statusOptions" :value="scope.row.orderStatus" />
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="200">
+        <template slot-scope="scope">
+          <el-button size="mini" type="primary" @click="viewDetails(scope.row)">
+            查看
+          </el-button>
           <el-button
-            v-if="scope.row.loState == 1"
+            :disabled="scope.row.orderStatus == 10"
             size="mini"
             type="warning"
-            @click="handleCancel(scope.row.loId)"
-            >取消预约</el-button
+            @click="handleCancel(scope.row)"
           >
-          <p v-if="scope.row.loState != 1">不可取消</p>
+            {{ scope.row.orderStatus != 10 ? "取消预约" : "不可取消" }}
+          </el-button>
+          <!-- <el-button size="mini" type="danger" @click="handleDelete(scope.row)"
+            >删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -93,17 +96,56 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
+
+    <el-dialog title="预约信息" :visible.sync="show" width="30%">
+      <el-form ref="pojoForm" :model="pojo" :rules="rules" label-width="80px">
+        <el-form-item label="预约教室" prop="roomName">
+          {{ pojo.classroomName }}
+        </el-form-item>
+        <el-form-item label="预约时间" prop="orderDate">
+          {{
+            parseTime(pojo.orderDate, "{y}-{m}-{d} 周{a}") +
+            "  第" +
+            digital2Chinese(pojo.orderNode) +
+            "节课"
+          }}
+        </el-form-item>
+        <el-form-item label="预约说明" prop="remark">
+          {{ pojo.remark }}
+        </el-form-item>
+        <el-form-item label="审核意见" prop="reviews">
+          <div style="margin-top: 30px">
+            <div v-for="(review, i) in pojo.orderAudit" :key="i">
+              <p style="margin: 0; font-weight: 600">
+                {{ review.reviewRemark }}
+              </p>
+              <p style="margin: 0; text-align: right; padding-right: 30px">
+                {{ review.type == 1 ? "教室管理员" : "秘书" }}
+                {{ review.reviewUser + " " + dateFormat(review.reviewTime) }}
+              </p>
+            </div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="cancel">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import courseApi from "@/api/system/course";
 import orderApi from "@/api/system/classroomOrder";
+import DictTag from "@/components/DictTag";
 import moment from "moment";
 
 export default {
+  components: { DictTag },
   data() {
     return {
+      // 遮罩层
+      loading: false,
       timeList: [],
       orderRoomList: [],
       // 查询参数
@@ -115,21 +157,29 @@ export default {
         },
         item: {
           // 预约时间
-          orderDate: "",
+          orderDate: undefined,
           // 课程节数
-          orderNode: "",
+          orderNode: undefined,
+          // 教室名称
+          classroomName: undefined,
           // 星期
-          orderWeek: "",
+          orderWeek: undefined,
           // 楼层
-          level: "",
+          level: undefined,
         },
       },
+      show: false,
+      pojo: {},
+      statusOptions: [],
       rules: {},
     };
   },
   // 钩子函数获取数据
   created() {
     this.initParamAndQuery();
+    this.getDicts("order_status").then((response) => {
+      this.statusOptions = response.data;
+    });
   },
 
   methods: {
@@ -147,42 +197,75 @@ export default {
 
     // 查询
     getList() {
+      this.loading = true;
       orderApi.getOrderListByUser(this.pageQuery).then((response) => {
         const resp = response.data;
         this.pageQuery.page.total = resp.total;
         this.orderRoomList = resp.list;
+        this.loading = false;
       });
+    },
+    // 重置
+    resetQuery() {
+      this.resetForm("ruleForm");
+      this.getList();
+    },
+    // 表单重置
+    reset() {
+      this.pojo = {
+        uuid: undefined,
+        classroomId: undefined,
+        classroomName: undefined,
+        orderId: undefined,
+        orderUser: undefined,
+        orderDate: undefined,
+        orderNode: undefined,
+        orderStatus: undefined,
+        remark: undefined,
+        reviews: undefined,
+        createTime: undefined,
+      };
+      this.resetForm("pojoForm");
+    },
+    // 查看预约信息
+    viewDetails(row) {
+      this.reset();
+      this.pojo = row;
+      this.show = true;
     },
 
     // 取消预约
-    handleCancel(id) {
+    handleCancel(row) {
+      console.log(row);
       this.$confirm("确认取消这个预约吗？", "提示", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",
         type: "warning",
       })
-        .then(() => {
-          // 确认
-          var that = this;
-          orderApi.cencelOrder(id).then((response) => {
-            // 提示信息
-            this.$message({
-              type: response.resultCode == 200 ? "success" : "error",
-              message: "取消成功！",
-            });
-            if (response.resultCode == 200) {
-              // 删除成功 刷新列表
-              that.getList();
-            }
-          });
+        .then(function () {
+          return orderApi.cencelOrder(row.uuid);
         })
-        .catch(() => {
-          // 取消删除 不理会
-        });
+        .then((response) => {
+          this.msgSuccess(response.message);
+          this.getList();
+        })
+        .catch(() => {});
+    },
+
+    // todo 删除预约记录
+    handleDelete(row) {},
+
+    // 取消按钮
+    cancel() {
+      this.show = false;
+      this.reset();
+    },
+
+    statusFormat(row) {
+      return this.selectDictLabel(this.statusOptions, row.orderStatus);
     },
     // 时间格式化
-    dateFormat(row, column) {
-      var date = row[column.property];
+    dateFormat(date) {
       if (date == undefined) {
         return "";
       }
@@ -194,8 +277,6 @@ export default {
       this.getList();
     },
     handleCurrentChange(val) {
-      // 当页码改变后 被触发
-      console.log(val);
       this.pageQuery.page.pageNum = val;
       this.getList();
     },

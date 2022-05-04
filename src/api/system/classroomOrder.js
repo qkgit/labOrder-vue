@@ -8,19 +8,25 @@ export default {
             data
           })
     },
-
     orderClassroom(data){
-        // const orderData = {
-        //     orderId ,
-        //     classroomId,
-        //     orderDate,
-        //     orderNode
-        //  }
         return request({
             url: '/order',
             method: 'post',
             data
           })
+    },
+    getOrderListByUser(data){
+        return request({
+            url: '/order/record/classroom',
+            method: 'post',
+            data
+        })
+    },
+    cencelOrder(id){
+        return request({
+            url: `/order/cencel/${id}`,
+            method: 'put'
+        })
     }
 
 
