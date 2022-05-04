@@ -49,7 +49,7 @@
     </el-card>
     <div
       v-loading="loading"
-      :class="queryParam.level > 1 ? 'room_background_2' : 'room_background'"
+      :class="level > 1 ? 'room_background_2' : 'room_background'"
     >
       <el-card
         v-for="(item, index) in classroomList"
@@ -129,6 +129,7 @@ export default {
       show: false,
       timeList: [],
       classroomList: [],
+      level: "1",
       // 查询参数
       queryParam: {
         // 预约时间
@@ -151,8 +152,8 @@ export default {
         disabledDate(time) {
           const startDate = new Date();
           const endDate = new Date();
-          startDate.setTime(startDate.getTime() - 3600 * 1000 * 24);
-          endDate.setTime(endDate.getTime() + 3600 * 1000 * 24 * 6);
+          startDate.setTime(startDate.getTime());
+          endDate.setTime(endDate.getTime() + 3600 * 1000 * 24 * 7);
           var userRoles = store.getters.roles;
           if (userRoles.includes("1")) {
             return time.getTime() < endDate;
@@ -178,7 +179,6 @@ export default {
      */
     initParamAndQuery() {
       var userRoles = this.$store.getters.roles;
-      console.log(userRoles);
       courseApi
         .getDefaultTime()
         .then((res) => {
@@ -187,10 +187,12 @@ export default {
         })
         .then(() => {
           let date = new Date()
+          date.setTime(date.getTime() + 3600 * 1000 * 24)
           // 日期
           if (userRoles.includes("1")) {
             date.setTime(date.getTime() + 3600 * 1000 * 24 * 7)
           } 
+           
           this.queryParam.orderDate = date;
           
           // 星期
@@ -229,6 +231,7 @@ export default {
       this.loading = true;
       orderApi.getClassroomCourseList(this.queryParam).then((res) => {
         this.classroomList = res.data;
+        this.level = this.queryParam.level;
         this.loading = false;
       });
     },
@@ -378,6 +381,15 @@ export default {
 }
 
 /* 教室样式 */
+.room_c1 {
+  float: left;
+  display: inline-block;
+  margin-top: 58px;
+  margin-left: 5px;
+  width: 118px;
+  height: 60px;
+  cursor: pointer;
+}
 .room_c1_1 {
   float: left;
   display: inline-block;
@@ -393,6 +405,15 @@ export default {
   margin-top: 58px;
   margin-left: 5px;
   width: 59px;
+  height: 60px;
+  cursor: pointer;
+}
+.room_c2 {
+  float: left;
+  display: inline-block;
+  margin-top: 70px;
+  margin-left: 5px;
+  width: 118px;
   height: 60px;
   cursor: pointer;
 }
