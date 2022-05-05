@@ -3,28 +3,35 @@ import request from '@/utils/request'
 export default {
     getClassroomCourseList(data){
         return request({
-            url: '/order/classroom',
+            url: '/order/classroom/list',
             method: 'post',
             data
           })
     },
     orderClassroom(data){
         return request({
-            url: '/order',
+            url: '/order/classroom',
             method: 'post',
             data
           })
     },
     getOrderListByUser(data){
         return request({
-            url: '/order/record/classroom',
+            url: '/order/classroom/record',
+            method: 'post',
+            data
+        })
+    },
+    getOrderListByRole(data){
+        return request({
+            url: '/order/classroom/audit',
             method: 'post',
             data
         })
     },
     cencelOrder(id){
         return request({
-            url: `/order/cencel/${id}`,
+            url: `/order/classroom/cencel/${id}`,
             method: 'put'
         })
     }

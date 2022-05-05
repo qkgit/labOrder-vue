@@ -64,7 +64,7 @@
         >
       </el-col>
       <div class="top-right-btn">
-        <el-radio-group v-model="display" size="mini">
+        <el-radio-group v-model="display" size="mini" @change="getList">
           <el-radio-button label="待办"></el-radio-button>
           <el-radio-button label="已办"></el-radio-button>
         </el-radio-group>
@@ -81,6 +81,7 @@
       <el-table-column type="selection" width="55" />
       <!-- <el-table-column type="index" label="序号" width="60" /> -->
       <el-table-column prop="classroomName" label="教室" width="120" />
+      <el-table-column prop="userName" label="预约人" width="120" />
       <el-table-column prop="orderDate" label="预约时间" width="170">
         <template slot-scope="scope">
           {{
@@ -114,33 +115,61 @@
 
     <el-dialog title="预约信息" :visible.sync="show" width="30%">
       <el-form ref="pojoForm" :model="pojo" :rules="rules" label-width="80px">
-        <el-form-item label="预约教室" prop="roomName">
-          {{ pojo.classroomName }}
-        </el-form-item>
-        <el-form-item label="预约时间" prop="orderDate">
-          {{
-            parseTime(pojo.orderDate, "{y}-{m}-{d} 周{a}") +
-            "  第" +
-            digital2Chinese(pojo.orderNode) +
-            "节课"
-          }}
-        </el-form-item>
-        <el-form-item label="预约说明" prop="remark">
-          {{ pojo.remark }}
-        </el-form-item>
-        <el-form-item label="审核意见" prop="reviewRemark">
-          <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="请输入内容"
-            v-model="pojo.reviewRemark"
-          >
-          </el-input>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="预约人" prop="userName">
+              {{ pojo.userName }}
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="预约教室" prop="roomName">
+              {{ pojo.classroomName }}
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+            <el-form-item label="预约时间" prop="orderDate">
+              {{
+                parseTime(pojo.orderDate, "{y}-{m}-{d} 周{a}") +
+                "  第" +
+                digital2Chinese(pojo.orderNode) +
+                "节课"
+              }}
+            </el-form-item>
+         
+        </el-row>
+        <el-row>
+          <el-form-item label="预约说明" prop="remark">
+            {{ pojo.remark }}
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="审核意见" prop="reviewRemark">
+            <el-input
+              v-if="display == '待办'"
+              type="textarea"
+              :rows="2"
+              placeholder="请输入内容"
+              v-model="pojo.reviewRemark"
+            >
+            </el-input>
+            <div v-else style="margin-top: 30px">
+              <div v-for="(review, i) in pojo.orderAudit" :key="i">
+                <p style="margin: 0; font-weight: 600">
+                  {{ review.reviewRemark }}
+                </p>
+                <p style="margin: 0; text-align: right; padding-right: 30px">
+                  {{ review.type == 1 ? "教室管理员" : "秘书" }}
+                  {{ review.reviewUser + " " + dateFormat(review.reviewTime) }}
+                </p>
+              </div>
+            </div>
+          </el-form-item>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="cancel">通 过</el-button>
-        <el-button type="danger" @click="cancel">不 通 过</el-button>
+        <el-button  v-if="display == '待办'" type="primary" @click="cancel">通 过</el-button>
+        <el-button  v-if="display == '待办'" type="danger" @click="cancel">不 通 过</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -221,13 +250,13 @@ export default {
 
     // 查询
     getList() {
-      this.loading = true
+      this.loading = true;
       this.pageQuery.item.state = this.display == "待办" ? "0" : "1";
-      orderApi.getOrderListByUser(this.pageQuery).then((response) => {
+      orderApi.getOrderListByRole(this.pageQuery).then((response) => {
         const resp = response.data;
         this.pageQuery.page.total = resp.total;
         this.orderRoomList = resp.list;
-        this.loading = false
+        this.loading = false;
       });
     },
     // 重置
