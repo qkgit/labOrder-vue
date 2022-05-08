@@ -34,6 +34,20 @@ export default {
             url: `/order/classroom/cencel/${id}`,
             method: 'put'
         })
+    },
+    passOrder(data){
+        return request({
+            url: '/order/classroom/audit/pass',
+            method: 'put',
+            data
+        })
+    },
+    noPassOrder(data){
+        return request({
+            url: '/order/classroom/audit/nopass',
+            method: 'put',
+            data
+        })
     }
 
 

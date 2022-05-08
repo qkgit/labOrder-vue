@@ -41,7 +41,7 @@
     </el-form>
 
     <el-row :gutter="10" style="margin-bottom: 8px">
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="primary"
           plain
@@ -62,7 +62,7 @@
           @click="handleDelete"
           >不通过</el-button
         >
-      </el-col>
+      </el-col> -->
       <div class="top-right-btn">
         <el-radio-group v-model="display" size="mini" @change="getList">
           <el-radio-button label="待办"></el-radio-button>
@@ -168,8 +168,8 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button  v-if="display == '待办'" type="primary" @click="cancel">通 过</el-button>
-        <el-button  v-if="display == '待办'" type="danger" @click="cancel">不 通 过</el-button>
+        <el-button  v-if="display == '待办'" type="primary" @click="auditOrder(true)">通 过</el-button>
+        <el-button  v-if="display == '待办'" type="danger" @click="auditOrder(false)">不 通 过</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -278,6 +278,7 @@ export default {
         remark: undefined,
         reviews: undefined,
         createTime: undefined,
+        reviewRemark: undefined,
       };
       this.resetForm("pojoForm");
     },
@@ -287,27 +288,30 @@ export default {
       this.pojo = row;
       this.show = true;
     },
+    auditOrder(flag) {
+      this.$refs.pojoForm.validate((valid)=>{
+        if(valid){
+          this.pojo.orderRecordId = this.pojo.uuid;
+          this.pojo.type = this.pojo.orderStatus == "6"?"1":"2";
+          if(flag){
+            orderApi.passOrder(this.pojo).then((res)=>{
+              this.msgSuccess(res.message);
+              this.show = false;
+              this.getList()
+            })
+          }else{
+            orderApi.noPassOrder(this.pojo).then((res)=>{
+              this.msgSuccess(res.message);
+              this.show = false;
+              this.getList()
+            })
+          }
 
-    // 取消预约
-    handleCancel(row) {
-      console.log(row);
-      this.$confirm("确认取消这个预约吗？", "提示", {
-        cancelButtonText: "取消",
-        confirmButtonText: "确认",
-        type: "warning",
+        }
       })
-        .then(function () {
-          return orderApi.cencelOrder(row.uuid);
-        })
-        .then((response) => {
-          this.msgSuccess(response.message);
-          this.getList();
-        })
-        .catch(() => {});
     },
 
-    // todo 删除预约记录
-    handleDelete(row) {},
+  
 
     // 取消按钮
     cancel() {
