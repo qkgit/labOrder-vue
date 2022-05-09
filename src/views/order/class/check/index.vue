@@ -152,7 +152,7 @@
               v-model="pojo.reviewRemark"
             >
             </el-input>
-            <!-- <div v-else style="margin-top: 30px">
+            <div v-else style="margin-top: 30px">
               <div v-for="(review, i) in pojo.orderAudit" :key="i">
                 <p style="margin: 0; font-weight: 600">
                   {{ review.reviewRemark }}
@@ -162,7 +162,7 @@
                   {{ review.reviewUser + " " + dateFormat(review.reviewTime) }}
                 </p>
               </div>
-            </div> -->
+            </div>
           </el-form-item>
         </el-row>
       </el-form>
