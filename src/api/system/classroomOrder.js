@@ -35,16 +35,17 @@ export default {
             method: 'put'
         })
     },
-    passOrder(data) {
+    passOrder(data){
         return request({
-            url: '/order/classroom/pass',
+            url: '/order/classroom/audit/pass',
             method: 'put',
             data
         })
     },
-    noPassOrder(data) {
+
+    noPassOrder(data){
         return request({
-            url: '/order/classroom/nopass',
+            url: '/order/classroom/audit/nopass',
             method: 'put',
             data
         })

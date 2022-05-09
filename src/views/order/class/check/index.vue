@@ -41,7 +41,7 @@
     </el-form>
 
     <el-row :gutter="10" style="margin-bottom: 8px">
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="primary"
           plain
@@ -62,7 +62,7 @@
           @click="handleMorePass(false)"
           >不通过</el-button
         >
-      </el-col>
+      </el-col> -->
       <div class="top-right-btn">
         <el-radio-group v-model="display" size="mini" @change="getList">
           <el-radio-button label="待办"></el-radio-button>
@@ -167,18 +167,8 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button
-          v-if="display == '待办'"
-          type="primary"
-          @click="handlePass(true)"
-          >通 过</el-button
-        >
-        <el-button
-          v-if="display == '待办'"
-          type="danger"
-          @click="handlePass(false)"
-          >不 通 过</el-button
-        >
+        <el-button  v-if="display == '待办'" type="primary" @click="auditOrder(true)">通 过</el-button>
+        <el-button  v-if="display == '待办'" type="danger" @click="auditOrder(false)">不 通 过</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -322,25 +312,52 @@ export default {
       this.pojo = row;
       this.show = true;
     },
+
     // 通过
-    handlePass(pass) {
-      this.$refs["pojoForm"].validate((valid) => {
-        if (valid) {
-          const orderAudit = this.pojo.orderAudit[0];
-          orderAudit.reviewRemark = this.pojo.reviewRemark;
-          if (pass) {
-            orderApi.passOrder(orderAudit).then((res) => {
+    // handlePass(pass) {
+    //   this.$refs["pojoForm"].validate((valid) => {
+    //     if (valid) {
+    //       const orderAudit = this.pojo.orderAudit[0];
+    //       orderAudit.reviewRemark = this.pojo.reviewRemark;
+    //       if (pass) {
+    //         orderApi.passOrder(orderAudit).then((res) => {
+    //           this.msgSuccess(res.message);
+    //           this.cancel();
+    //         });
+    //       } else {
+    //       }
+    //     }
+    //   });
+    // },
+    // handleMorePass(pass) {
+    //   this.showMore = true;
+    // },
+
+    auditOrder(flag) {
+      this.$refs.pojoForm.validate((valid)=>{
+        if(valid){
+          this.pojo.orderRecordId = this.pojo.uuid;
+          this.pojo.type = this.pojo.orderStatus == "6"?"1":"2";
+          if(flag){
+            orderApi.passOrder(this.pojo).then((res)=>{
               this.msgSuccess(res.message);
-              this.cancel();
-            });
-          } else {
+              this.show = false;
+              this.getList()
+            })
+          }else{
+            orderApi.noPassOrder(this.pojo).then((res)=>{
+              this.msgSuccess(res.message);
+              this.show = false;
+              this.getList()
+            })
           }
+
         }
-      });
+      })
     },
-    handleMorePass(pass) {
-      this.showMore = true;
-    },
+
+  
+
 
     // 取消按钮
     cancel() {
