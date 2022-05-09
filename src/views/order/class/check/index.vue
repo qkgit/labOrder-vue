@@ -48,7 +48,7 @@
           icon="el-icon-check"
           size="mini"
           :disabled="multiple"
-          @click="handleAdd"
+          @click="handleMorePass(true)"
           >通过</el-button
         >
       </el-col>
@@ -59,7 +59,7 @@
           icon="el-icon-close"
           size="mini"
           :disabled="multiple"
-          @click="handleDelete"
+          @click="handleMorePass(false)"
           >不通过</el-button
         >
       </el-col>
@@ -128,15 +128,14 @@
           </el-col>
         </el-row>
         <el-row>
-            <el-form-item label="预约时间" prop="orderDate">
-              {{
-                parseTime(pojo.orderDate, "{y}-{m}-{d} 周{a}") +
-                "  第" +
-                digital2Chinese(pojo.orderNode) +
-                "节课"
-              }}
-            </el-form-item>
-         
+          <el-form-item label="预约时间" prop="orderDate">
+            {{
+              parseTime(pojo.orderDate, "{y}-{m}-{d} 周{a}") +
+              "  第" +
+              digital2Chinese(pojo.orderNode) +
+              "节课"
+            }}
+          </el-form-item>
         </el-row>
         <el-row>
           <el-form-item label="预约说明" prop="remark">
@@ -144,7 +143,7 @@
           </el-form-item>
         </el-row>
         <el-row>
-          <el-form-item label="审核意见" prop="reviewRemark">
+          <el-form-item label="审核意见"  prop="reviewRemark">
             <el-input
               v-if="display == '待办'"
               type="textarea"
@@ -153,7 +152,7 @@
               v-model="pojo.reviewRemark"
             >
             </el-input>
-            <div v-else style="margin-top: 30px">
+            <!-- <div v-else style="margin-top: 30px">
               <div v-for="(review, i) in pojo.orderAudit" :key="i">
                 <p style="margin: 0; font-weight: 600">
                   {{ review.reviewRemark }}
@@ -163,16 +162,44 @@
                   {{ review.reviewUser + " " + dateFormat(review.reviewTime) }}
                 </p>
               </div>
-            </div>
+            </div> -->
           </el-form-item>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button  v-if="display == '待办'" type="primary" @click="cancel">通 过</el-button>
-        <el-button  v-if="display == '待办'" type="danger" @click="cancel">不 通 过</el-button>
+        <el-button
+          v-if="display == '待办'"
+          type="primary"
+          @click="handlePass(true)"
+          >通 过</el-button
+        >
+        <el-button
+          v-if="display == '待办'"
+          type="danger"
+          @click="handlePass(false)"
+          >不 通 过</el-button
+        >
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- <el-dialog title="批量操作" :visible.sync="showMore" width="40%">
+      <el-form ref="moreAuditForm" :rules="moreRules" label-width="80px">
+        <el-form-item label="审核意见" prop="moreReviewRemark">
+          <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="请输入审核意见"
+            v-model="reviewRemark"
+          >
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="cancelMore">确 认</el-button>
+        <el-button @click="cancelMore">取 消</el-button>
+      </div>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -219,9 +246,16 @@ export default {
         },
       },
       show: false,
+      showMore: false,
       pojo: {},
+      
       rules: {
         reviewRemark: [
+          { required: true, message: "审核意见不能为空", trigger: "blur" },
+        ],
+      },
+      moreRules: {
+        moreReviewRemark: [
           { required: true, message: "审核意见不能为空", trigger: "blur" },
         ],
       },
@@ -247,7 +281,6 @@ export default {
           this.getList();
         });
     },
-
     // 查询
     getList() {
       this.loading = true;
@@ -278,7 +311,9 @@ export default {
         remark: undefined,
         reviews: undefined,
         createTime: undefined,
+        reviewRemark: undefined,
       };
+     
       this.resetForm("pojoForm");
     },
     // 查看预约信息
@@ -287,32 +322,34 @@ export default {
       this.pojo = row;
       this.show = true;
     },
-
-    // 取消预约
-    handleCancel(row) {
-      console.log(row);
-      this.$confirm("确认取消这个预约吗？", "提示", {
-        cancelButtonText: "取消",
-        confirmButtonText: "确认",
-        type: "warning",
-      })
-        .then(function () {
-          return orderApi.cencelOrder(row.uuid);
-        })
-        .then((response) => {
-          this.msgSuccess(response.message);
-          this.getList();
-        })
-        .catch(() => {});
+    // 通过
+    handlePass(pass) {
+      this.$refs["pojoForm"].validate((valid) => {
+        if (valid) {
+          const orderAudit = this.pojo.orderAudit[0];
+          orderAudit.reviewRemark = this.pojo.reviewRemark;
+          if (pass) {
+            orderApi.passOrder(orderAudit).then((res) => {
+              this.msgSuccess(res.message);
+              this.cancel();
+            });
+          } else {
+          }
+        }
+      });
     },
-
-    // todo 删除预约记录
-    handleDelete(row) {},
+    handleMorePass(pass) {
+      this.showMore = true;
+    },
 
     // 取消按钮
     cancel() {
       this.show = false;
       this.reset();
+    },
+    cancelMore() {
+      this.showMore = false;
+      this.reviewRemark = undefined;
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
