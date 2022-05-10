@@ -236,7 +236,6 @@ export default {
 
     // 取消预约
     handleCancel(row) {
-      console.log(row);
       this.$confirm("确认取消这个预约吗？", "提示", {
         cancelButtonText: "取消",
         confirmButtonText: "确认",

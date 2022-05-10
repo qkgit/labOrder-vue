@@ -11,7 +11,7 @@
       >
         <br><br>
         <div class="title_text">
-          <div class="title">实验室预约管理系统</div>
+          <div class="title">教室预约管理系统</div>
         </div>
 
         <el-form-item prop="username">
@@ -122,7 +122,7 @@ export default {
   width: 100%;
   height: 600px;
   background: url("../../assets/login(1).jpg");
-  overflow: hidden;
+  overflow: auto;
 }
 .login-form {
   margin-top: 70px;
