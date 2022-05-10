@@ -37,51 +37,52 @@
       </el-form-item>
     </el-form>
     <el-divider></el-divider>
-    <el-card shadow="never" style="width: 15%; float: right">
-      <div slot="header" class="clearfix">
-        <span>说明</span>
-      </div>
-      <p><el-tag>教室正常 可预约</el-tag></p>
-      <p><el-tag type="info">教室有课/关闭 不可预约</el-tag></p>
-      <p><el-tag type="success">预约成功</el-tag></p>
-      <p><el-tag type="danger">预约失败/教室已满</el-tag></p>
-      <p><el-tag type="warning">预约审核中</el-tag></p>
-    </el-card>
-    <div style="overflow: auto;">
+    <div style="overflow: auto">
       <div
-      v-loading="loading"
-      :class="level > 1 ? 'room_background_2' : 'room_background'"
-    >
-      <el-card
-        v-for="(item, index) in classroomList"
-        :key="index"
-        :class="'room_' + item.roomAddress + ' orderStatus_' + item.orderStatus"
-        shadow="hover"
-        body-style="padding: 0;"
-        @click.native="handleOrder(item.roomAddress)"
+        v-loading="loading"
+        :class="level > 1 ? 'room_background_2' : 'room_background'"
       >
-        <p
-          style="
-            font-size: 14px;
-            line-height: 23px;
-            text-align: center;
-            font-weight: bold;
-            margin: 0;
+        <el-card
+          v-for="(item, index) in classroomList"
+          :key="index"
+          :class="
+            'room_' + item.roomAddress + ' orderStatus_' + item.orderStatus
           "
+          shadow="hover"
+          body-style="padding: 0;"
+          @click.native="handleOrder(item.roomAddress)"
         >
-          {{ item.roomName }}
-        </p>
-        <p v-if="item.orderStatus != 1" style="margin: 0">
-          人数:{{ item.orderNum }}/{{ item.roomCap }}
-        </p>
-        <p v-else-if="item.table != null" style="margin: 0">
-          {{ item.table.course.name }}/{{ item.table.dept.deptName }}
-        </p>
-        <p v-else style="margin: 0">教室已关闭</p>
+          <p
+            style="
+              font-size: 14px;
+              line-height: 23px;
+              text-align: center;
+              font-weight: bold;
+              margin: 0;
+            "
+          >
+            {{ item.roomName }}
+          </p>
+          <p v-if="item.orderStatus != 1" style="margin: 0">
+            人数:{{ item.orderNum }}/{{ item.roomCap }}
+          </p>
+          <p v-else-if="item.table != null" style="margin: 0">
+            {{ item.table.course.name }}/{{ item.table.dept.deptName }}
+          </p>
+          <p v-else style="margin: 0">教室已关闭</p>
+        </el-card>
+      </div>
+      <el-card shadow="never" style="width: 230px; float: right">
+        <div slot="header" class="clearfix">
+          <span>说明</span>
+        </div>
+        <p><el-tag>教室正常 可预约</el-tag></p>
+        <p><el-tag type="info">教室有课/关闭 不可预约</el-tag></p>
+        <p><el-tag type="success">预约成功</el-tag></p>
+        <p><el-tag type="danger">预约失败/教室已满</el-tag></p>
+        <p><el-tag type="warning">预约审核中</el-tag></p>
       </el-card>
     </div>
-    </div>
-    
 
     <el-dialog title="添加预约" :visible.sync="show" width="30%">
       <el-form
@@ -123,7 +124,6 @@
 import courseApi from "@/api/system/course";
 import orderApi from "@/api/system/classroomOrder";
 import store from "@/store";
-
 
 export default {
   data() {
@@ -189,15 +189,15 @@ export default {
           this.timeList = defaultTime.times;
         })
         .then(() => {
-          let date = new Date()
-          date.setTime(date.getTime() + 3600 * 1000 * 24)
+          let date = new Date();
+          date.setTime(date.getTime() + 3600 * 1000 * 24);
           // 日期
           if (userRoles.includes("1")) {
-            date.setTime(date.getTime() + 3600 * 1000 * 24 * 7)
-          } 
-           
+            date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
+          }
+
           this.queryParam.orderDate = date;
-          
+
           // 星期
           const wk = new Date().getDay();
           this.queryParam.orderWeek = wk;
