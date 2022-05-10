@@ -47,7 +47,8 @@
       <p><el-tag type="danger">预约失败/教室已满</el-tag></p>
       <p><el-tag type="warning">预约审核中</el-tag></p>
     </el-card>
-    <div
+    <div style="overflow: auto;">
+      <div
       v-loading="loading"
       :class="level > 1 ? 'room_background_2' : 'room_background'"
     >
@@ -79,6 +80,8 @@
         <p v-else style="margin: 0">教室已关闭</p>
       </el-card>
     </div>
+    </div>
+    
 
     <el-dialog title="添加预约" :visible.sync="show" width="30%">
       <el-form
