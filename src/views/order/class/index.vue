@@ -7,6 +7,7 @@
           type="date"
           placeholder="选择预约日期"
           :picker-options="pickerOptions"
+          value-format="yyyy-MM-dd"
         >
         </el-date-picker>
       </el-form-item>
@@ -157,13 +158,20 @@ export default {
           const endDate = new Date();
           startDate.setTime(startDate.getTime());
           endDate.setTime(endDate.getTime() + 3600 * 1000 * 24 * 7);
+          // console.log('start',startDate)
+          // console.log('end',endDate)
           var userRoles = store.getters.roles;
           if (userRoles.includes("1")) {
-            return time.getTime() < endDate;
+            return time.getTime() < endDate.getTime();
           } else if (userRoles.includes("2")) {
-            return time.getTime() < startDate || time.getTime() > endDate;
+            // console.log(2)
+            // console.log(time.getTime())
+            // console.log(startDate.getTime())
+            // console.log(endDate.getTime())
+            console.log(time.getTime() < startDate.getTime() || time.getTime() > endDate.getTime())
+            return time.getTime() < startDate.getTime() || time.getTime() > endDate.getTime();
           }
-          return time.getTime() < startDate;
+          return time.getTime() < startDate.getTime();
         },
       },
       rules: {
@@ -196,7 +204,7 @@ export default {
             date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
           }
 
-          this.queryParam.orderDate = date;
+          this.queryParam.orderDate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
 
           // 星期
           const wk = new Date().getDay();
@@ -254,7 +262,7 @@ export default {
         alert = "已经预约请等待审核结果!";
       } else if (room.orderStatus == 8) {
         alert = "已经成功预约该教室,不可重复预约!";
-      }
+      } 
       if (alert != "") {
         this.$alert(alert, "提示", {
           confirmButtonText: "确定",
