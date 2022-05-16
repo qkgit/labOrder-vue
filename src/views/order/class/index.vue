@@ -158,17 +158,10 @@ export default {
           const endDate = new Date();
           startDate.setTime(startDate.getTime());
           endDate.setTime(endDate.getTime() + 3600 * 1000 * 24 * 7);
-          // console.log('start',startDate)
-          // console.log('end',endDate)
           var userRoles = store.getters.roles;
           if (userRoles.includes("1")) {
             return time.getTime() < endDate.getTime();
           } else if (userRoles.includes("2")) {
-            // console.log(2)
-            // console.log(time.getTime())
-            // console.log(startDate.getTime())
-            // console.log(endDate.getTime())
-            console.log(time.getTime() < startDate.getTime() || time.getTime() > endDate.getTime())
             return time.getTime() < startDate.getTime() || time.getTime() > endDate.getTime();
           }
           return time.getTime() < startDate.getTime();
@@ -240,6 +233,10 @@ export default {
     },
     getList() {
       this.loading = true;
+      
+      const week =  new Date(this.queryParam.orderDate).getDay();
+      this.queryParam.orderWeek = week;
+      
       orderApi.getClassroomCourseList(this.queryParam).then((res) => {
         this.classroomList = res.data;
         this.level = this.queryParam.level;
